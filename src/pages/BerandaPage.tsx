@@ -8,7 +8,7 @@ import { useApp } from '../context/AppContext';
 import { SUBJECTS } from '../data/seedData';
 import { StudentPerformanceProgress } from '../components/StudentPerformanceProgress';
 import { LiveMonitoringCard } from '../components/LiveMonitoringCard';
-import { doesSessionMatchStudent, safeTimestampMs } from '../utils/sheetsSync';
+import { doesSessionMatchStudent, filterPublishedPackages, safeTimestampMs } from '../utils/sheetsSync';
 import {
   BookOpen,
   Calendar,
@@ -57,6 +57,7 @@ export const BerandaPage: React.FC = () => {
         safeTimestampMs(a.waktuSelesai || a.waktuMulai)
     );
   const latestSession = studentSessions[0];
+  const publishedPackages = filterPublishedPackages(packages);
 
   // Calculate student average per subject
   const getSubjectAverage = (mapelId: string) => {
@@ -190,45 +191,51 @@ export const BerandaPage: React.FC = () => {
                     onClick={() => setActiveView('murid-paket')}
                     className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
                   >
-                    Lihat Semua ({packages.length})
+                    Lihat Semua ({publishedPackages.length})
                     <ArrowRight className="h-3 w-3" />
                   </button>
                 </div>
 
                 <div className="space-y-3">
-                  {packages.slice(0, 3).map((pkg) => {
-                    return (
-                      <div
-                        key={pkg.id}
-                        className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                            <span className="font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                              {pkg.mapelId.replace('_', ' ')}
-                            </span>
-                            <span>·</span>
-                            <span>{pkg.durasiMenit} Menit</span>
-                            <span>·</span>
-                            <span>{pkg.soalIds.length} Butir Soal</span>
-                          </div>
-                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                            {pkg.judul}
-                          </h3>
-                          <p className="text-xs text-slate-500 line-clamp-1">{pkg.deskripsi}</p>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => startExam(pkg.id)}
-                          className="flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors shrink-0"
+                  {publishedPackages.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-500">
+                      Belum ada paket ujian yang diterbitkan oleh guru.
+                    </div>
+                  ) : (
+                    publishedPackages.slice(0, 3).map((pkg) => {
+                      return (
+                        <div
+                          key={pkg.id}
+                          className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                         >
-                          <Play className="h-3 w-3 fill-white" />
-                          <span>Mulai Ujian</span>
-                        </button>
-                      </div>
-                    );
-                  })}
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                              <span className="font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                {pkg.mapelId.replace('_', ' ')}
+                              </span>
+                              <span>·</span>
+                              <span>{pkg.durasiMenit} Menit</span>
+                              <span>·</span>
+                              <span>{pkg.soalIds.length} Butir Soal</span>
+                            </div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                              {pkg.judul}
+                            </h3>
+                            <p className="text-xs text-slate-500 line-clamp-1">{pkg.deskripsi}</p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => startExam(pkg.id)}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors shrink-0"
+                          >
+                            <Play className="h-3 w-3 fill-white" />
+                            <span>Mulai Ujian</span>
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 

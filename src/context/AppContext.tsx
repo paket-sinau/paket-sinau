@@ -34,13 +34,17 @@ import {
   buildUpdateMonitoringPayload,
   isMonitoringEntryActive,
   mapSheetNilaiToSession,
+  mergePackagesWithPendingLocal,
   mergeSheetNilaiSessions,
   mergeUsersWithAdminFallback,
+  reconcilePackagesFromSheet,
   reconcilePackagesWithSheetQuestions,
+  sanitizeQuestionPilgan,
 } from '../utils/sheetsSync';
 import {
   fetchSheetsDatabase,
   submitNilaiToSheets,
+  syncPaketToSheets,
   syncPesertaToSheets,
   syncSoalToSheets,
   updateMonitoringToSheets,
@@ -151,7 +155,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEY_PREFIX = 'paketsinau_cbt_sd_v2_';
-const SEED_VERSION = 'tka_mtk_sd_2026_v1';
+const SEED_VERSION = 'tka_mtk_sd_2026_4opsi_v1';
 const FALLBACK_ADMINS: User[] = INITIAL_USERS.filter((u) => u.role === 'admin');
 
 function migrateSeedDataIfNeeded() {
@@ -163,7 +167,9 @@ function migrateSeedDataIfNeeded() {
     const savedQuestionsRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}questions`);
     if (savedQuestionsRaw) {
       const savedQuestions: Question[] = JSON.parse(savedQuestionsRaw);
-      const nonOldMtk = savedQuestions.filter((q) => !q.id.startsWith('mtk-'));
+      const nonOldMtk = savedQuestions
+        .filter((q) => !q.id.startsWith('mtk-'))
+        .map(sanitizeQuestionPilgan);
       const newMtk = INITIAL_QUESTIONS.filter((q) => q.id.startsWith('mtk-'));
       localStorage.setItem(`${STORAGE_KEY_PREFIX}questions`, JSON.stringify([...newMtk, ...nonOldMtk]));
     }
@@ -265,7 +271,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [questions, setQuestions] = useState<Question[]>(() => {
     try {
       const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}questions`);
-      return saved ? JSON.parse(saved) : INITIAL_QUESTIONS;
+      return saved ? (JSON.parse(saved) as Question[]).map(sanitizeQuestionPilgan) : INITIAL_QUESTIONS;
     } catch {
       return INITIAL_QUESTIONS;
     }
@@ -351,6 +357,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   selectedSessionIdRef.current = selectedSessionId;
   const submittingSessionIdsRef = useRef<Set<string>>(new Set());
   const isRefreshingMonitoringRef = useRef(false);
+  const pendingPaketUpsertsRef = useRef<Set<string>>(
+    (() => {
+      try {
+        const raw = localStorage.getItem(`${STORAGE_KEY_PREFIX}paket_pending_upserts`);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return new Set<string>(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        return new Set<string>();
+      }
+    })()
+  );
+  const pendingPaketDeletesRef = useRef<Set<string>>(
+    (() => {
+      try {
+        const raw = localStorage.getItem(`${STORAGE_KEY_PREFIX}paket_pending_deletes`);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return new Set<string>(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        return new Set<string>();
+      }
+    })()
+  );
+
+  const persistPendingPaketIds = useCallback(() => {
+    try {
+      localStorage.setItem(
+        `${STORAGE_KEY_PREFIX}paket_pending_upserts`,
+        JSON.stringify(Array.from(pendingPaketUpsertsRef.current))
+      );
+      localStorage.setItem(
+        `${STORAGE_KEY_PREFIX}paket_pending_deletes`,
+        JSON.stringify(Array.from(pendingPaketDeletesRef.current))
+      );
+    } catch {
+      // Abaikan kegagalan storage
+    }
+  }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -436,14 +479,72 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setStimuli(mergedStimuli);
         }
 
-        let nextPackages = packagesRef.current;
+        let latestQuestions = questionsRef.current;
         if (result.questions.length > 0) {
-          questionsRef.current = result.questions;
-          setQuestions(result.questions);
+          const sanitizedSheetQuestions = result.questions.map(sanitizeQuestionPilgan);
+          latestQuestions = sanitizedSheetQuestions;
+          questionsRef.current = sanitizedSheetQuestions;
+          setQuestions(sanitizedSheetQuestions);
+        }
 
+        const isGuruOrAdmin =
+          currentUserRef.current?.role === 'guru' ||
+          currentUserRef.current?.role === 'admin';
+        const hasPendingLocalPaket =
+          pendingPaketUpsertsRef.current.size > 0 ||
+          pendingPaketDeletesRef.current.size > 0;
+
+        let nextPackages = packagesRef.current;
+        let pushedLocalPackages = false;
+
+        if (
+          isGuruOrAdmin &&
+          !silent &&
+          (hasPendingLocalPaket ||
+            (result.packages.length === 0 && packagesRef.current.length > 0))
+        ) {
+          const mergedLocalPackages =
+            result.packages.length > 0
+              ? mergePackagesWithPendingLocal(
+                  result.packages,
+                  packagesRef.current,
+                  pendingPaketUpsertsRef.current,
+                  pendingPaketDeletesRef.current
+                )
+              : packagesRef.current;
+          nextPackages =
+            result.packages.length > 0
+              ? reconcilePackagesFromSheet(mergedLocalPackages, latestQuestions)
+              : reconcilePackagesWithSheetQuestions(mergedLocalPackages, latestQuestions);
+
+          packagesRef.current = nextPackages;
+          setPackages(nextPackages);
+
+          try {
+            await syncPaketToSheets(nextPackages);
+            pendingPaketUpsertsRef.current.clear();
+            pendingPaketDeletesRef.current.clear();
+            persistPendingPaketIds();
+            pushedLocalPackages = true;
+          } catch {
+            // Biarkan tanda pending tetap tersimpan agar bisa dikirim ulang pada sinkronisasi berikutnya
+          }
+        } else if (result.packages.length > 0) {
+          const basePackages = hasPendingLocalPaket
+            ? mergePackagesWithPendingLocal(
+                result.packages,
+                packagesRef.current,
+                pendingPaketUpsertsRef.current,
+                pendingPaketDeletesRef.current
+              )
+            : result.packages;
+          nextPackages = reconcilePackagesFromSheet(basePackages, latestQuestions);
+          packagesRef.current = nextPackages;
+          setPackages(nextPackages);
+        } else if (result.questions.length > 0) {
           nextPackages = reconcilePackagesWithSheetQuestions(
             packagesRef.current,
-            result.questions
+            latestQuestions
           );
           packagesRef.current = nextPackages;
           setPackages(nextPackages);
@@ -476,10 +577,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (
             result.users.length > 0 ||
             result.questions.length > 0 ||
-            sheetSessions.length > 0
+            result.packages.length > 0 ||
+            sheetSessions.length > 0 ||
+            pushedLocalPackages
           ) {
+            const uploadedNote = pushedLocalPackages
+              ? ' & mengunggah paket lokal ke Google Sheets'
+              : '';
             showToast(
-              `Sinkronisasi Google Sheets berhasil (${result.users.length} peserta, ${result.questions.length} soal, ${sheetSessions.length} riwayat nilai).`,
+              `Sinkronisasi Google Sheets berhasil (${result.users.length} peserta, ${result.questions.length} soal, ${nextPackages.length} paket ujian, ${sheetSessions.length} riwayat nilai)${uploadedNote}.`,
               'success'
             );
           } else {
@@ -500,7 +606,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsSyncingSheets(false);
       }
     },
-    [showToast]
+    [persistPendingPaketIds, showToast]
   );
 
   // Pembaruan khusus Live Monitoring (GET URL_DATABASE)
@@ -629,9 +735,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         showToast('Akun Anda dinonaktifkan oleh Administrator. Hubungi pihak sekolah.', 'error');
         return false;
       }
+      currentUserRef.current = user;
       setCurrentUser(user);
       setActiveView('beranda');
       showToast(`Selamat datang, ${user.nama}!`, 'success');
+      void syncFromGoogleSheets(true);
       return true;
     }
 
@@ -670,13 +778,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Question actions
   const saveQuestion = (q: Question) => {
+    const cleanQ = sanitizeQuestionPilgan(q);
     const now = new Date().toISOString();
     const prev = questionsRef.current;
-    const idx = prev.findIndex((item) => item.id === q.id);
+    const idx = prev.findIndex((item) => item.id === cleanQ.id);
     const next =
       idx >= 0
-        ? prev.map((item, i) => (i === idx ? { ...q, updatedAt: now } : item))
-        : [{ ...q, createdAt: q.createdAt || now, updatedAt: now }, ...prev];
+        ? prev.map((item, i) => (i === idx ? { ...cleanQ, updatedAt: now } : item))
+        : [{ ...cleanQ, createdAt: cleanQ.createdAt || now, updatedAt: now }, ...prev];
 
     questionsRef.current = next;
     setQuestions(next);
@@ -691,11 +800,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const saveQuestionsBulk = (newQuestions: Question[]) => {
     if (newQuestions.length === 0) return;
     const now = new Date().toISOString();
-    const normalized = newQuestions.map((q) => ({
-      ...q,
-      createdAt: q.createdAt || now,
-      updatedAt: now,
-    }));
+    const normalized = newQuestions.map((q) => {
+      const cleanQ = sanitizeQuestionPilgan(q);
+      return {
+        ...cleanQ,
+        createdAt: cleanQ.createdAt || now,
+        updatedAt: now,
+      };
+    });
     const next = [...normalized, ...questionsRef.current];
     questionsRef.current = next;
     setQuestions(next);
@@ -731,12 +843,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  // Helper sinkronisasi Kelola Paket Ujian ke Google Sheets (sync_paket)
+  const pushPackagesToSheets = useCallback(
+    async (
+      nextPackages: ExamPackage[],
+      successMsg: string,
+      syncedUpsertIds: string[] = [],
+      syncedDeleteIds: string[] = []
+    ) => {
+      try {
+        await syncPaketToSheets(nextPackages);
+        syncedUpsertIds.forEach((id) => pendingPaketUpsertsRef.current.delete(id));
+        syncedDeleteIds.forEach((id) => pendingPaketDeletesRef.current.delete(id));
+        persistPendingPaketIds();
+        setLastSyncedAt(new Date().toISOString());
+        showToast(successMsg, 'success');
+      } catch {
+        showToast(
+          'Perubahan paket ujian disimpan lokal, namun gagal disinkronkan ke Google Sheets.',
+          'error'
+        );
+      }
+    },
+    [persistPendingPaketIds, showToast]
+  );
+
   const deleteQuestion = (questionId: string) => {
     const nextQuestions = questionsRef.current.filter((q) => q.id !== questionId);
-    const nextPackages = packagesRef.current.map((pkg) => ({
-      ...pkg,
-      soalIds: pkg.soalIds.filter((id) => id !== questionId),
-    }));
+    const affectedPkgIds: string[] = [];
+    const nextPackages = packagesRef.current.map((pkg) => {
+      if (!pkg.soalIds.includes(questionId)) return pkg;
+      affectedPkgIds.push(pkg.id);
+      return {
+        ...pkg,
+        soalIds: pkg.soalIds.filter((id) => id !== questionId),
+      };
+    });
 
     questionsRef.current = nextQuestions;
     packagesRef.current = nextPackages;
@@ -749,6 +891,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       stimuliRef.current,
       'Soal dihapus & Bank Soal Google Sheets diperbarui.'
     );
+
+    if (affectedPkgIds.length > 0) {
+      affectedPkgIds.forEach((id) => pendingPaketUpsertsRef.current.add(id));
+      persistPendingPaketIds();
+      void syncPaketToSheets(nextPackages)
+        .then(() => {
+          affectedPkgIds.forEach((id) => pendingPaketUpsertsRef.current.delete(id));
+          persistPendingPaketIds();
+        })
+        .catch(() => {
+          // Biarkan tetap tercatat di pendingPaketUpsertsRef untuk sinkronisasi manual berikutnya
+        });
+    }
   };
 
   const saveStimulus = (stim: Stimulus) => {
@@ -766,20 +921,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const savePackage = (pkg: ExamPackage) => {
     const prev = packagesRef.current;
     const idx = prev.findIndex((p) => p.id === pkg.id);
+    const savedPkg: ExamPackage =
+      idx >= 0
+        ? pkg
+        : { ...pkg, createdAt: pkg.createdAt || new Date().toISOString() };
     const next =
       idx >= 0
-        ? prev.map((p, i) => (i === idx ? pkg : p))
-        : [{ ...pkg, createdAt: new Date().toISOString() }, ...prev];
+        ? prev.map((p, i) => (i === idx ? savedPkg : p))
+        : [savedPkg, ...prev];
+
     packagesRef.current = next;
     setPackages(next);
-    showToast(`Paket soal "${pkg.judul}" berhasil disimpan.`, 'success');
+
+    pendingPaketUpsertsRef.current.add(savedPkg.id);
+    pendingPaketDeletesRef.current.delete(savedPkg.id);
+    persistPendingPaketIds();
+
+    void pushPackagesToSheets(
+      next,
+      `Paket soal "${savedPkg.judul}" berhasil disimpan & disinkronkan ke Google Sheets.`,
+      [savedPkg.id],
+      []
+    );
   };
 
   const deletePackage = (pkgId: string) => {
     const next = packagesRef.current.filter((p) => p.id !== pkgId);
     packagesRef.current = next;
     setPackages(next);
-    showToast('Paket soal telah dihapus.', 'info');
+
+    pendingPaketUpsertsRef.current.delete(pkgId);
+    pendingPaketDeletesRef.current.add(pkgId);
+    persistPendingPaketIds();
+
+    void pushPackagesToSheets(
+      next,
+      'Paket soal telah dihapus & diperbarui di Google Sheets.',
+      [],
+      [pkgId]
+    );
   };
 
   // Exam CBT Execution
@@ -811,7 +991,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return arr;
     };
 
-    const questionOrder = pkg.acakSoal !== false ? shuffleArray(pkg.soalIds) : [...pkg.soalIds];
+    const availableQuestionIds = new Set(questionsRef.current.map((q) => q.id));
+    const resolvedSoalIds = pkg.soalIds.filter((id) => availableQuestionIds.has(id));
+    if (resolvedSoalIds.length === 0) {
+      showToast(
+        'Butir soal pada paket ini belum tersedia di Bank Soal. Silakan tekan Sinkronkan Data.',
+        'error'
+      );
+      return false;
+    }
+
+    const questionOrder =
+      pkg.acakSoal !== false ? shuffleArray(resolvedSoalIds) : [...resolvedSoalIds];
 
     const durationSeconds = pkg.durasiMenit * 60;
     const newSession: ExamSession = {
@@ -1161,6 +1352,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSettings(INITIAL_SETTINGS);
     setActiveSession(null);
     setCurrentUser(INITIAL_USERS[3]);
+    pendingPaketUpsertsRef.current.clear();
+    pendingPaketDeletesRef.current.clear();
+    persistPendingPaketIds();
     try {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}seed_version`, SEED_VERSION);
     } catch {

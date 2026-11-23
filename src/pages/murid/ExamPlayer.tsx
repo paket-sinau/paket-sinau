@@ -7,8 +7,9 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useApp } from '../../context/AppContext';
 import { MathRenderer } from '../../components/MathRenderer';
 import { ImageModal } from '../../components/ImageModal';
-import { Question, StudentAnswerItem, StudentQuestionState } from '../../types';
+import { PilganLabel, Question, StudentAnswerItem, StudentQuestionState } from '../../types';
 import { formatDuration } from '../../utils/examScoring';
+import { sanitizePilganOptions } from '../../utils/sheetsSync';
 import {
   Clock,
   AlertTriangle,
@@ -269,7 +270,7 @@ export const ExamPlayer: React.FC = () => {
   };
 
   // Answer handlers per model
-  const handleSelectPilgan = (label: 'A' | 'B' | 'C' | 'D' | 'E') => {
+  const handleSelectPilgan = (label: PilganLabel) => {
     const isDoubt = currentAnswer.state === 'ragu_ragu';
     saveStudentAnswer(currentQuestion.id, {
       ...currentAnswer,
@@ -578,10 +579,10 @@ export const ExamPlayer: React.FC = () => {
 
             {/* Answer Options Area: Renders according to question model */}
             <div className="pt-2">
-              {/* MODEL 1: PILGAN (Pilihan Ganda Biasa) */}
+              {/* MODEL 1: PILGAN (Pilihan Ganda Biasa 4 Opsi A-D) */}
               {currentQuestion.modelSoal === 'pilgan' && currentQuestion.pilganOptions && (
                 <div className="space-y-2.5">
-                  {currentQuestion.pilganOptions.map((opt) => {
+                  {sanitizePilganOptions(currentQuestion.pilganOptions).map((opt) => {
                     const isSelected = currentAnswer.pilganAnswer === opt.label;
                     return (
                       <button

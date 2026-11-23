@@ -8,6 +8,7 @@ import { useApp } from '../../context/AppContext';
 import { Question, QuestionModel, SubjectId, DifficultyLevel } from '../../types';
 import { SoalFormModal } from './SoalFormModal';
 import { MathRenderer } from '../../components/MathRenderer';
+import { normalizePilganKunci, sanitizePilganOptions } from '../../utils/sheetsSync';
 import {
   FileText,
   Plus,
@@ -124,14 +125,14 @@ export const BankSoalPage: React.FC = () => {
     setSortBy('topik_asc');
   };
 
-  // CSV Template download generator
+  // CSV Template download generator (4 opsi A-D standar SD)
   const downloadCsvTemplate = () => {
     const csvContent =
       'data:text/csv;charset=utf-8,' +
-      'mapelId,topik,tingkatKesulitan,modelSoal,teksSoal,opsiA,opsiB,opsiC,opsiD,opsiE,kunciJawaban,pembahasan\n' +
-      'matematika,Aljabar,mudah,pilgan,"Berapakah nilai x dari 3x - 6 = 9?","3","4","5","6","7",C,"3x = 15 => x = 5"\n' +
-      'bahasa_indonesia,Ejaan Baku,sedang,pilgan,"Manakah penulisan kata baku berikut?","Antar siswa","Antarsiswa","Antar-siswa","Antar Siswa","Antar/Siswa",B,"Antar merupakan bentuk terikat"\n' +
-      'ipa,Ekologi,mudah,pilgan,"Organisme pengurai pada ekosistem mangrove adalah...","Fitoplankton","Siput","Bakteri dan fungi","Elang","Kepiting",C,"Bakteri dan fungi berperan merombak serasah daun"';
+      'mapelId,topik,tingkatKesulitan,modelSoal,teksSoal,opsiA,opsiB,opsiC,opsiD,kunciJawaban,pembahasan\n' +
+      'matematika,Aljabar,mudah,pilgan,"Berapakah nilai x dari 3x - 6 = 9?","3","4","5","6",C,"3x = 15 => x = 5"\n' +
+      'bahasa_indonesia,Ejaan Baku,sedang,pilgan,"Manakah penulisan kata baku berikut?","Antar siswa","Antarsiswa","Antar-siswa","Antar Siswa",B,"Antar merupakan bentuk terikat"\n' +
+      'ipa,Ekologi,mudah,pilgan,"Organisme pengurai pada ekosistem mangrove adalah...","Fitoplankton","Siput","Bakteri dan fungi","Elang",C,"Bakteri dan fungi berperan merombak serasah daun"';
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -164,7 +165,12 @@ export const BankSoalPage: React.FC = () => {
       // Basic CSV split
       const parts = line.split(',').map((p) => p.replace(/^"|"$/g, '').trim());
       if (parts.length >= 7) {
-        const [mapel, topik, kesul, model, teks, optA, optB, optC, optD, optE, kunci, pbh] = parts;
+        const [mapel, topik, kesul, model, teks, optA, optB, optC, optD] = parts;
+        // Dukung format baru 11 kolom (tanpa opsiE) serta format lama 12 kolom (abaikan opsiE di index 9)
+        const isLegacy12Cols = parts.length >= 12;
+        const kunciRaw = isLegacy12Cols ? parts[10] : parts[9];
+        const pbh = isLegacy12Cols ? parts[11] : parts[10];
+
         const validModel: QuestionModel =
           model === 'mcma' || model === 'kategori' ? model : 'pilgan';
         const validMapel: SubjectId =
@@ -177,13 +183,12 @@ export const BankSoalPage: React.FC = () => {
           tingkatKesulitan: (kesul as DifficultyLevel) || 'sedang',
           modelSoal: validModel,
           teksSoal: teks || 'Teks Soal',
-          pilganKunci: (kunci as any) || 'A',
+          pilganKunci: normalizePilganKunci(kunciRaw),
           pilganOptions: [
             { label: 'A', teks: optA || 'Opsi A' },
             { label: 'B', teks: optB || 'Opsi B' },
             { label: 'C', teks: optC || 'Opsi C' },
             { label: 'D', teks: optD || 'Opsi D' },
-            { label: 'E', teks: optE || 'Opsi E' },
           ],
           pembahasan: pbh || '',
           pembuatId: 'usr-guru-import',
@@ -469,7 +474,7 @@ export const BankSoalPage: React.FC = () => {
                   {/* Key Info Preview */}
                   <div className="text-xs text-slate-500 flex flex-wrap items-center gap-3 pt-1">
                     {q.modelSoal === 'pilgan' && (
-                      <span>Kunci: <strong className="text-emerald-600 font-mono">Opsi {q.pilganKunci}</strong> ({q.pilganOptions?.length || 5} opsi)</span>
+                      <span>Kunci: <strong className="text-emerald-600 font-mono">Opsi {normalizePilganKunci(q.pilganKunci)}</strong> ({sanitizePilganOptions(q.pilganOptions).length || 4} opsi)</span>
                     )}
                     {q.modelSoal === 'mcma' && (
                       <span>Kunci: <strong className="text-purple-600 font-mono">{q.mcmaKunci?.join(', ')}</strong> ({q.mcmaOptions?.length} opsi)</span>
@@ -575,7 +580,7 @@ export const BankSoalPage: React.FC = () => {
             {/* Preview Options / Statements */}
             {previewQuestion.modelSoal === 'pilgan' && previewQuestion.pilganOptions && (
               <div className="space-y-2">
-                {previewQuestion.pilganOptions.map((opt) => {
+                {sanitizePilganOptions(previewQuestion.pilganOptions).map((opt) => {
                   const isKey = opt.label === previewQuestion.pilganKunci;
                   return (
                     <div
@@ -753,7 +758,7 @@ export const BankSoalPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-500">
-              Salin data dari tabel spreadsheet Anda atau unduh template CSV terlebih dahulu. Format kolom: <code>mapelId, topik, tingkatKesulitan, modelSoal, teksSoal, opsiA, opsiB, opsiC, opsiD, opsiE, kunciJawaban, pembahasan</code>
+              Salin data dari tabel spreadsheet Anda atau unduh template CSV terlebih dahulu. Format kolom: <code>mapelId, topik, tingkatKesulitan, modelSoal, teksSoal, opsiA, opsiB, opsiC, opsiD, kunciJawaban, pembahasan</code>
             </p>
 
             <textarea

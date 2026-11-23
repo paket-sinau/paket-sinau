@@ -495,7 +495,7 @@ export const PaketSoalManager: React.FC = () => {
                       onChange={(e) => setAcakOpsi(e.target.checked)}
                       className="rounded text-indigo-600"
                     />
-                    <span className="font-semibold">Acak Urutan Pilihan Jawaban (A-E)</span>
+                    <span className="font-semibold">Acak Urutan Pilihan Jawaban (A-D)</span>
                   </label>
                 </div>
 

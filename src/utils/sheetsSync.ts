@@ -7,9 +7,11 @@ import {
   DifficultyLevel,
   ExamPackage,
   ExamSession,
+  ExamStatus,
   KategoriStatement,
   MonitoringEntry,
   MonitoringStatus,
+  PilganLabel,
   PilganOption,
   Question,
   QuestionModel,
@@ -18,6 +20,72 @@ import {
   User,
   UserRole,
 } from '../types';
+
+export const PILGAN_LABELS: readonly PilganLabel[] = ['A', 'B', 'C', 'D'] as const;
+
+export function normalizePilganKunci(rawKunci?: unknown): PilganLabel {
+  const k = asString(rawKunci, 'A').toUpperCase().charAt(0);
+  return (PILGAN_LABELS as readonly string[]).includes(k) ? (k as PilganLabel) : 'A';
+}
+
+/**
+ * Membersihkan daftar opsi pilihan ganda agar hanya memuat maksimal 4 opsi (A-D).
+ * Opsi E dari data lama diabaikan tanpa menimbulkan error.
+ */
+export function sanitizePilganOptions(
+  rawOptions?: ReadonlyArray<{
+    label?: unknown;
+    teks?: unknown;
+    text?: unknown;
+    gambarUrl?: unknown;
+    gambar?: unknown;
+  }>
+): PilganOption[] {
+  if (!Array.isArray(rawOptions) || rawOptions.length === 0) return [];
+
+  const result: PilganOption[] = [];
+  const seen = new Set<PilganLabel>();
+
+  for (let i = 0; i < rawOptions.length; i++) {
+    const item = rawOptions[i];
+    if (!item || typeof item !== 'object') continue;
+
+    const rawLabel = asString(item.label).toUpperCase().charAt(0);
+    // Abaikan opsi E atau label lain di luar A-D secara eksplisit
+    if (rawLabel) {
+      if (!(PILGAN_LABELS as readonly string[]).includes(rawLabel)) continue;
+    } else if (i >= PILGAN_LABELS.length) {
+      continue;
+    }
+
+    const resolvedLabel = (rawLabel || PILGAN_LABELS[i]) as PilganLabel;
+    if (seen.has(resolvedLabel)) continue;
+    seen.add(resolvedLabel);
+
+    const rawImg = item.gambarUrl ?? item.gambar;
+    const sanitizedImg =
+      typeof rawImg === 'string' ? sanitizeImageUrl(rawImg) : undefined;
+
+    result.push({
+      label: resolvedLabel,
+      teks: asString(item.teks ?? item.text),
+      ...(sanitizedImg ? { gambarUrl: sanitizedImg } : {}),
+    });
+
+    if (result.length >= PILGAN_LABELS.length) break;
+  }
+
+  return result;
+}
+
+export function sanitizeQuestionPilgan(q: Question): Question {
+  if (q.modelSoal !== 'pilgan') return q;
+  return {
+    ...q,
+    pilganOptions: sanitizePilganOptions(q.pilganOptions),
+    pilganKunci: normalizePilganKunci(q.pilganKunci),
+  };
+}
 
 export interface SheetPesertaRow {
   id: string;
@@ -77,6 +145,11 @@ export interface SyncPesertaPayload {
 export interface SyncSoalPayload {
   action: 'sync_soal';
   soal: SheetSoalRow[];
+}
+
+export interface SyncPaketPayload {
+  action: 'sync_paket';
+  paket: ExamPackage[];
 }
 
 export interface UpdateMonitoringPayload {
@@ -267,6 +340,9 @@ export function mapQuestionToSheetSoal(
     ? stimuli.find((s) => s.id === q.stimulusId)
     : undefined;
 
+  const sanitizedPilganOptions =
+    q.modelSoal === 'pilgan' ? sanitizePilganOptions(q.pilganOptions) : undefined;
+
   const opsiPayload = {
     topik: q.topik,
     tingkatKesulitan: q.tingkatKesulitan,
@@ -277,7 +353,7 @@ export function mapQuestionToSheetSoal(
     kelas,
     pembuatId: q.pembuatId,
     pembuatNama: q.pembuatNama,
-    pilganOptions: q.pilganOptions,
+    pilganOptions: sanitizedPilganOptions,
     mcmaOptions: q.mcmaOptions,
     mcmaScoringMode: q.mcmaScoringMode,
     kategoriLabels: q.kategoriLabels,
@@ -287,7 +363,7 @@ export function mapQuestionToSheetSoal(
 
   let kunci = '';
   if (q.modelSoal === 'pilgan') {
-    kunci = q.pilganKunci || 'A';
+    kunci = normalizePilganKunci(q.pilganKunci);
   } else if (q.modelSoal === 'mcma') {
     kunci = (q.mcmaKunci || []).join(',');
   } else if (q.modelSoal === 'kategori') {
@@ -395,21 +471,9 @@ export function mapSheetSoalToQuestion(
     }
 
     if (Array.isArray(obj.pilganOptions)) {
-      const labels: ('A' | 'B' | 'C' | 'D' | 'E')[] = ['A', 'B', 'C', 'D', 'E'];
-      pilganOptions = obj.pilganOptions.map((o, idx) => {
-        const item = o as Record<string, unknown>;
-        const lbl = (asString(item.label, labels[idx] || 'A').toUpperCase().charAt(0) as
-          | 'A'
-          | 'B'
-          | 'C'
-          | 'D'
-          | 'E');
-        return {
-          label: labels.includes(lbl) ? lbl : labels[idx] || 'A',
-          teks: asString(item.teks ?? item.text),
-          gambarUrl: sanitizeImageUrl(item.gambarUrl ?? item.gambar),
-        };
-      });
+      pilganOptions = sanitizePilganOptions(
+        obj.pilganOptions as Array<Record<string, unknown>>
+      );
     }
 
     if (Array.isArray(obj.mcmaOptions)) {
@@ -453,32 +517,33 @@ export function mapSheetSoalToQuestion(
 
     // Also handle manual map format like { A: "Opsi 1", B: "Opsi 2" }
     if (!pilganOptions && !mcmaOptions && !kategoriPernyataan) {
-      const alphaKeys: ('A' | 'B' | 'C' | 'D' | 'E')[] = ['A', 'B', 'C', 'D', 'E'];
-      const mapped = alphaKeys
-        .filter((k) => obj[k] !== undefined)
-        .map((k) => ({ label: k, teks: asString(obj[k]) }));
-      if (mapped.length > 0) {
-        if (modelSoal === 'mcma') {
-          mcmaOptions = mapped.map((m) => ({ id: m.label, label: m.label, teks: m.teks }));
-        } else {
-          pilganOptions = mapped;
+      if (modelSoal === 'mcma') {
+        const mcmaAlphaKeys = ['A', 'B', 'C', 'D', 'E'] as const;
+        const mappedMcma = mcmaAlphaKeys
+          .filter((k) => obj[k] !== undefined)
+          .map((k) => ({ id: k, label: k, teks: asString(obj[k]) }));
+        if (mappedMcma.length > 0) {
+          mcmaOptions = mappedMcma;
+        }
+      } else {
+        const mappedPilgan = PILGAN_LABELS
+          .filter((k) => obj[k] !== undefined)
+          .map((k) => ({ label: k, teks: asString(obj[k]) }));
+        if (mappedPilgan.length > 0) {
+          pilganOptions = mappedPilgan;
         }
       }
     }
   } else if (Array.isArray(parsedOpsi)) {
-    const alphaKeys: ('A' | 'B' | 'C' | 'D' | 'E')[] = ['A', 'B', 'C', 'D', 'E'];
+    const alphaKeys = ['A', 'B', 'C', 'D', 'E'] as const;
     if (modelSoal === 'pilgan') {
-      pilganOptions = parsedOpsi.slice(0, 5).map((item, idx) => {
+      const normalizedArr = parsedOpsi.slice(0, 4).map((item, idx) => {
         if (item && typeof item === 'object') {
-          const o = item as Record<string, unknown>;
-          return {
-            label: (asString(o.label, alphaKeys[idx]) as 'A' | 'B' | 'C' | 'D' | 'E'),
-            teks: asString(o.teks ?? o.text),
-            gambarUrl: sanitizeImageUrl(o.gambarUrl ?? o.gambar),
-          };
+          return item as Record<string, unknown>;
         }
-        return { label: alphaKeys[idx], teks: asString(item) };
+        return { label: PILGAN_LABELS[idx], teks: asString(item) };
       });
+      pilganOptions = sanitizePilganOptions(normalizedArr);
     } else if (modelSoal === 'mcma') {
       mcmaOptions = parsedOpsi.slice(0, 5).map((item, idx) => {
         if (item && typeof item === 'object') {
@@ -515,12 +580,11 @@ export function mapSheetSoalToQuestion(
     }
   }
 
-  let pilganKunci: 'A' | 'B' | 'C' | 'D' | 'E' | undefined;
+  let pilganKunci: PilganLabel | undefined;
   let mcmaKunci: string[] | undefined;
 
   if (modelSoal === 'pilgan') {
-    const k = asString(rawKunci, 'A').toUpperCase().charAt(0);
-    pilganKunci = (['A', 'B', 'C', 'D', 'E'].includes(k) ? k : 'A') as 'A' | 'B' | 'C' | 'D' | 'E';
+    pilganKunci = normalizePilganKunci(rawKunci);
     if (!pilganOptions || pilganOptions.length === 0) {
       pilganOptions = [
         { label: 'A', teks: 'Opsi A' },
@@ -614,6 +678,302 @@ export function reconcilePackagesWithSheetQuestions(
       ? { ...pkg, soalIds: matchingSubjectIds }
       : pkg;
   });
+}
+
+function asBoolean(val: unknown, fallback: boolean): boolean {
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'number') return val !== 0;
+  if (typeof val === 'string') {
+    const s = val.trim().toLowerCase();
+    if (!s) return fallback;
+    if (['true', '1', 'ya', 'yes', 'aktif', 'on'].includes(s)) return true;
+    if (['false', '0', 'tidak', 'no', 'nonaktif', 'off'].includes(s)) return false;
+  }
+  return fallback;
+}
+
+function parseStringList(val: unknown): string[] {
+  if (Array.isArray(val)) {
+    return val.map((item) => asString(item)).filter(Boolean);
+  }
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item) => asString(item)).filter(Boolean);
+        }
+      } catch {
+        // Fallback ke pemisahan koma di bawah
+      }
+    }
+    return trimmed
+      .split(/[,;]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+export function normalizeExamStatus(rawStatus: unknown): ExamStatus {
+  const s = asString(rawStatus).toLowerCase();
+  if (s === 'draft' || s === 'konsep' || s === 'arsip') return 'draft';
+  if (
+    s === 'ditutup' ||
+    s === 'tutup' ||
+    s === 'closed' ||
+    s === 'selesai' ||
+    s === 'nonaktif'
+  ) {
+    return 'ditutup';
+  }
+  return 'terbit';
+}
+
+export function mapExamPackageToSheetPaket(pkg: ExamPackage): ExamPackage {
+  return {
+    id: pkg.id,
+    judul: pkg.judul,
+    mapelId: pkg.mapelId,
+    deskripsi: pkg.deskripsi || '',
+    durasiMenit: Number(pkg.durasiMenit) || 45,
+    bobotBenar: Number(pkg.bobotBenar ?? 4),
+    bobotSalah: Number(pkg.bobotSalah ?? 0),
+    bobotKosong: Number(pkg.bobotKosong ?? 0),
+    acakSoal: Boolean(pkg.acakSoal),
+    acakOpsi: Boolean(pkg.acakOpsi),
+    waktuBuka: pkg.waktuBuka || '2026-01-01T00:00:00.000Z',
+    waktuTutup: pkg.waktuTutup || '2026-12-31T23:59:00.000Z',
+    kelasAkses:
+      Array.isArray(pkg.kelasAkses) && pkg.kelasAkses.length > 0
+        ? [...pkg.kelasAkses]
+        : ['semua'],
+    kodeAkses: pkg.kodeAkses?.trim() || '',
+    soalIds: Array.isArray(pkg.soalIds) ? [...pkg.soalIds] : [],
+    status: normalizeExamStatus(pkg.status),
+    izinkanLihatPembahasan: Boolean(pkg.izinkanLihatPembahasan),
+    deteksiPindahTab: Boolean(pkg.deteksiPindahTab),
+    pembuatId: pkg.pembuatId || 'usr-guru-1',
+    pembuatNama: pkg.pembuatNama || 'Guru',
+    createdAt: pkg.createdAt || new Date().toISOString(),
+  };
+}
+
+export function mapSheetPaketToExamPackage(
+  raw: Record<string, unknown>,
+  index: number
+): ExamPackage | null {
+  let extra: Record<string, unknown> = {};
+  const rawExtra = raw.pengaturan_json ?? raw.pengaturan;
+  if (typeof rawExtra === 'string' && rawExtra.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(rawExtra);
+      if (parsed && typeof parsed === 'object') {
+        extra = parsed as Record<string, unknown>;
+      }
+    } catch {
+      // Abaikan pengaturan_json tidak valid
+    }
+  } else if (rawExtra && typeof rawExtra === 'object') {
+    extra = rawExtra as Record<string, unknown>;
+  }
+
+  const merged: Record<string, unknown> = { ...extra, ...raw };
+  const judul = asString(
+    merged.judul ?? merged.nama_paket ?? merged.paket_ujian ?? merged.title
+  );
+  const rawId = asString(merged.id ?? merged.ID ?? merged.paket_id);
+  if (!judul && !rawId) return null;
+
+  const id = rawId || `pkg-sheet-${slugifyId(judul) || index + 1}`;
+  const mapelId = normalizeSubjectId(
+    merged.mapelId ?? merged.mapel_id ?? merged.mapel
+  );
+  const deskripsi = asString(merged.deskripsi ?? merged.keterangan);
+  const durasiMenit = Math.max(
+    1,
+    Math.round(asNumber(merged.durasiMenit ?? merged.durasi_menit ?? merged.durasi, 45))
+  );
+  const bobotBenar = asNumber(merged.bobotBenar ?? merged.bobot_benar, 4);
+  const bobotSalah = asNumber(merged.bobotSalah ?? merged.bobot_salah, 0);
+  const bobotKosong = asNumber(merged.bobotKosong ?? merged.bobot_kosong, 0);
+  const acakSoal = asBoolean(merged.acakSoal ?? merged.acak_soal, true);
+  const acakOpsi = asBoolean(merged.acakOpsi ?? merged.acak_opsi, true);
+  const izinkanLihatPembahasan = asBoolean(
+    merged.izinkanLihatPembahasan ??
+      merged.izinkan_lihat_pembahasan ??
+      merged.lihat_pembahasan,
+    true
+  );
+  const deteksiPindahTab = asBoolean(
+    merged.deteksiPindahTab ?? merged.deteksi_pindah_tab ?? merged.anti_cheat,
+    true
+  );
+
+  const rawWaktuBuka = asString(merged.waktuBuka ?? merged.waktu_buka);
+  const rawWaktuTutup = asString(merged.waktuTutup ?? merged.waktu_tutup);
+  const rawCreatedAt = asString(merged.createdAt ?? merged.created_at);
+
+  const kelasList = parseStringList(
+    merged.kelasAkses ?? merged.kelas_akses ?? merged.kelas
+  );
+  const kelasAkses = kelasList.length > 0 ? kelasList : ['semua'];
+  const kodeAkses =
+    asString(merged.kodeAkses ?? merged.kode_akses ?? merged.token) || undefined;
+  const soalIds = parseStringList(
+    merged.soalIds ?? merged.soal_ids ?? merged.butir_soal ?? merged.soal
+  );
+  const status = normalizeExamStatus(
+    merged.status ?? merged.Status ?? merged.status_publikasi
+  );
+  const pembuatId = asString(
+    merged.pembuatId ?? merged.pembuat_id,
+    'usr-guru-1'
+  );
+  const pembuatNama = asString(
+    merged.pembuatNama ?? merged.pembuat_nama,
+    'Guru'
+  );
+
+  return {
+    id,
+    judul: judul || `Paket Ujian ${index + 1}`,
+    mapelId,
+    deskripsi,
+    durasiMenit,
+    bobotBenar,
+    bobotSalah,
+    bobotKosong,
+    acakSoal,
+    acakOpsi,
+    waktuBuka: rawWaktuBuka
+      ? parseSheetTimestamp(rawWaktuBuka)
+      : '2026-01-01T00:00:00.000Z',
+    waktuTutup: rawWaktuTutup
+      ? parseSheetTimestamp(rawWaktuTutup)
+      : '2026-12-31T23:59:00.000Z',
+    kelasAkses,
+    ...(kodeAkses ? { kodeAkses } : {}),
+    soalIds,
+    status,
+    izinkanLihatPembahasan,
+    deteksiPindahTab,
+    pembuatId,
+    pembuatNama,
+    createdAt: rawCreatedAt
+      ? parseSheetTimestamp(rawCreatedAt)
+      : new Date().toISOString(),
+  };
+}
+
+export function mapSheetPackages(rawList: unknown[]): ExamPackage[] {
+  const deduped = new Map<string, ExamPackage>();
+  rawList.forEach((item, idx) => {
+    if (!item || typeof item !== 'object') return;
+    const mapped = mapSheetPaketToExamPackage(item as Record<string, unknown>, idx);
+    if (!mapped) return;
+    deduped.set(mapped.id, mapped);
+  });
+  return Array.from(deduped.values());
+}
+
+/**
+ * Memastikan paket yang datang dari Google Sheets tetap menjaga daftar soalIds pilihan guru
+ * jika ID soalnya ada di Bank Soal, dan hanya mengisi otomatis bila soalIds kosong/tidak cocok sama sekali.
+ */
+export function reconcilePackagesFromSheet(
+  sheetPackages: ExamPackage[],
+  sheetQuestions: Question[]
+): ExamPackage[] {
+  if (sheetQuestions.length === 0) return sheetPackages;
+
+  const validIds = new Set(sheetQuestions.map((q) => q.id));
+
+  return sheetPackages.map((pkg) => {
+    const curatedValidIds = pkg.soalIds.filter((id) => validIds.has(id));
+    if (curatedValidIds.length > 0) {
+      return curatedValidIds.length === pkg.soalIds.length
+        ? pkg
+        : { ...pkg, soalIds: curatedValidIds };
+    }
+
+    const explicitlyTagged = sheetQuestions
+      .filter((q) => {
+        if (!q.paketUjian) return false;
+        const tags = q.paketUjian
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+          .filter(Boolean);
+        return (
+          tags.includes(pkg.id.toLowerCase()) ||
+          tags.includes(pkg.judul.toLowerCase())
+        );
+      })
+      .map((q) => q.id);
+
+    if (explicitlyTagged.length > 0) {
+      return { ...pkg, soalIds: explicitlyTagged };
+    }
+
+    const matchingSubjectIds = sheetQuestions
+      .filter((q) => pkg.mapelId === 'campuran' || q.mapelId === pkg.mapelId)
+      .map((q) => q.id);
+
+    return matchingSubjectIds.length > 0
+      ? { ...pkg, soalIds: matchingSubjectIds }
+      : pkg;
+  });
+}
+
+/**
+ * Menggabungkan daftar paket dari server dengan perubahan lokal yang belum tersinkron (offline/pending).
+ */
+export function mergePackagesWithPendingLocal(
+  sheetPackages: ExamPackage[],
+  localPackages: ExamPackage[],
+  pendingUpsertIds: ReadonlySet<string>,
+  pendingDeleteIds: ReadonlySet<string>
+): ExamPackage[] {
+  const localMap = new Map(localPackages.map((p) => [p.id, p]));
+  const result: ExamPackage[] = [];
+  const seenIds = new Set<string>();
+
+  sheetPackages.forEach((pkg) => {
+    if (pendingDeleteIds.has(pkg.id)) return;
+    if (pendingUpsertIds.has(pkg.id)) {
+      const localVersion = localMap.get(pkg.id);
+      if (localVersion) {
+        result.push(localVersion);
+        seenIds.add(localVersion.id);
+        return;
+      }
+    }
+    result.push(pkg);
+    seenIds.add(pkg.id);
+  });
+
+  const pendingAdditions: ExamPackage[] = [];
+  localPackages.forEach((localPkg) => {
+    if (
+      pendingUpsertIds.has(localPkg.id) &&
+      !pendingDeleteIds.has(localPkg.id) &&
+      !seenIds.has(localPkg.id)
+    ) {
+      pendingAdditions.push(localPkg);
+      seenIds.add(localPkg.id);
+    }
+  });
+
+  return [...pendingAdditions, ...result];
+}
+
+/**
+ * Memfilter hanya paket ujian dengan status publikasi 'terbit' untuk tampilan siswa.
+ */
+export function filterPublishedPackages(packages: ExamPackage[]): ExamPackage[] {
+  return packages.filter((pkg) => pkg.status === 'terbit');
 }
 
 export function buildSimpanNilaiPayload(

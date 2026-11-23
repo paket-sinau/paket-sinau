@@ -58,8 +58,10 @@ export interface Stimulus {
   gambarAlt?: string;
 }
 
+export type PilganLabel = 'A' | 'B' | 'C' | 'D';
+
 export interface PilganOption {
-  label: 'A' | 'B' | 'C' | 'D' | 'E';
+  label: PilganLabel;
   teks: string;
   gambarUrl?: string;
 }
@@ -86,7 +88,7 @@ export interface Question {
   
   // Model 1: PILGAN (Pilihan Ganda biasa - 1 jawaban benar)
   pilganOptions?: PilganOption[];
-  pilganKunci?: 'A' | 'B' | 'C' | 'D' | 'E';
+  pilganKunci?: PilganLabel;
 
   // Model 2: MCMA (Pilihan Ganda Kompleks - multi jawaban benar)
   mcmaOptions?: { id: string; label: string; teks: string; gambarUrl?: string }[];
@@ -139,7 +141,7 @@ export interface StudentAnswerItem {
   state: StudentQuestionState;
   
   // Jawaban untuk masing-masing model
-  pilganAnswer?: 'A' | 'B' | 'C' | 'D' | 'E';
+  pilganAnswer?: PilganLabel;
   mcmaAnswer?: string[]; // array label/id terpilih
   kategoriAnswer?: Record<string, string>; // statementId -> chosenCategory
 

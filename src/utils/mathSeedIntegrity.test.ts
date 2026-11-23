@@ -28,7 +28,12 @@ test('TKA Matematika SD 2026 seed integrity: 30 questions with valid keys and ex
     if (q.gambarUrl) assetRefs.push(q.gambarUrl);
 
     if (q.modelSoal === 'pilgan') {
-      assert.ok(q.pilganOptions && q.pilganOptions.length >= 4, `${q.id} harus punya min 4 opsi pilgan`);
+      assert.ok(q.pilganOptions && q.pilganOptions.length === 4, `${q.id} harus punya tepat 4 opsi pilgan (A-D)`);
+      assert.deepEqual(
+        q.pilganOptions.map((o) => o.label),
+        ['A', 'B', 'C', 'D'],
+        `${q.id} harus berlabel A, B, C, D`
+      );
       assert.ok(
         q.pilganOptions.some((o) => o.label === q.pilganKunci),
         `${q.id} pilganKunci ${q.pilganKunci} harus ada di pilganOptions`
@@ -131,3 +136,21 @@ test('ses-raditya-mtk-2 sample answers match new mtk-1..mtk-10 models', () => {
     assert.equal(ans.modelSoal, q.modelSoal, `Model jawaban ${qId} harus cocok dengan modelSoal`);
   }
 });
+
+test('Seluruh soal pilgan SD di seedData (MTK, BIND, IPA) tepat memiliki 4 opsi (A-D)', () => {
+  const pilganQuestions = INITIAL_QUESTIONS.filter((q) => q.modelSoal === 'pilgan');
+  assert.ok(pilganQuestions.length > 0);
+  for (const q of pilganQuestions) {
+    assert.equal(q.pilganOptions?.length, 4, `${q.id} harus memiliki tepat 4 opsi (A-D)`);
+    assert.deepEqual(
+      q.pilganOptions?.map((o) => o.label),
+      ['A', 'B', 'C', 'D'],
+      `${q.id} label harus ['A', 'B', 'C', 'D']`
+    );
+    assert.ok(
+      ['A', 'B', 'C', 'D'].includes(q.pilganKunci || ''),
+      `${q.id} pilganKunci harus A, B, C, atau D`
+    );
+  }
+});
+

@@ -1086,7 +1086,6 @@ Karena total peserta karya wisata $72$ siswa, maka banyak siswa kelas 6C $= 72 -
       { label: 'B', teks: 'Target bauran energi baru terbarukan dan akselerasi pertumbuhan PLTS di Indonesia.' },
       { label: 'C', teks: 'Keunggulan modul fotovoltaik impor dibandingkan modul produksi dalam negeri.' },
       { label: 'D', teks: 'Rendahnya efisiensi turbin angin lepas pantai di kawasan selatan Pulau Jawa.' },
-      { label: 'E', teks: 'Ketergantungan pasokan listrik Pulau Jawa pada bahan bakar fosil batu bara.' },
     ],
     pembahasan: `Paragraf pertama memfokuskan pembahasannya pada komitmen pemerintah mencapai target 34% bauran EBT pada 2030 serta akselerasi pesat PLTS yang didorong penurunan biaya modul surya. Opsi B paling merangkum inti gagasan tersebut.`,
     pembuatId: 'usr-guru-2',
@@ -1154,13 +1153,11 @@ Karena total peserta karya wisata $72$ siswa, maka banyak siswa kelas 6C $= 72 -
       { label: 'B', teks: 'Semua peserta ujian di larang membawa kalkulator, mau pun catatan rumus.' },
       { label: 'C', teks: 'Pemerintah Propinsi DKI Jakarta mengimbau warga agar menerapkan pola hidup higienis.' },
       { label: 'D', teks: 'Meskipun menghadapi medan yang berat, para peneliti berhasil mengidentifikasi varietas flora endemik tersebut.' },
-      { label: 'E', teks: 'Antar siswa harus saling bekerjasama untuk memajukan kualitas riset ilmiah sekolah.' },
     ],
     pembahasan: `Analisis kesalahan opsi lain:
 A: 'serba guna' seharusnya digabung 'serbaguna', gelar M.Sc seharusnya ada koma sebelum gelar 'Gunawan, M.Sc.'.
 B: 'di larang' harusnya dirangkai 'dilarang' (pasif), 'mau pun' seharusnya dirangkai 'maupun'.
 C: 'Propinsi' tidak baku, bentuk baku adalah 'Provinsi'.
-E: 'Antar siswa' seharusnya 'Antarsiswa' (bentuk terikat), 'bekerjasama' seharusnya 'bekerja sama' (terpisah).
 D adalah kalimat baku yang tepat tanpa kesalahan tanda baca maupun kata bentukan.`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
@@ -1208,7 +1205,6 @@ Simpulan yang paling valid dan niscaya benar adalah...`,
       { label: 'B', teks: 'Danu memiliki prestasi sains tingkat nasional.' },
       { label: 'C', teks: 'Danu diwajibkan mengulang ujian TKA tahun berikutnya.' },
       { label: 'D', teks: 'Skor TKA Danu mengalami kesalahan input administrasi panitia.' },
-      { label: 'E', teks: 'Semua siswa berprestasi sains nasional memiliki skor TKA di atas 750.' },
     ],
     pembahasan: `Bentuk logika disjungtif: $P \\lor Q$.
 Karena Danu lulus seleksi beasiswa unggulan, maka Danu pasti memenuhi syarat (Skor > 750 ATAU Prestasi Sains Nasional).
@@ -1255,7 +1251,6 @@ Diketahui skor Danu 710 (tidak > 750), maka secara silogisme disjungtif syarat k
       { label: 'B', teks: 'Penurunan kapasitas daya akibat usia pakai turbin' },
       { label: 'C', teks: 'Ketidaksinambungan atau ketersediaan daya yang terputus-putus tergantung cuaca' },
       { label: 'D', teks: 'Kebocoran arus tegangan tinggi pada transmisi saluran kabel' },
-      { label: 'E', teks: 'Kelebihan beban pasokan listrik ke jaringan gardu induk' },
     ],
     pembahasan: `Kata 'intermiten' (intermittent) bermakna berselang-selang, berlangsung secara tidak berkesinambungan, atau terputus-putus pada selang waktu tertentu. Dalam pembangkit EBT surya/angin, daya hanya terpasok jika ada sinar matahari atau hembusan angin.`,
     pembuatId: 'usr-guru-2',
@@ -1324,7 +1319,6 @@ Diketahui skor Danu 710 (tidak > 750), maka secara silogisme disjungtif syarat k
       { label: 'B', teks: 'Siput mangrove, kepiting sesarmid, dan ikan belanak' },
       { label: 'C', teks: 'Ikan barakuda dan hiu banteng' },
       { label: 'D', teks: 'Pohon bakau merah (*Rhizophora mangle*)' },
-      { label: 'E', teks: 'Burung kuntul biru predator' },
     ],
     pembahasan: `Konsumen primer pada rantai makanan mangrove mengonsumsi serasah/detritus basal dari produsen. Bagan wacana 1 secara jelas meletakkan siput mangrove, kepiting sesarmid, dan ikan belanak pada Tingkat Trofik 2 (Level 2: Primary Consumers / Detritivores).`,
     pembuatId: 'usr-guru-1',
@@ -1393,7 +1387,6 @@ Gaya normal tegak lurus bidang: $N = mg \\cos(30^\\circ) = 40 \\times \\frac{\\s
       { label: 'B', teks: '$5.60\\text{ liter}$' },
       { label: 'C', teks: '$11.20\\text{ liter}$' },
       { label: 'D', teks: '$22.40\\text{ liter}$' },
-      { label: 'E', teks: '$44.80\\text{ liter}$' },
     ],
     pembahasan: `$Mr\\ O_2 = 2 \\times 16 = 32\\text{ g/mol}$.
 Jumlah mol $n = \\frac{\\text{massa}}{Mr} = \\frac{8}{32} = 0.25\\text{ mol}$.
@@ -1439,7 +1432,6 @@ Pada STP, $V = n \\times 22.4\\text{ L/mol} = 0.25 \\times 22.4 = 5.60\\text{ li
       { label: 'B', teks: '$2.0\\ \\Omega$' },
       { label: 'C', teks: '$3.0\\ \\Omega$' },
       { label: 'D', teks: '$4.0\\ \\Omega$' },
-      { label: 'E', teks: '$22.0\\ \\Omega$' },
     ],
     pembahasan: `$\\frac{1}{R_p} = \\frac{1}{6} + \\frac{1}{12} + \\frac{1}{4} = \\frac{2 + 1 + 3}{12} = \\frac{6}{12} = \\frac{1}{2}$.
 Maka $R_p = 2.0\\ \\Omega$.`,
@@ -1484,7 +1476,6 @@ Maka $R_p = 2.0\\ \\Omega$.`,
       { label: 'B', teks: '$20\\text{ cm}$' },
       { label: 'C', teks: '$30\\text{ cm}$' },
       { label: 'D', teks: '$40\\text{ cm}$' },
-      { label: 'E', teks: '$50\\text{ cm}$' },
     ],
     pembahasan: `Rumus lensa tipis: $\\frac{1}{f} = \\frac{1}{s} + \\frac{1}{s\'}$.
 $\\frac{1}{s\'} = \\frac{1}{10} - \\frac{1}{15} = \\frac{3 - 2}{30} = \\frac{1}{30}$.

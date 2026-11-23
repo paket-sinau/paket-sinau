@@ -6,12 +6,15 @@
 import { SHEETS_POST_HEADERS, URL_DATABASE } from '../config/sheets';
 import { ExamPackage, MonitoringEntry, Question, Stimulus, User } from '../types';
 import {
+  mapExamPackageToSheetPaket,
   mapMonitoringRows,
   mapQuestionToSheetSoal,
+  mapSheetPackages,
   mapSheetPesertaToUser,
   mapSheetSoalToQuestion,
   mapUserToSheetPeserta,
   SimpanNilaiPayload,
+  SyncPaketPayload,
   SyncPesertaPayload,
   SyncSoalPayload,
   UpdateMonitoringPayload,
@@ -21,6 +24,7 @@ export interface SheetsFetchResult {
   users: User[];
   questions: Question[];
   stimuli: Stimulus[];
+  packages: ExamPackage[];
   rawNilai: Record<string, unknown>[];
   monitoring: MonitoringEntry[];
   rawStatus?: string;
@@ -96,11 +100,13 @@ export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
 
   const rawPeserta = Array.isArray(root?.peserta) ? root.peserta : [];
   const rawSoal = Array.isArray(root?.soal) ? root.soal : [];
+  const rawPaket = Array.isArray(root?.paket) ? root.paket : [];
   const rawNilai = Array.isArray(root?.nilai)
     ? root.nilai.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
     : [];
   const rawMonitoring = Array.isArray(root?.monitoring) ? root.monitoring : [];
   const monitoring = mapMonitoringRows(rawMonitoring);
+  const packages = mapSheetPackages(rawPaket);
 
   const users = rawPeserta
     .map((item, idx) =>
@@ -129,6 +135,7 @@ export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
     users,
     questions,
     stimuli: extractedStimuli,
+    packages,
     rawNilai,
     monitoring,
     rawStatus: typeof rawData?.status === 'string' ? rawData.status : undefined,
@@ -157,6 +164,19 @@ export async function syncSoalToSheets(
   const payload: SyncSoalPayload = {
     action: 'sync_soal',
     soal: questions.map((q) => mapQuestionToSheetSoal(q, packages, stimuli)),
+  };
+  return postToSheets(payload);
+}
+
+/**
+ * Mengirim seluruh daftar paket soal ujian terbaru ke Google Sheets (sync_paket).
+ */
+export async function syncPaketToSheets(
+  packages: ExamPackage[]
+): Promise<SheetsPostResponse> {
+  const payload: SyncPaketPayload = {
+    action: 'sync_paket',
+    paket: packages.map(mapExamPackageToSheetPaket),
   };
   return postToSheets(payload);
 }

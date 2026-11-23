@@ -6,7 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { SubjectId } from '../../types';
-import { doesSessionMatchStudent } from '../../utils/sheetsSync';
+import { doesSessionMatchStudent, filterPublishedPackages } from '../../utils/sheetsSync';
 import {
   BookOpen,
   Clock,
@@ -49,8 +49,10 @@ export const PaketSoalList: React.FC = () => {
     return map;
   }, [sessions, currentUser, packages]);
 
+  const publishedPackages = useMemo(() => filterPublishedPackages(packages), [packages]);
+
   const filteredPackages = useMemo(() => {
-    return packages.filter((pkg) => {
+    return publishedPackages.filter((pkg) => {
       // Mapel filter
       if (selectedSubject !== 'semua' && pkg.mapelId !== selectedSubject) {
         return false;
@@ -71,7 +73,7 @@ export const PaketSoalList: React.FC = () => {
 
       return true;
     });
-  }, [packages, selectedSubject, filterStatus, searchQuery, completedSessionMap]);
+  }, [publishedPackages, selectedSubject, filterStatus, searchQuery, completedSessionMap]);
 
   const handleStartWithCode = (pkgId: string, requiredCode?: string) => {
     if (requiredCode) {
@@ -210,10 +212,14 @@ export const PaketSoalList: React.FC = () => {
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
             <Layers className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
-              Tidak ada paket soal yang cocok
+              {publishedPackages.length === 0
+                ? 'Belum ada paket ujian yang diterbitkan'
+                : 'Tidak ada paket soal yang cocok'}
             </h3>
             <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              Coba ganti filter mata pelajaran atau hapus kata kunci pencarian.
+              {publishedPackages.length === 0
+                ? 'Guru belum menerbitkan paket ujian baru. Coba tekan Sinkronkan Data di bagian atas.'
+                : 'Coba ganti filter mata pelajaran atau hapus kata kunci pencarian.'}
             </p>
           </div>
         ) : (

@@ -8,20 +8,28 @@ import assert from 'node:assert/strict';
 import {
   buildSimpanNilaiPayload,
   buildUpdateMonitoringPayload,
+  filterPublishedPackages,
   isMonitoringEntryActive,
+  mapExamPackageToSheetPaket,
   mapMonitoringRows,
   mapQuestionToSheetSoal,
   mapSheetNilaiToSession,
+  mapSheetPackages,
+  mapSheetPaketToExamPackage,
   mapSheetPesertaToUser,
   mapSheetSoalToQuestion,
   mapUserToSheetPeserta,
+  mergePackagesWithPendingLocal,
   mergeSheetNilaiSessions,
   mergeUsersWithAdminFallback,
   parseMonitoringTimestampMs,
   parseSheetTimestamp,
+  reconcilePackagesFromSheet,
   reconcilePackagesWithSheetQuestions,
   sanitizeCsvCell,
   sanitizeImageUrl,
+  sanitizePilganOptions,
+  sanitizeQuestionPilgan,
 } from './sheetsSync.ts';
 import type { ExamPackage, ExamSession, MonitoringEntry, Question, Stimulus, User } from '../types/index.ts';
 
@@ -680,4 +688,331 @@ test('isMonitoringEntryActive filters by status === Mengerjakan and within 18000
   assert.equal(isMonitoringEntryActive(finishedEntry, now), false);
   assert.equal(isMonitoringEntryActive(zeroTsEntry, now), false);
 });
+
+test('4-option Pilgan (A-D) ignores legacy Option E from Google Sheets object, map, and array formats while preserving images and keys', () => {
+  const legacySheetObj = {
+    id: 'legacy-obj-1',
+    mapel: 'ipa',
+    model: 'pilgan',
+    pertanyaan: 'Planet terbesar di tata surya adalah...',
+    gambar: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA',
+    opsi_json: JSON.stringify({
+      topik: 'Tata Surya',
+      pilganOptions: [
+        { label: 'A', teks: 'Mars' },
+        { label: 'B', teks: 'Bumi' },
+        { label: 'C', teks: 'Jupiter', gambarUrl: 'https://drive.google.com/uc?export=view&id=jup' },
+        { label: 'D', teks: 'Saturnus' },
+        { label: 'E', teks: 'Pluto (Opsi E lama)' },
+      ],
+    }),
+    kunci: 'C',
+    pembahasan: 'Jupiter adalah planet terbesar.',
+  };
+
+  const mappedObj = mapSheetSoalToQuestion(legacySheetObj, 0);
+  assert.ok(mappedObj);
+  assert.equal(mappedObj.question.pilganOptions?.length, 4);
+  assert.deepEqual(
+    mappedObj.question.pilganOptions?.map((o) => o.label),
+    ['A', 'B', 'C', 'D']
+  );
+  assert.equal(mappedObj.question.pilganOptions?.[2].gambarUrl, 'https://drive.google.com/uc?export=view&id=jup');
+  assert.equal(mappedObj.question.gambarUrl, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA');
+  assert.equal(mappedObj.question.pilganKunci, 'C');
+
+  const legacyManualMap = {
+    id: 'legacy-map-1',
+    mapel: 'matematika',
+    model: 'pilgan',
+    pertanyaan: '5 + 5 = ...',
+    opsi_json: JSON.stringify({ A: '8', B: '9', C: '10', D: '11', E: '12' }),
+    kunci: 'C',
+  };
+  const mappedMap = mapSheetSoalToQuestion(legacyManualMap, 1);
+  assert.ok(mappedMap);
+  assert.equal(mappedMap.question.pilganOptions?.length, 4);
+  assert.deepEqual(
+    mappedMap.question.pilganOptions?.map((o) => o.label),
+    ['A', 'B', 'C', 'D']
+  );
+
+  const legacyArray = {
+    id: 'legacy-arr-1',
+    mapel: 'bahasa_indonesia',
+    model: 'pilgan',
+    pertanyaan: 'Antonim besar adalah...',
+    opsi_json: JSON.stringify(['kecil', 'tinggi', 'lebar', 'panjang', 'luas']),
+    kunci: 'A',
+  };
+  const mappedArr = mapSheetSoalToQuestion(legacyArray, 2);
+  assert.ok(mappedArr);
+  assert.equal(mappedArr.question.pilganOptions?.length, 4);
+  assert.equal(mappedArr.question.pilganKunci, 'A');
+
+  // Verify sanitizePilganOptions and mapQuestionToSheetSoal drop Option E even if injected via untyped legacy JSON
+  const rawLegacyOptions = [
+    { label: 'A', teks: '1' },
+    { label: 'B', teks: '2' },
+    { label: 'C', teks: '3' },
+    { label: 'D', teks: '4' },
+    { label: 'E', teks: '5' },
+  ];
+  assert.equal(sanitizePilganOptions(rawLegacyOptions).length, 4);
+
+  const legacyQuestion = {
+    ...mappedObj.question,
+    pilganOptions: rawLegacyOptions as unknown as Question['pilganOptions'],
+  };
+  const sanitized = sanitizeQuestionPilgan(legacyQuestion);
+  assert.equal(sanitized.pilganOptions?.length, 4);
+
+  const exportedRow = mapQuestionToSheetSoal(legacyQuestion);
+  const parsedOpsi = JSON.parse(exportedRow.opsi_json);
+  assert.equal(parsedOpsi.pilganOptions.length, 4);
+  assert.equal(exportedRow.kunci, 'C');
+  assert.equal(exportedRow.gambar, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA');
+});
+
+test('ExamPackage <-> Sheet paket mapping round-trips all settings, soalIds, token, and status', () => {
+  const pkg: ExamPackage = {
+    id: 'pkg-sync-1',
+    judul: 'Ulangan Harian Pecahan SD',
+    mapelId: 'matematika',
+    deskripsi: 'Latihan khusus kelas 6',
+    durasiMenit: 50,
+    bobotBenar: 5,
+    bobotSalah: -1,
+    bobotKosong: 0,
+    acakSoal: false,
+    acakOpsi: true,
+    waktuBuka: '2026-04-01T08:00:00.000Z',
+    waktuTutup: '2026-04-30T17:00:00.000Z',
+    kelasAkses: ['Kelas 6A', 'Kelas 6B'],
+    kodeAkses: 'MTK6A',
+    soalIds: ['mtk-1', 'mtk-3', 'mtk-5'],
+    status: 'terbit',
+    izinkanLihatPembahasan: false,
+    deteksiPindahTab: true,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Ibu Sari',
+    createdAt: '2026-04-01T07:00:00.000Z',
+  };
+
+  const sheetPayloadItem = mapExamPackageToSheetPaket(pkg);
+  assert.equal(sheetPayloadItem.kodeAkses, 'MTK6A');
+  assert.deepEqual(sheetPayloadItem.soalIds, ['mtk-1', 'mtk-3', 'mtk-5']);
+
+  const restored = mapSheetPaketToExamPackage(
+    sheetPayloadItem as unknown as Record<string, unknown>,
+    0
+  );
+  assert.ok(restored);
+  assert.equal(restored.id, 'pkg-sync-1');
+  assert.equal(restored.judul, 'Ulangan Harian Pecahan SD');
+  assert.equal(restored.durasiMenit, 50);
+  assert.equal(restored.bobotBenar, 5);
+  assert.equal(restored.bobotSalah, -1);
+  assert.equal(restored.acakSoal, false);
+  assert.equal(restored.acakOpsi, true);
+  assert.equal(restored.izinkanLihatPembahasan, false);
+  assert.equal(restored.deteksiPindahTab, true);
+  assert.equal(restored.kodeAkses, 'MTK6A');
+  assert.deepEqual(restored.kelasAkses, ['Kelas 6A', 'Kelas 6B']);
+  assert.deepEqual(restored.soalIds, ['mtk-1', 'mtk-3', 'mtk-5']);
+  assert.equal(restored.status, 'terbit');
+});
+
+test('mapSheetPackages parses snake_case cells, stringified booleans, comma-separated soal_ids, and statuses', () => {
+  const rawRows = [
+    {
+      id: 'pkg-sheet-draft',
+      judul: 'Tryout IPA Rahasia',
+      mapel: 'IPA Terpadu',
+      deskripsi: 'Masih disusun',
+      durasi_menit: '35',
+      bobot_benar: '4',
+      bobot_salah: '0',
+      bobot_kosong: '0',
+      acak_soal: 'FALSE',
+      acak_opsi: 'TRUE',
+      izinkan_lihat_pembahasan: 'FALSE',
+      deteksi_pindah_tab: 'TRUE',
+      kelas_akses: 'Kelas 6A, Kelas 6B',
+      token: 'IPA2026',
+      soal_ids: 'ipa-1, ipa-2',
+      status: 'Draft',
+      pembuat_nama: 'Pak Budi',
+    },
+    {
+      id: 'pkg-sheet-closed',
+      judul: 'Tryout Bahasa Indonesia Lama',
+      mapel: 'bahasa_indonesia',
+      soal_ids: '["bind-1"]',
+      status: 'Ditutup',
+    },
+    {
+      id: 'pkg-sheet-published',
+      judul: 'Tryout Matematika Terbit',
+      mapel: 'matematika',
+      pengaturan_json: JSON.stringify({ durasiMenit: 75, acakSoal: false }),
+      soalIds: ['mtk-1', 'mtk-2'],
+      status: 'Terbit',
+    },
+  ];
+
+  const mapped = mapSheetPackages(rawRows);
+  assert.equal(mapped.length, 3);
+  assert.equal(mapped[0].status, 'draft');
+  assert.equal(mapped[0].acakSoal, false);
+  assert.equal(mapped[0].acakOpsi, true);
+  assert.equal(mapped[0].izinkanLihatPembahasan, false);
+  assert.equal(mapped[0].kodeAkses, 'IPA2026');
+  assert.deepEqual(mapped[0].soalIds, ['ipa-1', 'ipa-2']);
+  assert.deepEqual(mapped[0].kelasAkses, ['Kelas 6A', 'Kelas 6B']);
+
+  assert.equal(mapped[1].status, 'ditutup');
+  assert.deepEqual(mapped[1].soalIds, ['bind-1']);
+
+  assert.equal(mapped[2].status, 'terbit');
+  assert.equal(mapped[2].durasiMenit, 75);
+  assert.equal(mapped[2].acakSoal, false);
+});
+
+test('reconcilePackagesFromSheet preserves teacher curated soalIds subset instead of expanding all subject questions', () => {
+  const sheetQuestions: Question[] = ['mtk-1', 'mtk-2', 'mtk-3', 'mtk-4'].map((id) => ({
+    id,
+    mapelId: 'matematika',
+    topik: 'Bilangan',
+    paketUjian: 'Paket Kurasi Guru',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: `Soal ${id}`,
+    pembahasan: '',
+    pembuatId: 'u1',
+    pembuatNama: 'Guru',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  }));
+
+  const curatedPkg: ExamPackage = {
+    id: 'pkg-curated',
+    judul: 'Paket Kurasi Guru',
+    mapelId: 'matematika',
+    deskripsi: 'Hanya 2 soal pilihan',
+    durasiMenit: 30,
+    bobotBenar: 4,
+    bobotSalah: 0,
+    bobotKosong: 0,
+    acakSoal: false,
+    acakOpsi: true,
+    waktuBuka: '2026-01-01T00:00:00Z',
+    waktuTutup: '2026-12-31T23:59:00Z',
+    kelasAkses: ['semua'],
+    soalIds: ['mtk-4', 'mtk-2'],
+    status: 'terbit',
+    izinkanLihatPembahasan: true,
+    deteksiPindahTab: true,
+    pembuatId: 'u1',
+    pembuatNama: 'Guru',
+    createdAt: '2026-01-01T00:00:00Z',
+  };
+
+  const emptyPkg: ExamPackage = {
+    ...curatedPkg,
+    id: 'pkg-empty-ids',
+    judul: 'Paket Tanpa Daftar ID',
+    soalIds: [],
+  };
+
+  const reconciled = reconcilePackagesFromSheet([curatedPkg, emptyPkg], sheetQuestions);
+  assert.deepEqual(reconciled[0].soalIds, ['mtk-4', 'mtk-2']);
+  assert.deepEqual(reconciled[1].soalIds, ['mtk-1', 'mtk-2', 'mtk-3', 'mtk-4']);
+});
+
+test('mergePackagesWithPendingLocal applies offline additions/edits/deletes without resurrecting removed server packages', () => {
+  const basePkg: ExamPackage = {
+    id: 'pkg-1',
+    judul: 'Server Old Title',
+    mapelId: 'matematika',
+    deskripsi: '',
+    durasiMenit: 45,
+    bobotBenar: 4,
+    bobotSalah: 0,
+    bobotKosong: 0,
+    acakSoal: true,
+    acakOpsi: true,
+    waktuBuka: '2026-01-01T00:00:00Z',
+    waktuTutup: '2026-12-31T23:59:00Z',
+    kelasAkses: ['semua'],
+    soalIds: ['mtk-1'],
+    status: 'terbit',
+    izinkanLihatPembahasan: true,
+    deteksiPindahTab: true,
+    pembuatId: 'u1',
+    pembuatNama: 'Guru',
+    createdAt: '2026-01-01T00:00:00Z',
+  };
+
+  const serverPackages: ExamPackage[] = [
+    basePkg,
+    { ...basePkg, id: 'pkg-deleted-locally', judul: 'Akan Dihapus Offline' },
+    { ...basePkg, id: 'pkg-deleted-on-server', judul: 'Dihapus Guru Lain Di Server' },
+  ];
+
+  const localPackages: ExamPackage[] = [
+    { ...basePkg, id: 'pkg-new-offline', judul: 'Paket Baru Offline' },
+    { ...basePkg, id: 'pkg-1', judul: 'Server Edited Locally' },
+    { ...basePkg, id: 'pkg-deleted-on-server', judul: 'Dihapus Guru Lain Di Server' },
+  ];
+
+  const merged = mergePackagesWithPendingLocal(
+    serverPackages,
+    localPackages,
+    new Set(['pkg-1', 'pkg-new-offline']),
+    new Set(['pkg-deleted-locally'])
+  );
+
+  assert.deepEqual(
+    merged.map((p) => p.id),
+    ['pkg-new-offline', 'pkg-1', 'pkg-deleted-on-server']
+  );
+  assert.equal(merged[1].judul, 'Server Edited Locally');
+});
+
+test('filterPublishedPackages only exposes status === terbit to student views', () => {
+  const base: ExamPackage = {
+    id: 'pkg-1',
+    judul: 'Terbit',
+    mapelId: 'matematika',
+    deskripsi: '',
+    durasiMenit: 45,
+    bobotBenar: 4,
+    bobotSalah: 0,
+    bobotKosong: 0,
+    acakSoal: true,
+    acakOpsi: true,
+    waktuBuka: '2026-01-01T00:00:00Z',
+    waktuTutup: '2026-12-31T23:59:00Z',
+    kelasAkses: ['semua'],
+    soalIds: ['mtk-1'],
+    status: 'terbit',
+    izinkanLihatPembahasan: true,
+    deteksiPindahTab: true,
+    pembuatId: 'u1',
+    pembuatNama: 'Guru',
+    createdAt: '2026-01-01T00:00:00Z',
+  };
+
+  const visible = filterPublishedPackages([
+    base,
+    { ...base, id: 'pkg-2', judul: 'Draft', status: 'draft' },
+    { ...base, id: 'pkg-3', judul: 'Ditutup', status: 'ditutup' },
+  ]);
+
+  assert.equal(visible.length, 1);
+  assert.equal(visible[0].id, 'pkg-1');
+});
+
+
 

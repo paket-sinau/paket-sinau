@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   DifficultyLevel,
+  PilganLabel,
   PilganOption,
   Question,
   QuestionModel,
@@ -14,6 +15,7 @@ import {
   KategoriStatement,
   Stimulus,
 } from '../../types';
+import { PILGAN_LABELS, normalizePilganKunci } from '../../utils/sheetsSync';
 import { MathRenderer } from '../../components/MathRenderer';
 import {
   X,
@@ -64,15 +66,32 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
   const [gambarAlt, setGambarAlt] = useState('');
   const [pembahasan, setPembahasan] = useState('');
 
-  // Model 1: PILGAN
-  const [pilganOptions, setPilganOptions] = useState<PilganOption[]>([
-    { label: 'A', teks: '' },
-    { label: 'B', teks: '' },
-    { label: 'C', teks: '' },
-    { label: 'D', teks: '' },
-    { label: 'E', teks: '' },
-  ]);
-  const [pilganKunci, setPilganKunci] = useState<'A' | 'B' | 'C' | 'D' | 'E'>('A');
+  // Model 1: PILGAN (4 Opsi A-D sesuai jenjang SD)
+  const createDefaultPilganOptions = (): PilganOption[] =>
+    PILGAN_LABELS.map((label) => ({ label, teks: '' }));
+
+  const normalizePilganOptionsForForm = (options?: PilganOption[]): PilganOption[] => {
+    const byLabel = new Map<PilganLabel, PilganOption>();
+    (options || []).forEach((opt) => {
+      const lbl = String(opt.label || '').toUpperCase().charAt(0);
+      if ((PILGAN_LABELS as readonly string[]).includes(lbl)) {
+        const validLabel = lbl as PilganLabel;
+        if (!byLabel.has(validLabel)) {
+          byLabel.set(validLabel, {
+            label: validLabel,
+            teks: opt.teks || '',
+            ...(opt.gambarUrl ? { gambarUrl: opt.gambarUrl } : {}),
+          });
+        }
+      }
+    });
+    return PILGAN_LABELS.map(
+      (label) => byLabel.get(label) || { label, teks: '' }
+    );
+  };
+
+  const [pilganOptions, setPilganOptions] = useState<PilganOption[]>(createDefaultPilganOptions);
+  const [pilganKunci, setPilganKunci] = useState<PilganLabel>('A');
 
   // Model 2: MCMA
   const [mcmaOptions, setMcmaOptions] = useState<
@@ -133,11 +152,11 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
       setPembahasan(questionToEdit.pembahasan);
 
       if (questionToEdit.pilganOptions) {
-        setPilganOptions(questionToEdit.pilganOptions);
+        setPilganOptions(normalizePilganOptionsForForm(questionToEdit.pilganOptions));
+      } else {
+        setPilganOptions(createDefaultPilganOptions());
       }
-      if (questionToEdit.pilganKunci) {
-        setPilganKunci(questionToEdit.pilganKunci);
-      }
+      setPilganKunci(normalizePilganKunci(questionToEdit.pilganKunci));
 
       if (questionToEdit.mcmaOptions) {
         setMcmaOptions(questionToEdit.mcmaOptions);
@@ -176,13 +195,7 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
       setGambarUrl('');
       setGambarAlt('');
       setPembahasan('');
-      setPilganOptions([
-        { label: 'A', teks: '' },
-        { label: 'B', teks: '' },
-        { label: 'C', teks: '' },
-        { label: 'D', teks: '' },
-        { label: 'E', teks: '' },
-      ]);
+      setPilganOptions(createDefaultPilganOptions());
       setPilganKunci('A');
       setMcmaOptions([
         { id: 'A', label: 'A', teks: '' },
@@ -278,11 +291,14 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
       finalStimulusId = stimulusId || undefined;
     }
 
+    const normalizedPilganOptions = normalizePilganOptionsForForm(pilganOptions);
+    const normalizedPilganKunci = normalizePilganKunci(pilganKunci);
+
     // Validation per model
     if (modelSoal === 'pilgan') {
-      const emptyOpt = pilganOptions.some((o) => !o.teks.trim());
+      const emptyOpt = normalizedPilganOptions.some((o) => !o.teks.trim());
       if (emptyOpt) {
-        showToast('Semua opsi pilihan ganda wajib memiliki teks.', 'error');
+        showToast('Semua opsi pilihan ganda (A-D) wajib memiliki teks.', 'error');
         return;
       }
     } else if (modelSoal === 'mcma') {
@@ -324,8 +340,8 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
       updatedAt: new Date().toISOString(),
 
       // Model fields
-      pilganOptions: modelSoal === 'pilgan' ? pilganOptions : undefined,
-      pilganKunci: modelSoal === 'pilgan' ? pilganKunci : undefined,
+      pilganOptions: modelSoal === 'pilgan' ? normalizedPilganOptions : undefined,
+      pilganKunci: modelSoal === 'pilgan' ? normalizedPilganKunci : undefined,
 
       mcmaOptions: modelSoal === 'mcma' ? mcmaOptions : undefined,
       mcmaKunci: modelSoal === 'mcma' ? mcmaKunci : undefined,
@@ -1158,16 +1174,24 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
               {/* Preview Opsi */}
               <div className="space-y-2 pt-2">
                 {modelSoal === 'pilgan' &&
-                  pilganOptions.map((opt) => (
+                  normalizePilganOptionsForForm(pilganOptions).map((opt) => (
                     <div
                       key={opt.label}
-                      className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs"
+                      className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs"
                     >
-                      <div className="h-6 w-6 rounded-full border border-slate-300 flex items-center justify-center font-bold">
+                      <div className="h-6 w-6 shrink-0 rounded-full border border-slate-300 flex items-center justify-center font-bold">
                         {opt.label}
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 space-y-1.5">
                         <MathRenderer content={opt.teks || `(Pilihan ${opt.label})`} />
+                        {opt.gambarUrl && (
+                          <img
+                            src={opt.gambarUrl}
+                            alt={`Gambar Opsi ${opt.label}`}
+                            referrerPolicy="no-referrer"
+                            className="max-h-36 w-auto object-contain rounded-lg border border-slate-200 dark:border-slate-700 bg-white p-1"
+                          />
+                        )}
                       </div>
                     </div>
                   ))}

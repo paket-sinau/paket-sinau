@@ -212,7 +212,7 @@ export const WelcomePage: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Satu jawaban benar dari opsi A–E. Dilengkapi dukungan rumus matematika KaTeX dan opsi berbobot penalti minus.
+                  Satu jawaban benar dari opsi A–D. Dilengkapi dukungan rumus matematika KaTeX dan opsi berbobot penalti minus.
                 </p>
 
                 {/* Visual miniature mockup */}
