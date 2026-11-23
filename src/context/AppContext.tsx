@@ -29,6 +29,8 @@ import {
 import { evaluateExamSession } from '../utils/examScoring';
 import {
   buildSimpanNilaiPayload,
+  mapSheetNilaiToSession,
+  mergeSheetNilaiSessions,
   mergeUsersWithAdminFallback,
   reconcilePackagesWithSheetQuestions,
 } from '../utils/sheetsSync';
@@ -321,6 +323,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   stimuliRef.current = stimuli;
   const sessionsRef = useRef<ExamSession[]>(sessions);
   sessionsRef.current = sessions;
+  const selectedSessionIdRef = useRef<string | null>(selectedSessionId);
+  selectedSessionIdRef.current = selectedSessionId;
   const submittingSessionIdsRef = useRef<Set<string>>(new Set());
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -388,8 +392,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const result = await fetchSheetsDatabase();
 
+        let nextUsers = usersRef.current;
         if (result.users.length > 0) {
-          const nextUsers = mergeUsersWithAdminFallback(
+          nextUsers = mergeUsersWithAdminFallback(
             result.users,
             usersRef.current,
             FALLBACK_ADMINS
@@ -406,11 +411,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setStimuli(mergedStimuli);
         }
 
+        let nextPackages = packagesRef.current;
         if (result.questions.length > 0) {
           questionsRef.current = result.questions;
           setQuestions(result.questions);
 
-          const nextPackages = reconcilePackagesWithSheetQuestions(
+          nextPackages = reconcilePackagesWithSheetQuestions(
             packagesRef.current,
             result.questions
           );
@@ -418,12 +424,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setPackages(nextPackages);
         }
 
+        const sheetSessions = result.rawNilai
+          .map((row, idx) => mapSheetNilaiToSession(row, idx, nextUsers, nextPackages))
+          .filter((s): s is ExamSession => Boolean(s));
+
+        if (sheetSessions.length > 0) {
+          const { sessions: mergedSessions, remappedIds } = mergeSheetNilaiSessions(
+            sheetSessions,
+            sessionsRef.current
+          );
+          sessionsRef.current = mergedSessions;
+          setSessions(mergedSessions);
+
+          const currentSelectedId = selectedSessionIdRef.current;
+          if (currentSelectedId && remappedIds[currentSelectedId]) {
+            setSelectedSessionId(remappedIds[currentSelectedId]);
+          }
+        }
+
         setLastSyncedAt(new Date().toISOString());
 
         if (!silent) {
-          if (result.users.length > 0 || result.questions.length > 0) {
+          if (
+            result.users.length > 0 ||
+            result.questions.length > 0 ||
+            sheetSessions.length > 0
+          ) {
             showToast(
-              `Sinkronisasi Google Sheets berhasil (${result.users.length} peserta, ${result.questions.length} soal).`,
+              `Sinkronisasi Google Sheets berhasil (${result.users.length} peserta, ${result.questions.length} soal, ${sheetSessions.length} riwayat nilai).`,
               'success'
             );
           } else {
@@ -709,13 +737,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (submittingSessionIdsRef.current.has(sessionObj.id)) return;
       submittingSessionIdsRef.current.add(sessionObj.id);
 
-      setSessions((prev) =>
-        prev.map((s) =>
+      setSessions((prev) => {
+        const next = prev.map((s) =>
           s.id === sessionObj.id
-            ? { ...s, nilaiSyncStatus: 'saving', nilaiSyncError: undefined }
+            ? { ...s, nilaiSyncStatus: 'saving' as const, nilaiSyncError: undefined }
             : s
-        )
-      );
+        );
+        sessionsRef.current = next;
+        return next;
+      });
 
       const matchedUser =
         usersRef.current.find((u) => u.id === sessionObj.muridId) || currentUser;
@@ -726,26 +756,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       try {
         await submitNilaiToSheets(payload);
-        setSessions((prev) =>
-          prev.map((s) =>
+        setSessions((prev) => {
+          const next = prev.map((s) =>
             s.id === sessionObj.id
-              ? { ...s, nilaiSyncStatus: 'saved', nilaiSyncError: undefined }
+              ? { ...s, nilaiSyncStatus: 'saved' as const, nilaiSyncError: undefined }
               : s
-          )
-        );
+          );
+          sessionsRef.current = next;
+          return next;
+        });
         showToast('Nilai ujian berhasil tersimpan ke Google Sheets.', 'success');
       } catch (err) {
         const msg =
           err instanceof Error
             ? err.message
             : 'Koneksi ke Google Sheets terputus.';
-        setSessions((prev) =>
-          prev.map((s) =>
+        setSessions((prev) => {
+          const next = prev.map((s) =>
             s.id === sessionObj.id
-              ? { ...s, nilaiSyncStatus: 'error', nilaiSyncError: msg }
+              ? { ...s, nilaiSyncStatus: 'error' as const, nilaiSyncError: msg }
               : s
-          )
-        );
+          );
+          sessionsRef.current = next;
+          return next;
+        });
         showToast(
           'Gagal mengirim nilai ke Google Sheets. Gunakan tombol Kirim Ulang Nilai.',
           'error'
@@ -792,9 +826,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         jumlahBenar: evaluation.jumlahBenar,
         jumlahSalah: evaluation.jumlahSalah,
         jumlahKosong: evaluation.jumlahKosong,
+        totalSoal: sessionToFinish.shuffledSoalIds.length || sessionQuestions.length,
         answers: evaluation.answers,
         nilaiSyncStatus: 'saving',
         nilaiSyncError: undefined,
+        fromGoogleSheets: false,
       };
 
       setSessions((prev) => {

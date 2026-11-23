@@ -7,6 +7,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { SUBJECTS } from '../data/seedData';
 import { StudentPerformanceProgress } from '../components/StudentPerformanceProgress';
+import { doesSessionMatchStudent, safeTimestampMs } from '../utils/sheetsSync';
 import {
   BookOpen,
   Calendar,
@@ -48,11 +49,11 @@ export const BerandaPage: React.FC = () => {
 
   // Murid statistics (sorted newest -> oldest)
   const studentSessions = sessions
-    .filter((s) => s.muridId === currentUser.id && s.status === 'selesai')
+    .filter((s) => s.status === 'selesai' && doesSessionMatchStudent(s, currentUser))
     .sort(
       (a, b) =>
-        new Date(b.waktuSelesai || b.waktuMulai).getTime() -
-        new Date(a.waktuSelesai || a.waktuMulai).getTime()
+        safeTimestampMs(b.waktuSelesai || b.waktuMulai) -
+        safeTimestampMs(a.waktuSelesai || a.waktuMulai)
     );
   const latestSession = studentSessions[0];
 
@@ -68,7 +69,13 @@ export const BerandaPage: React.FC = () => {
   const mtkCount = questions.filter((q) => q.mapelId === 'matematika').length;
   const bindCount = questions.filter((q) => q.mapelId === 'bahasa_indonesia').length;
   const ipaCount = questions.filter((q) => q.mapelId === 'ipa').length;
-  const allCompletedSessions = sessions.filter((s) => s.status === 'selesai');
+  const allCompletedSessions = sessions
+    .filter((s) => s.status === 'selesai')
+    .sort(
+      (a, b) =>
+        safeTimestampMs(b.waktuSelesai || b.waktuMulai) -
+        safeTimestampMs(a.waktuSelesai || a.waktuMulai)
+    );
   const classAvgScore =
     allCompletedSessions.length > 0
       ? Math.round(
@@ -380,7 +387,7 @@ export const BerandaPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {sessions.slice(0, 5).map((ses) => (
+                      {allCompletedSessions.slice(0, 5).map((ses) => (
                         <tr key={ses.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                           <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200">
                             {ses.muridNama}
@@ -494,9 +501,9 @@ export const BerandaPage: React.FC = () => {
                   <Award className="h-4 w-4 text-violet-500" />
                 </div>
                 <div className="text-3xl font-extrabold text-slate-900 dark:text-white">
-                  {sessions.length}
+                  {allCompletedSessions.length}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">Terekam di sistem</div>
+                <div className="text-[11px] text-slate-400 mt-1">Terekam di sistem & Google Sheets</div>
               </div>
             </div>
 

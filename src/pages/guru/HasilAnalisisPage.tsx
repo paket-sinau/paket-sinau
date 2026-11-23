@@ -8,61 +8,159 @@ import { useApp } from '../../context/AppContext';
 import { formatDuration } from '../../utils/examScoring';
 import { StudentProgressCurve } from '../../components/StudentProgressCurve';
 import {
+  doesSessionMatchStudent,
+  formatSafeDateTime,
+  safeTimestampMs,
+  sanitizeCsvCell,
+} from '../../utils/sheetsSync';
+import {
   TrendingUp,
   Download,
   Printer,
   Award,
   Users,
-  CheckCircle,
   HelpCircle,
   BarChart3,
   Search,
   LineChart,
   UserCheck,
-  ChevronRight,
-  Filter,
+  RefreshCw,
 } from 'lucide-react';
 
 export const HasilAnalisisPage: React.FC = () => {
-  const { packages, sessions, questions, users, showToast } = useApp();
-  const [selectedPkgId, setSelectedPkgId] = useState<string>(packages[0]?.id || '');
+  const {
+    packages,
+    sessions,
+    questions,
+    users,
+    showToast,
+    syncFromGoogleSheets,
+    isSyncingSheets,
+  } = useApp();
+  const [selectedPkgId, setSelectedPkgId] = useState<string>(packages[0]?.id || '__all__');
   const [searchMurid, setSearchMurid] = useState('');
   const [activeTab, setActiveTab] = useState<'rekap_paket' | 'kurva_anak'>('rekap_paket');
 
-  // Filter students (role: 'murid')
+  const completedSessions = useMemo(() => {
+    return sessions.filter((s) => s.status === 'selesai');
+  }, [sessions]);
+
+  // Filter students (role: 'murid') + tambahkan murid dari rekap nilai Sheets bila belum ada di sheet Peserta
   const muridUsers = useMemo(() => {
-    return users.filter((u) => u.role === 'murid');
-  }, [users]);
+    const base = users.filter((u) => u.role === 'murid');
+    const extras: typeof base = [];
+
+    completedSessions.forEach((s) => {
+      const alreadyExists =
+        base.some((m) => doesSessionMatchStudent(s, m)) ||
+        extras.some((m) => doesSessionMatchStudent(s, m));
+      if (!alreadyExists) {
+        extras.push({
+          id: s.muridId,
+          username: s.muridUsername || s.muridId,
+          nama: s.muridNama,
+          email: `${s.muridUsername || 'siswa'}@sekolah.sch.id`,
+          role: 'murid',
+          kelasId: s.kelasNama,
+          aktif: true,
+          createdAt: s.waktuSelesai || s.waktuMulai,
+        });
+      }
+    });
+
+    return [...base, ...extras];
+  }, [users, completedSessions]);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     muridUsers[0]?.id || 'usr-murid-1'
   );
   const [searchStudentCurve, setSearchStudentCurve] = useState('');
 
-  const currentPkg = packages.find((p) => p.id === selectedPkgId) || packages[0];
+  // Daftar opsi paket ujian (mencakup paket terdaftar + judul paket dari Google Sheets bila belum terdaftar)
+  const packageOptions = useMemo(() => {
+    const extraTitles = new Map<string, string>();
+    completedSessions.forEach((s) => {
+      const titleLower = s.paketJudul.trim().toLowerCase();
+      const matched = packages.some(
+        (p) => p.id === s.paketId || p.judul.trim().toLowerCase() === titleLower
+      );
+      if (!matched && s.paketJudul.trim()) {
+        extraTitles.set(titleLower, s.paketJudul.trim());
+      }
+    });
 
-  // Sessions for this package
+    return {
+      registered: packages,
+      extras: Array.from(extraTitles.entries()).map(([key, judul]) => ({
+        id: `extra:${key}`,
+        judul,
+      })),
+    };
+  }, [packages, completedSessions]);
+
+  const currentPkg =
+    selectedPkgId === '__all__' || selectedPkgId.startsWith('extra:')
+      ? null
+      : packages.find((p) => p.id === selectedPkgId) || null;
+
+  const selectedPackageLabel = useMemo(() => {
+    if (selectedPkgId === '__all__') return 'Semua Paket Ujian';
+    if (selectedPkgId.startsWith('extra:')) {
+      return (
+        packageOptions.extras.find((e) => e.id === selectedPkgId)?.judul ||
+        'Paket Ujian'
+      );
+    }
+    return currentPkg?.judul || packages[0]?.judul || 'Paket Ujian';
+  }, [selectedPkgId, packageOptions.extras, currentPkg, packages]);
+
+  // Sessions for this selection
   const pkgSessions = useMemo(() => {
-    return sessions
-      .filter((s) => s.paketId === currentPkg?.id && s.status === 'selesai')
-      .sort((a, b) => (b.persentaseNilai || 0) - (a.persentaseNilai || 0));
-  }, [sessions, currentPkg]);
+    return completedSessions
+      .filter((s) => {
+        if (selectedPkgId === '__all__') return true;
+        if (selectedPkgId.startsWith('extra:')) {
+          const targetTitle = selectedPkgId.slice('extra:'.length);
+          return s.paketJudul.trim().toLowerCase() === targetTitle;
+        }
+        const targetPkg = currentPkg || packages[0];
+        if (!targetPkg) return true;
+        return (
+          s.paketId === targetPkg.id ||
+          s.paketJudul.trim().toLowerCase() === targetPkg.judul.trim().toLowerCase()
+        );
+      })
+      .sort((a, b) => {
+        const scoreDiff = (b.persentaseNilai || 0) - (a.persentaseNilai || 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        return (
+          safeTimestampMs(b.waktuSelesai || b.waktuMulai) -
+          safeTimestampMs(a.waktuSelesai || a.waktuMulai)
+        );
+      });
+  }, [completedSessions, selectedPkgId, currentPkg, packages]);
 
   const filteredSessions = useMemo(() => {
     if (!searchMurid.trim()) return pkgSessions;
     const q = searchMurid.toLowerCase();
     return pkgSessions.filter(
-      (s) => s.muridNama.toLowerCase().includes(q) || s.kelasNama.toLowerCase().includes(q)
+      (s) =>
+        s.muridNama.toLowerCase().includes(q) ||
+        (s.muridUsername || '').toLowerCase().includes(q) ||
+        s.kelasNama.toLowerCase().includes(q) ||
+        s.paketJudul.toLowerCase().includes(q)
     );
   }, [pkgSessions, searchMurid]);
 
-  // Overall Statistics for this package
+  // Overall Statistics for this selection
   const totalCount = pkgSessions.length;
   const avgScore =
     totalCount > 0
       ? Math.round(
-          pkgSessions.reduce((acc, curr) => acc + (curr.persentaseNilai || 0), 0) / totalCount
-        )
+          (pkgSessions.reduce((acc, curr) => acc + (curr.persentaseNilai || 0), 0) /
+            totalCount) *
+            10
+        ) / 10
       : 0;
   const maxScore = totalCount > 0 ? Math.max(...pkgSessions.map((s) => s.persentaseNilai || 0)) : 0;
   const minScore = totalCount > 0 ? Math.min(...pkgSessions.map((s) => s.persentaseNilai || 0)) : 0;
@@ -71,67 +169,126 @@ export const HasilAnalisisPage: React.FC = () => {
   const itemAnalysis = useMemo(() => {
     if (!currentPkg) return [];
 
-    return currentPkg.soalIds.map((soalId, index) => {
-      const q = questions.find((item) => item.id === soalId);
-      if (!q) return null;
+    return currentPkg.soalIds
+      .map((soalId, index) => {
+        const q = questions.find((item) => item.id === soalId);
+        if (!q) return null;
 
-      let correctCount = 0;
-      let totalAnswered = 0;
+        let correctCount = 0;
+        let totalAnswered = 0;
 
-      pkgSessions.forEach((s) => {
-        const ans = s.answers[soalId];
-        if (ans) {
-          totalAnswered++;
-          if (ans.isFullyCorrect) {
-            correctCount++;
+        pkgSessions.forEach((s) => {
+          const ans = s.answers[soalId];
+          if (ans) {
+            totalAnswered++;
+            if (ans.isFullyCorrect) {
+              correctCount++;
+            }
+          }
+        });
+
+        const percentageCorrect =
+          totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+        let tingkatEmpiris = totalAnswered === 0 ? 'Belum Ada Detail' : 'Sedang';
+        let badgeClass =
+          totalAnswered === 0
+            ? 'text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-400'
+            : 'text-amber-700 bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300';
+
+        if (totalAnswered > 0) {
+          if (percentageCorrect >= 70) {
+            tingkatEmpiris = 'Mudah';
+            badgeClass =
+              'text-emerald-700 bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300';
+          } else if (percentageCorrect < 40) {
+            tingkatEmpiris = 'Sulit';
+            badgeClass =
+              'text-rose-700 bg-rose-100 dark:bg-rose-950/60 dark:text-rose-300';
           }
         }
-      });
 
-      const percentageCorrect =
-        totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+        return {
+          index: index + 1,
+          question: q,
+          correctCount,
+          totalCount: totalAnswered,
+          percentageCorrect,
+          tingkatEmpiris,
+          badgeClass,
+        };
+      })
+      .filter(Boolean);
+  }, [currentPkg, questions, pkgSessions]);
 
-      let tingkatEmpiris = 'Sedang';
-      let badgeClass = 'text-amber-700 bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300';
-      if (percentageCorrect >= 70) {
-        tingkatEmpiris = 'Mudah';
-        badgeClass = 'text-emerald-700 bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300';
-      } else if (percentageCorrect < 40) {
-        tingkatEmpiris = 'Sulit';
-        badgeClass = 'text-rose-700 bg-rose-100 dark:bg-rose-950/60 dark:text-rose-300';
-      }
+  const selectedStudentObj = useMemo(() => {
+    return (
+      muridUsers.find((m) => m.id === selectedStudentId) || muridUsers[0] || null
+    );
+  }, [muridUsers, selectedStudentId]);
 
-      return {
-        index: index + 1,
-        question: q,
-        correctCount,
-        totalCount,
-        percentageCorrect,
-        tingkatEmpiris,
-        badgeClass,
-      };
-    }).filter(Boolean);
-  }, [currentPkg, questions, pkgSessions, totalCount]);
-
-  // Export to CSV
+  // Export to CSV (formula-safe + UTF-8 BOM untuk Excel)
   const handleExportCsv = () => {
-    if (pkgSessions.length === 0) {
+    const rowsToExport = filteredSessions.length > 0 ? filteredSessions : pkgSessions;
+    if (rowsToExport.length === 0) {
       showToast('Tidak ada data nilai murid untuk diekspor.', 'error');
       return;
     }
 
-    let csv = `Peringkat,Nama Murid,Kelas,Skor %,Benar,Salah,Kosong,Waktu Terpakai,Pelanggaran Tab\n`;
-    pkgSessions.forEach((s, idx) => {
-      csv += `${idx + 1},"${s.muridNama}","${s.kelasNama}",${s.persentaseNilai},${s.jumlahBenar},${s.jumlahSalah},${s.jumlahKosong},"${formatDuration(s.durasiDetikTerpakai)}",${s.jumlahPelanggaranTab}\n`;
-    });
+    const headers = [
+      'Peringkat',
+      'Nama Murid',
+      'Username',
+      'Kelas',
+      'Paket Ujian',
+      'Skor %',
+      'Benar',
+      'Salah',
+      'Kosong',
+      'Waktu Selesai',
+      'Durasi',
+      'Pelanggaran Tab',
+    ];
 
-    const encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csv);
+    const lines = [
+      headers.map((h) => sanitizeCsvCell(h)).join(','),
+      ...rowsToExport.map((s, idx) =>
+        [
+          idx + 1,
+          s.muridNama,
+          s.muridUsername || s.muridId,
+          s.kelasNama,
+          s.paketJudul,
+          s.persentaseNilai ?? 0,
+          s.jumlahBenar ?? 0,
+          s.jumlahSalah ?? 0,
+          s.jumlahKosong ?? 0,
+          formatSafeDateTime(s.waktuSelesai || s.waktuMulai, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          s.durasiDetikTerpakai > 0 ? formatDuration(s.durasiDetikTerpakai) : '-',
+          s.jumlahPelanggaranTab ?? 0,
+        ]
+          .map((cell) => sanitizeCsvCell(cell))
+          .join(',')
+      ),
+    ];
+
+    const csvContent = '\uFEFF' + lines.join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `rekap_nilai_${currentPkg.judul.replace(/\s+/g, '_')}.csv`);
+    const safeFileName = selectedPackageLabel.replace(/[^a-zA-Z0-9_-]+/g, '_');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `rekap_nilai_${safeFileName}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     showToast('Rekap nilai berhasil diekspor ke format Excel/CSV.', 'success');
   };
 
@@ -147,11 +304,20 @@ export const HasilAnalisisPage: React.FC = () => {
               <span>Hasil Ujian & Analisis Butir Soal</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Rekapitulasi nilai murid, analisis daya pembeda butir soal, dan persentase keberhasilan per nomor.
+              Rekapitulasi nilai murid tersinkron dari Google Sheets, analisis daya pembeda butir soal, dan kurva progres siswa.
             </p>
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap print:hidden">
+            <button
+              type="button"
+              disabled={isSyncingSheets}
+              onClick={() => void syncFromGoogleSheets(false)}
+              className="flex items-center gap-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/40 px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 disabled:opacity-60 transition-colors"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isSyncingSheets ? 'animate-spin' : ''}`} />
+              <span>{isSyncingSheets ? 'Menyinkronkan...' : 'Muat Nilai Terbaru'}</span>
+            </button>
             <button
               type="button"
               onClick={() => window.print()}
@@ -236,17 +402,19 @@ export const HasilAnalisisPage: React.FC = () => {
                     if (!searchStudentCurve.trim()) return true;
                     const q = searchStudentCurve.toLowerCase();
                     return (
-                      m.nama.toLowerCase().includes(q) || (m.kelasId || '').toLowerCase().includes(q)
+                      m.nama.toLowerCase().includes(q) ||
+                      m.username.toLowerCase().includes(q) ||
+                      (m.kelasId || '').toLowerCase().includes(q)
                     );
                   })
                   .map((m) => {
-                    const isSelected = m.id === selectedStudentId;
-                    const mSessions = sessions
-                      .filter((s) => s.muridId === m.id && s.status === 'selesai')
+                    const isSelected = m.id === (selectedStudentObj?.id || selectedStudentId);
+                    const mSessions = completedSessions
+                      .filter((s) => doesSessionMatchStudent(s, m))
                       .sort(
                         (a, b) =>
-                          new Date(a.waktuSelesai || a.waktuMulai).getTime() -
-                          new Date(b.waktuSelesai || b.waktuMulai).getTime()
+                          safeTimestampMs(a.waktuSelesai || a.waktuMulai) -
+                          safeTimestampMs(b.waktuSelesai || b.waktuMulai)
                       );
                     const count = mSessions.length;
                     const latest =
@@ -293,7 +461,13 @@ export const HasilAnalisisPage: React.FC = () => {
             </div>
 
             {/* The Curve View for the Selected Student */}
-            <StudentProgressCurve studentId={selectedStudentId} />
+            <StudentProgressCurve
+              studentId={selectedStudentObj?.id || selectedStudentId}
+              studentUsername={selectedStudentObj?.username}
+              studentNomorInduk={selectedStudentObj?.nomorInduk}
+              studentName={selectedStudentObj?.nama}
+              studentClass={selectedStudentObj?.kelasId}
+            />
           </div>
         ) : (
           <div className="space-y-6">
@@ -304,11 +478,19 @@ export const HasilAnalisisPage: React.FC = () => {
                 <select
                   value={selectedPkgId}
                   onChange={(e) => setSelectedPkgId(e.target.value)}
-                  className="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-1.5 px-3 text-xs font-bold text-slate-900 dark:text-white"
+                  className="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-1.5 px-3 text-xs font-bold text-slate-900 dark:text-white max-w-xs sm:max-w-md"
                 >
-                  {packages.map((p) => (
+                  <option value="__all__">
+                    Semua Paket Ujian ({completedSessions.length} Rekap)
+                  </option>
+                  {packageOptions.registered.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.judul} ({p.soalIds.length} Soal)
+                    </option>
+                  ))}
+                  {packageOptions.extras.map((ex) => (
+                    <option key={ex.id} value={ex.id}>
+                      {ex.judul} (Google Sheets)
                     </option>
                   ))}
                 </select>
@@ -318,7 +500,7 @@ export const HasilAnalisisPage: React.FC = () => {
                 <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Cari nama murid atau kelas..."
+                  placeholder="Cari nama murid, username, kelas..."
                   value={searchMurid}
                   onChange={(e) => setSearchMurid(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 py-1.5 pl-9 pr-3 text-xs text-slate-900 dark:text-white"
@@ -387,124 +569,163 @@ export const HasilAnalisisPage: React.FC = () => {
                       <th className="py-2.5 px-3">Rank</th>
                       <th className="py-2.5 px-3">Nama Lengkap Murid</th>
                       <th className="py-2.5 px-3">Kelas</th>
+                      {selectedPkgId === '__all__' && (
+                        <th className="py-2.5 px-3">Paket Ujian</th>
+                      )}
                       <th className="py-2.5 px-3 text-center">Benar</th>
                       <th className="py-2.5 px-3 text-center">Salah</th>
                       <th className="py-2.5 px-3 text-center">Kosong</th>
-                      <th className="py-2.5 px-3 text-center">Durasi</th>
+                      <th className="py-2.5 px-3 text-center">Waktu / Durasi</th>
                       <th className="py-2.5 px-3 text-right">Nilai Akhir</th>
                       <th className="py-2.5 px-3 text-center">Kurva Nilai</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredSessions.map((ses, idx) => (
-                      <tr key={ses.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                        <td className="py-2.5 px-3 font-mono font-bold text-slate-500">
-                          #{idx + 1}
-                        </td>
-                        <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white">
-                          {ses.muridNama}
-                        </td>
-                        <td className="py-2.5 px-3 text-slate-500">{ses.kelasNama}</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600 font-mono">
-                          {ses.jumlahBenar}
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-600 font-mono">
-                          {ses.jumlahSalah}
-                        </td>
-                        <td className="py-2.5 px-3 text-center text-slate-400 font-mono">
-                          {ses.jumlahKosong}
-                        </td>
-                        <td className="py-2.5 px-3 text-center text-slate-500 font-mono">
-                          {formatDuration(ses.durasiDetikTerpakai)}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-extrabold font-mono text-base text-indigo-600 dark:text-indigo-400">
-                          {ses.persentaseNilai}%
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedStudentId(ses.muridId);
-                              setActiveTab('kurva_anak');
-                            }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
-                            title={`Buka kurva perkembangan ${ses.muridNama}`}
-                          >
-                            <TrendingUp className="h-3 w-3" />
-                            <span>Lihat Kurva</span>
-                          </button>
+                    {filteredSessions.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={selectedPkgId === '__all__' ? 10 : 9}
+                          className="py-8 text-center text-slate-400"
+                        >
+                          Belum ada data nilai siswa untuk pilihan ini.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredSessions.map((ses, idx) => (
+                        <tr key={ses.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-500">
+                            #{idx + 1}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="font-semibold text-slate-900 dark:text-white">
+                              {ses.muridNama}
+                            </div>
+                            {ses.muridUsername && (
+                              <div className="text-[10px] font-mono text-slate-400">
+                                @{ses.muridUsername}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-500">{ses.kelasNama}</td>
+                          {selectedPkgId === '__all__' && (
+                            <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 max-w-[200px] truncate">
+                              {ses.paketJudul}
+                            </td>
+                          )}
+                          <td className="py-2.5 px-3 text-center font-bold text-emerald-600 font-mono">
+                            {ses.jumlahBenar}
+                          </td>
+                          <td className="py-2.5 px-3 text-center font-bold text-rose-600 font-mono">
+                            {ses.jumlahSalah}
+                          </td>
+                          <td className="py-2.5 px-3 text-center text-slate-400 font-mono">
+                            {ses.jumlahKosong}
+                          </td>
+                          <td className="py-2.5 px-3 text-center text-slate-500 font-mono whitespace-nowrap">
+                            {ses.durasiDetikTerpakai > 0
+                              ? formatDuration(ses.durasiDetikTerpakai)
+                              : formatSafeDateTime(ses.waktuSelesai || ses.waktuMulai, {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-extrabold font-mono text-base text-indigo-600 dark:text-indigo-400">
+                            {ses.persentaseNilai}%
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const matched = muridUsers.find((m) =>
+                                  doesSessionMatchStudent(ses, m)
+                                );
+                                setSelectedStudentId(matched?.id || ses.muridId);
+                                setActiveTab('kurva_anak');
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
+                              title={`Buka kurva perkembangan ${ses.muridNama}`}
+                            >
+                              <TrendingUp className="h-3 w-3" />
+                              <span>Lihat Kurva</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
 
             {/* ANALISIS BUTIR SOAL */}
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-indigo-600" />
-                    <span>Analisis Butir Soal (Tingkat Kesukaran Empiris)</span>
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Mengukur persentase siswa yang menjawab tepat untuk mendeteksi soal tersulit dan bahan evaluasi guru.
-                  </p>
+            {currentPkg && (
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      <span>Analisis Butir Soal (Tingkat Kesukaran Empiris)</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Mengukur persentase siswa yang menjawab tepat untuk mendeteksi soal tersulit dan bahan evaluasi guru.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold">
+                        <th className="py-2.5 px-3 w-16">No</th>
+                        <th className="py-2.5 px-3">Topik / Cuplikan Soal</th>
+                        <th className="py-2.5 px-3 text-center">Model</th>
+                        <th className="py-2.5 px-3 text-center">Siswa Benar</th>
+                        <th className="py-2.5 px-3 text-center">Daya Capai (%)</th>
+                        <th className="py-2.5 px-3 text-center">Tingkat Kesukaran</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {itemAnalysis.map((item: any) => (
+                        <tr key={item.question.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-400">
+                            Soal #{item.index}
+                          </td>
+                          <td className="py-2.5 px-3 max-w-md">
+                            <div className="font-semibold text-slate-800 dark:text-slate-200">{item.question.topik}</div>
+                            <div className="text-[11px] text-slate-500 truncate">{item.question.teksSoal}</div>
+                          </td>
+                          <td className="py-2.5 px-3 text-center uppercase font-mono text-[10px]">
+                            {item.question.modelSoal}
+                          </td>
+                          <td className="py-2.5 px-3 text-center font-mono font-semibold">
+                            {item.correctCount} / {item.totalCount}
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="w-16 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div
+                                  className="h-full bg-indigo-600 rounded-full"
+                                  style={{ width: `${item.percentageCorrect}%` }}
+                                />
+                              </div>
+                              <span className="font-mono font-bold">{item.percentageCorrect}%</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.badgeClass}`}>
+                              {item.tingkatEmpiris}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold">
-                      <th className="py-2.5 px-3 w-16">No</th>
-                      <th className="py-2.5 px-3">Topik / Cuplikan Soal</th>
-                      <th className="py-2.5 px-3 text-center">Model</th>
-                      <th className="py-2.5 px-3 text-center">Siswa Benar</th>
-                      <th className="py-2.5 px-3 text-center">Daya Capai (%)</th>
-                      <th className="py-2.5 px-3 text-center">Tingkat Kesukaran</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {itemAnalysis.map((item: any) => (
-                      <tr key={item.question.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                        <td className="py-2.5 px-3 font-mono font-bold text-slate-400">
-                          Soal #{item.index}
-                        </td>
-                        <td className="py-2.5 px-3 max-w-md">
-                          <div className="font-semibold text-slate-800 dark:text-slate-200">{item.question.topik}</div>
-                          <div className="text-[11px] text-slate-500 truncate">{item.question.teksSoal}</div>
-                        </td>
-                        <td className="py-2.5 px-3 text-center uppercase font-mono text-[10px]">
-                          {item.question.modelSoal}
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-mono font-semibold">
-                          {item.correctCount} / {item.totalCount}
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="w-16 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                              <div
-                                className="h-full bg-indigo-600 rounded-full"
-                                style={{ width: `${item.percentageCorrect}%` }}
-                              />
-                            </div>
-                            <span className="font-mono font-bold">{item.percentageCorrect}%</span>
-                          </div>
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.badgeClass}`}>
-                            {item.tingkatEmpiris}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>

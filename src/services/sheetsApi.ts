@@ -19,6 +19,7 @@ export interface SheetsFetchResult {
   users: User[];
   questions: Question[];
   stimuli: Stimulus[];
+  rawNilai: Record<string, unknown>[];
   rawStatus?: string;
 }
 
@@ -72,7 +73,7 @@ async function postToSheets(payload: unknown): Promise<SheetsPostResponse> {
 }
 
 /**
- * Mengambil data peserta dan bank soal terbaru dari Google Sheets (GET).
+ * Mengambil data peserta, bank soal, dan rekap nilai terbaru dari Google Sheets (GET).
  */
 export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
   const response = await fetch(URL_DATABASE, {
@@ -92,6 +93,9 @@ export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
 
   const rawPeserta = Array.isArray(root?.peserta) ? root.peserta : [];
   const rawSoal = Array.isArray(root?.soal) ? root.soal : [];
+  const rawNilai = Array.isArray(root?.nilai)
+    ? root.nilai.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+    : [];
 
   const users = rawPeserta
     .map((item, idx) =>
@@ -120,6 +124,7 @@ export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
     users,
     questions,
     stimuli: extractedStimuli,
+    rawNilai,
     rawStatus: typeof rawData?.status === 'string' ? rawData.status : undefined,
   };
 }

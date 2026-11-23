@@ -4,6 +4,11 @@
  */
 
 import { ExamSession, SubjectId } from '../types';
+import {
+  doesSessionMatchStudent,
+  safeTimestampMs,
+  StudentIdentityMatcher,
+} from './sheetsSync';
 
 export interface CurvePoint2D {
   x: number;
@@ -43,19 +48,23 @@ export interface StudentCurveSummary {
  */
 export function getCompletedSessionsChronological(
   sessions: ExamSession[],
-  studentId: string,
+  studentOrId: string | StudentIdentityMatcher,
   mapelFilter: string = 'semua'
 ): ExamSession[] {
+  const matcher: StudentIdentityMatcher =
+    typeof studentOrId === 'string' ? { id: studentOrId } : studentOrId;
+
   return sessions
     .filter((s) => {
-      if (s.muridId !== studentId || s.status !== 'selesai') return false;
+      if (s.status !== 'selesai') return false;
+      if (!doesSessionMatchStudent(s, matcher)) return false;
       if (mapelFilter !== 'semua' && s.mapelId !== mapelFilter) return false;
       return true;
     })
     .sort(
       (a, b) =>
-        new Date(a.waktuSelesai || a.waktuMulai).getTime() -
-        new Date(b.waktuSelesai || b.waktuMulai).getTime()
+        safeTimestampMs(a.waktuSelesai || a.waktuMulai) -
+        safeTimestampMs(b.waktuSelesai || b.waktuMulai)
     );
 }
 

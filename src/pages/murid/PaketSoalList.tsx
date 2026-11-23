@@ -6,6 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { SubjectId } from '../../types';
+import { doesSessionMatchStudent } from '../../utils/sheetsSync';
 import {
   BookOpen,
   Clock,
@@ -31,12 +32,22 @@ export const PaketSoalList: React.FC = () => {
     const map: Record<string, string> = {}; // pkgId -> sessionId
     if (!currentUser) return map;
     sessions.forEach((s) => {
-      if (s.muridId === currentUser.id && s.status === 'selesai') {
-        map[s.paketId] = s.id;
+      if (s.status === 'selesai' && doesSessionMatchStudent(s, currentUser)) {
+        if (!map[s.paketId]) {
+          map[s.paketId] = s.id;
+        }
+        const matchedPkg = packages.find(
+          (p) =>
+            p.id === s.paketId ||
+            p.judul.trim().toLowerCase() === s.paketJudul.trim().toLowerCase()
+        );
+        if (matchedPkg && !map[matchedPkg.id]) {
+          map[matchedPkg.id] = s.id;
+        }
       }
     });
     return map;
-  }, [sessions, currentUser]);
+  }, [sessions, currentUser, packages]);
 
   const filteredPackages = useMemo(() => {
     return packages.filter((pkg) => {

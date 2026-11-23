@@ -40,6 +40,20 @@ export interface SheetSoalRow {
   pembahasan: string;
 }
 
+export interface SheetNilaiRow {
+  id: string;
+  waktu: string;
+  nama_siswa: string;
+  username: string;
+  kelas: string;
+  paket_ujian: string;
+  mapel: string;
+  skor: number;
+  benar: number;
+  salah: number;
+  total_soal: number;
+}
+
 export interface SimpanNilaiPayload {
   action: 'simpan_nilai';
   nama_siswa: string;
@@ -594,6 +608,7 @@ export function buildSimpanNilaiPayload(
   username?: string
 ): SimpanNilaiPayload {
   const totalSoal =
+    session.totalSoal ||
     session.shuffledSoalIds.length ||
     (session.jumlahBenar ?? 0) + (session.jumlahSalah ?? 0) + (session.jumlahKosong ?? 0);
 
@@ -610,3 +625,323 @@ export function buildSimpanNilaiPayload(
     total_soal: totalSoal,
   };
 }
+
+function asNumber(val: unknown, fallback = 0): number {
+  if (typeof val === 'number' && Number.isFinite(val)) return val;
+  if (typeof val === 'string') {
+    const normalized = val.trim().replace(',', '.');
+    const parsed = Number(normalized);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
+}
+
+/**
+ * Mengurai format waktu dari Google Sheets (e.g. "23/11/2026 08:38:08", "23/11/2026 08.38.08",
+ * "2026-11-23 08:38:08", atau ISO-8601) menjadi string ISO yang valid untuk new Date().
+ */
+export function parseSheetTimestamp(rawWaktu: unknown): string {
+  const str = asString(rawWaktu);
+  if (!str) return new Date().toISOString();
+
+  // Format DD/MM/YYYY[ HH:mm[:ss]] atau DD-MM-YYYY[ HH.mm[.ss]]
+  const idMatch = str.match(
+    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})(?:\s+(\d{1,2})[:.](\d{1,2})(?:[:.](\d{1,2}))?)?$/
+  );
+  if (idMatch) {
+    const day = Number(idMatch[1]);
+    const month = Number(idMatch[2]);
+    const year = Number(idMatch[3]);
+    const hour = Number(idMatch[4] ?? 0);
+    const minute = Number(idMatch[5] ?? 0);
+    const second = Number(idMatch[6] ?? 0);
+    const parsed = new Date(year, month - 1, day, hour, minute, second);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString();
+    }
+  }
+
+  // Format YYYY-MM-DD HH:mm:ss
+  const isoSpaceMatch = str.match(
+    /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2})[:.](\d{1,2})(?:[:.](\d{1,2}))?$/
+  );
+  if (isoSpaceMatch) {
+    const year = Number(isoSpaceMatch[1]);
+    const month = Number(isoSpaceMatch[2]);
+    const day = Number(isoSpaceMatch[3]);
+    const hour = Number(isoSpaceMatch[4]);
+    const minute = Number(isoSpaceMatch[5]);
+    const second = Number(isoSpaceMatch[6] ?? 0);
+    const parsed = new Date(year, month - 1, day, hour, minute, second);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString();
+    }
+  }
+
+  const direct = new Date(str);
+  if (!Number.isNaN(direct.getTime())) {
+    return direct.toISOString();
+  }
+
+  return new Date().toISOString();
+}
+
+export function safeTimestampMs(rawDate?: string): number {
+  if (!rawDate) return 0;
+  const iso = parseSheetTimestamp(rawDate);
+  const ms = new Date(iso).getTime();
+  return Number.isNaN(ms) ? 0 : ms;
+}
+
+export function formatSafeDateTime(
+  rawDate?: string,
+  options: Intl.DateTimeFormatOptions = {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }
+): string {
+  if (!rawDate) return '-';
+  const direct = new Date(rawDate);
+  const dateObj = !Number.isNaN(direct.getTime())
+    ? direct
+    : new Date(parseSheetTimestamp(rawDate));
+  if (Number.isNaN(dateObj.getTime())) return rawDate;
+  return dateObj.toLocaleDateString('id-ID', options);
+}
+
+export interface StudentIdentityMatcher {
+  id: string;
+  username?: string;
+  nomorInduk?: string;
+  nama?: string;
+}
+
+export function doesSessionMatchStudent(
+  session: ExamSession,
+  student: StudentIdentityMatcher
+): boolean {
+  if (session.muridId && student.id && session.muridId === student.id) {
+    return true;
+  }
+
+  const sesUser = session.muridUsername?.trim().toLowerCase();
+  const stuUser = student.username?.trim().toLowerCase();
+  const stuNis = student.nomorInduk?.trim().toLowerCase();
+
+  if (sesUser) {
+    if (stuUser && sesUser === stuUser) return true;
+    if (stuNis && sesUser === stuNis) return true;
+    if (stuUser) return false;
+  }
+
+  const sesNama = session.muridNama?.trim().toLowerCase();
+  const stuNama = student.nama?.trim().toLowerCase();
+  if (sesNama && stuNama && sesNama === stuNama) {
+    return true;
+  }
+
+  return false;
+}
+
+function slugifyId(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Mengonversi satu baris `nilai` dari Google Sheets menjadi objek ExamSession.
+ */
+export function mapSheetNilaiToSession(
+  raw: Record<string, unknown>,
+  index: number,
+  users: User[] = [],
+  packages: ExamPackage[] = []
+): ExamSession | null {
+  const namaSiswa = asString(raw.nama_siswa ?? raw.namaSiswa ?? raw.nama);
+  const username = asString(raw.username ?? raw.Username ?? raw.nis);
+  const paketUjian = asString(raw.paket_ujian ?? raw.paketUjian ?? raw.paket);
+
+  if (!namaSiswa && !username && !paketUjian) return null;
+
+  const rawId = asString(raw.id ?? raw.ID);
+  const waktuIso = parseSheetTimestamp(raw.waktu ?? raw.waktuSelesai ?? raw.timestamp);
+  const kelas = asString(raw.kelas ?? raw.kelasNama, 'Umum');
+  const mapelId = normalizeSubjectId(raw.mapel ?? raw.mapelId);
+
+  const skor = Math.round(asNumber(raw.skor ?? raw.persentaseNilai ?? raw.nilai, 0) * 10) / 10;
+  const benar = Math.max(0, Math.round(asNumber(raw.benar ?? raw.jumlahBenar, 0)));
+  const salah = Math.max(0, Math.round(asNumber(raw.salah ?? raw.jumlahSalah, 0)));
+  const totalSoalRaw = Math.max(0, Math.round(asNumber(raw.total_soal ?? raw.totalSoal, 0)));
+  const totalSoal = totalSoalRaw > 0 ? totalSoalRaw : benar + salah;
+  const kosong = Math.max(0, totalSoal - benar - salah);
+
+  const unameLower = username.toLowerCase();
+  const namaLower = namaSiswa.toLowerCase();
+
+  const matchedUser = users.find((u) => {
+    if (unameLower) {
+      if (u.username.toLowerCase() === unameLower) return true;
+      if (u.nomorInduk && u.nomorInduk.toLowerCase() === unameLower) return true;
+    }
+    if (namaLower && u.nama.toLowerCase() === namaLower) return true;
+    return false;
+  });
+
+  const paketLower = paketUjian.toLowerCase();
+  const matchedPkg = packages.find(
+    (p) =>
+      p.judul.trim().toLowerCase() === paketLower ||
+      p.id.trim().toLowerCase() === paketLower
+  );
+
+  const fallbackStudentKey = unameLower || slugifyId(namaSiswa) || `anon-${index + 1}`;
+  const muridId = matchedUser?.id || `usr-sheet-${fallbackStudentKey}`;
+  const paketId = matchedPkg?.id || `pkg-sheet-${slugifyId(paketUjian) || index + 1}`;
+  const id =
+    rawId ||
+    `nilai-sheet-${fallbackStudentKey}-${slugifyId(paketUjian) || 'ujian'}-${index + 1}`;
+
+  return {
+    id,
+    paketId,
+    paketJudul: matchedPkg?.judul || paketUjian || 'Paket Ujian CBT',
+    mapelId: matchedPkg?.mapelId || mapelId,
+    muridId,
+    muridUsername: username || matchedUser?.username || fallbackStudentKey,
+    muridNama: namaSiswa || matchedUser?.nama || username || 'Siswa',
+    kelasNama: kelas || matchedUser?.kelasId || 'Umum',
+    waktuMulai: waktuIso,
+    waktuSelesai: waktuIso,
+    durasiDetikTerpakai: 0,
+    sisaDetik: 0,
+    status: 'selesai',
+    answers: {},
+    shuffledSoalIds: [],
+    jumlahPelanggaranTab: 0,
+    persentaseNilai: skor,
+    jumlahBenar: benar,
+    jumlahSalah: salah,
+    jumlahKosong: kosong,
+    totalSoal,
+    nilaiSyncStatus: 'saved',
+    fromGoogleSheets: true,
+  };
+}
+
+function isSameNilaiAttempt(sheetSes: ExamSession, localSes: ExamSession): boolean {
+  if (sheetSes.id === localSes.id || localSes.localSessionId === sheetSes.id) {
+    return true;
+  }
+
+  const sameStudent = doesSessionMatchStudent(sheetSes, {
+    id: localSes.muridId,
+    username: localSes.muridUsername,
+    nama: localSes.muridNama,
+  });
+  if (!sameStudent) return false;
+
+  const samePackage =
+    sheetSes.paketJudul.trim().toLowerCase() === localSes.paketJudul.trim().toLowerCase();
+  if (!samePackage) return false;
+
+  const sameScore =
+    Math.abs((sheetSes.persentaseNilai ?? 0) - (localSes.persentaseNilai ?? 0)) < 0.05 &&
+    (sheetSes.jumlahBenar ?? 0) === (localSes.jumlahBenar ?? 0) &&
+    (sheetSes.jumlahSalah ?? 0) === (localSes.jumlahSalah ?? 0);
+
+  return sameScore;
+}
+
+/**
+ * Menggabungkan riwayat nilai dari Google Sheets (`sheetSessions`) dengan state lokal
+ * tanpa menghasilkan duplikasi, sambil mempertahankan detail jawaban per-butir lokal
+ * dan sesi lokal yang belum berhasil tersinkron (saving/error).
+ */
+export function mergeSheetNilaiSessions(
+  sheetSessions: ExamSession[],
+  existingSessions: ExamSession[]
+): { sessions: ExamSession[]; remappedIds: Record<string, string> } {
+  const remappedIds: Record<string, string> = {};
+
+  if (sheetSessions.length === 0) {
+    return { sessions: existingSessions, remappedIds };
+  }
+
+  // Deduplikasi sheetSessions berdasarkan id jika ada id ganda dari sheet
+  const dedupedSheetMap = new Map<string, ExamSession>();
+  sheetSessions.forEach((s) => {
+    dedupedSheetMap.set(s.id, s);
+  });
+  const uniqueSheetSessions = Array.from(dedupedSheetMap.values());
+
+  const localNonSheetCompleted = existingSessions.filter(
+    (s) => s.status === 'selesai' && !s.fromGoogleSheets
+  );
+  const consumedLocalIds = new Set<string>();
+
+  const enrichedSheetSessions = uniqueSheetSessions.map((sheetSes) => {
+    const matchedLocal =
+      existingSessions.find(
+        (l) => !consumedLocalIds.has(l.id) && l.id === sheetSes.id
+      ) ||
+      localNonSheetCompleted.find(
+        (l) => !consumedLocalIds.has(l.id) && isSameNilaiAttempt(sheetSes, l)
+      );
+
+    if (!matchedLocal) {
+      return sheetSes;
+    }
+
+    consumedLocalIds.add(matchedLocal.id);
+    if (matchedLocal.id !== sheetSes.id) {
+      remappedIds[matchedLocal.id] = sheetSes.id;
+    }
+
+    const hasLocalDetails =
+      Object.keys(matchedLocal.answers || {}).length > 0 ||
+      (matchedLocal.shuffledSoalIds?.length || 0) > 0;
+
+    return {
+      ...sheetSes,
+      localSessionId: matchedLocal.localSessionId || (matchedLocal.id !== sheetSes.id ? matchedLocal.id : undefined),
+      waktuMulai: matchedLocal.waktuMulai || sheetSes.waktuMulai,
+      durasiDetikTerpakai: matchedLocal.durasiDetikTerpakai || sheetSes.durasiDetikTerpakai,
+      answers: hasLocalDetails ? matchedLocal.answers : sheetSes.answers,
+      shuffledSoalIds: hasLocalDetails ? matchedLocal.shuffledSoalIds : sheetSes.shuffledSoalIds,
+      jumlahPelanggaranTab: matchedLocal.jumlahPelanggaranTab ?? sheetSes.jumlahPelanggaranTab,
+      totalSkor: matchedLocal.totalSkor ?? sheetSes.totalSkor,
+      skorMaksimal: matchedLocal.skorMaksimal ?? sheetSes.skorMaksimal,
+      nilaiSyncStatus: 'saved' as const,
+      fromGoogleSheets: true,
+    };
+  });
+
+  // Pertahankan sesi lokal yang masih proses kirim atau gagal kirim dan belum masuk sheet
+  const pendingOrUnsyncedLocals = localNonSheetCompleted.filter(
+    (l) =>
+      !consumedLocalIds.has(l.id) &&
+      (l.nilaiSyncStatus === 'saving' || l.nilaiSyncStatus === 'error')
+  );
+
+  const combined = [...pendingOrUnsyncedLocals, ...enrichedSheetSessions].sort(
+    (a, b) =>
+      safeTimestampMs(b.waktuSelesai || b.waktuMulai) -
+      safeTimestampMs(a.waktuSelesai || a.waktuMulai)
+  );
+
+  return { sessions: combined, remappedIds };
+}
+
+/**
+ * Mengamankan nilai sel CSV dari Excel/Spreadsheet formula injection dan kutip ganda.
+ */
+export function sanitizeCsvCell(value: string | number | undefined | null): string {
+  const str = value === null || value === undefined ? '' : String(value);
+  const formulaNeutralized = /^[=+\-@\t\r]/.test(str) ? `'${str}` : str;
+  const escaped = formulaNeutralized.replace(/"/g, '""');
+  return `"${escaped}"`;
+}
+

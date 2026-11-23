@@ -67,6 +67,21 @@ test('getCompletedSessionsChronological filters by student, completed status, su
 
   const emptyM3 = getCompletedSessionsChronological(sessions, 'm3', 'semua');
   assert.equal(emptyM3.length, 0);
+
+  const crossDeviceSessions: ExamSession[] = [
+    {
+      ...makeSession('nilai_1', 'usr-sheet-fajar.h', 'matematika', 4.4, '2026-11-23T08:38:08Z'),
+      muridUsername: 'fajar.h',
+      muridNama: 'Fajar Nugraha',
+    },
+  ];
+  const matchedByUsername = getCompletedSessionsChronological(
+    crossDeviceSessions,
+    { id: 'usr-murid-3', username: 'fajar.h', nama: 'Fajar Nugraha' },
+    'semua'
+  );
+  assert.equal(matchedByUsername.length, 1);
+  assert.equal(matchedByUsername[0].id, 'nilai_1');
 });
 
 test('computeStudentCurveSummary handles empty, single, and multi-session progression accurately', () => {

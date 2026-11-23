@@ -8,6 +8,7 @@ import { useApp } from '../context/AppContext';
 import { SubjectId } from '../types';
 import { SUBJECTS } from '../data/seedData';
 import { StudentProgressCurve } from './StudentProgressCurve';
+import { doesSessionMatchStudent, safeTimestampMs } from '../utils/sheetsSync';
 import {
   TrendingUp,
   Target,
@@ -52,8 +53,12 @@ export const StudentPerformanceProgress: React.FC<StudentPerformanceProgressProp
 
   // Completed sessions of the current student sorted chronologically ascending for trends
   const studentSessions = sessions
-    .filter((s) => s.muridId === currentUser.id && s.status === 'selesai')
-    .sort((a, b) => new Date(a.waktuSelesai || '').getTime() - new Date(b.waktuSelesai || '').getTime());
+    .filter((s) => s.status === 'selesai' && doesSessionMatchStudent(s, currentUser))
+    .sort(
+      (a, b) =>
+        safeTimestampMs(a.waktuSelesai || a.waktuMulai) -
+        safeTimestampMs(b.waktuSelesai || b.waktuMulai)
+    );
 
   const handleOpenEditKkm = () => {
     setTempKkm({
@@ -273,6 +278,10 @@ export const StudentPerformanceProgress: React.FC<StudentPerformanceProgressProp
           <div className="-m-5 sm:-m-6">
             <StudentProgressCurve
               studentId={currentUser.id}
+              studentUsername={currentUser.username}
+              studentNomorInduk={currentUser.nomorInduk}
+              studentName={currentUser.nama}
+              studentClass={currentUser.kelasId}
               compact={compact}
               onOpenSessionDetail={(sessionId) => {
                 setSelectedSessionId(sessionId);

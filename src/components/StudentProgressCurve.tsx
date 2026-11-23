@@ -15,6 +15,7 @@ import {
   generateAreaPath,
   resolveStudentKkm,
 } from '../utils/studentCurveAnalytics';
+import { formatSafeDateTime } from '../utils/sheetsSync';
 import {
   TrendingUp,
   TrendingDown,
@@ -30,6 +31,8 @@ import {
 
 interface StudentProgressCurveProps {
   studentId: string;
+  studentUsername?: string;
+  studentNomorInduk?: string;
   studentName?: string;
   studentClass?: string;
   showFilters?: boolean;
@@ -39,6 +42,8 @@ interface StudentProgressCurveProps {
 
 export const StudentProgressCurve: React.FC<StudentProgressCurveProps> = ({
   studentId,
+  studentUsername,
+  studentNomorInduk,
   studentName,
   studentClass,
   showFilters = true,
@@ -51,8 +56,13 @@ export const StudentProgressCurve: React.FC<StudentProgressCurveProps> = ({
 
   // Identify student
   const student = useMemo(() => {
-    return users.find((u) => u.id === studentId);
-  }, [users, studentId]);
+    return (
+      users.find((u) => u.id === studentId) ||
+      (studentUsername
+        ? users.find((u) => u.username.toLowerCase() === studentUsername.toLowerCase())
+        : undefined)
+    );
+  }, [users, studentId, studentUsername]);
 
   const displayName = studentName || student?.nama || 'Peserta Didik';
   const displayClass = studentClass || student?.kelasId || 'Kelas SD';
@@ -64,8 +74,17 @@ export const StudentProgressCurve: React.FC<StudentProgressCurveProps> = ({
 
   // Filtered completed sessions sorted chronologically ascending
   const filteredSessions = useMemo(() => {
-    return getCompletedSessionsChronological(sessions, studentId, selectedMapel);
-  }, [sessions, studentId, selectedMapel]);
+    return getCompletedSessionsChronological(
+      sessions,
+      {
+        id: studentId,
+        username: student?.username || studentUsername,
+        nomorInduk: student?.nomorInduk || studentNomorInduk,
+        nama: student?.nama || studentName,
+      },
+      selectedMapel
+    );
+  }, [sessions, studentId, student, studentUsername, studentNomorInduk, studentName, selectedMapel]);
 
   // Overall calculations
   const summary = useMemo(() => {
@@ -569,19 +588,17 @@ export const StudentProgressCurve: React.FC<StudentProgressCurveProps> = ({
                     <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {new Date(
+                        {formatSafeDateTime(
                           points[hoveredPointIndex].session.waktuSelesai ||
                             points[hoveredPointIndex].session.waktuMulai
-                        ).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
+                        )}
                       </span>
                       <span>·</span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {formatDuration(points[hoveredPointIndex].session.durasiDetikTerpakai)}
+                        {points[hoveredPointIndex].session.durasiDetikTerpakai > 0
+                          ? formatDuration(points[hoveredPointIndex].session.durasiDetikTerpakai)
+                          : 'Tersinkron'}
                       </span>
                       <span>·</span>
                       <span className="uppercase font-mono font-bold text-[10px] text-indigo-600 dark:text-indigo-400">
@@ -668,14 +685,12 @@ export const StudentProgressCurve: React.FC<StudentProgressCurveProps> = ({
                             </span>
                           </td>
                           <td className="py-2 px-3 text-center text-slate-500 whitespace-nowrap">
-                            {new Date(ses.waktuSelesai || ses.waktuMulai).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
+                            {formatSafeDateTime(ses.waktuSelesai || ses.waktuMulai)}
                           </td>
                           <td className="py-2 px-3 text-center font-mono text-slate-500 whitespace-nowrap">
-                            {formatDuration(ses.durasiDetikTerpakai)}
+                            {ses.durasiDetikTerpakai > 0
+                              ? formatDuration(ses.durasiDetikTerpakai)
+                              : '-'}
                           </td>
                           <td className="py-2 px-3 text-center font-mono text-slate-600 dark:text-slate-400 whitespace-nowrap">
                             <span className="text-emerald-600 font-bold">{ses.jumlahBenar}</span> /{' '}

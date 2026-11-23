@@ -9,6 +9,11 @@ import { formatDuration } from '../../utils/examScoring';
 import { SUBJECTS } from '../../data/seedData';
 import { StudentPerformanceProgress } from '../../components/StudentPerformanceProgress';
 import {
+  doesSessionMatchStudent,
+  formatSafeDateTime,
+  safeTimestampMs,
+} from '../../utils/sheetsSync';
+import {
   Clock,
   Award,
   TrendingUp,
@@ -34,8 +39,12 @@ export const RiwayatMuridPage: React.FC = () => {
 
   // Filter completed sessions for this student
   const studentSessions = sessions
-    .filter((s) => s.muridId === currentUser.id && s.status === 'selesai')
-    .sort((a, b) => new Date(b.waktuSelesai || '').getTime() - new Date(a.waktuSelesai || '').getTime());
+    .filter((s) => s.status === 'selesai' && doesSessionMatchStudent(s, currentUser))
+    .sort(
+      (a, b) =>
+        safeTimestampMs(b.waktuSelesai || b.waktuMulai) -
+        safeTimestampMs(a.waktuSelesai || a.waktuMulai)
+    );
 
   const filteredSessions = studentSessions.filter((s) => {
     if (selectedMapelFilter !== 'semua' && s.mapelId !== selectedMapelFilter) {
@@ -188,17 +197,14 @@ export const RiwayatMuridPage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {filteredSessions.map((ses) => {
-              const dateStr = new Date(ses.waktuSelesai || ses.waktuMulai).toLocaleDateString(
-                'id-ID',
-                {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }
-              );
+              const dateStr = formatSafeDateTime(ses.waktuSelesai || ses.waktuMulai, {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              });
 
               return (
                 <div
@@ -213,7 +219,11 @@ export const RiwayatMuridPage: React.FC = () => {
                       <span>·</span>
                       <span>{dateStr}</span>
                       <span>·</span>
-                      <span>Waktu: {formatDuration(ses.durasiDetikTerpakai)}</span>
+                      <span>
+                        {ses.durasiDetikTerpakai > 0
+                          ? `Waktu: ${formatDuration(ses.durasiDetikTerpakai)}`
+                          : 'Tersinkron Google Sheets'}
+                      </span>
                     </div>
 
                     <h3 className="text-base font-bold text-slate-900 dark:text-white">

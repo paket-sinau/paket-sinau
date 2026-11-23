@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { MathRenderer } from '../../components/MathRenderer';
 import { formatDuration } from '../../utils/examScoring';
+import { formatSafeDateTime } from '../../utils/sheetsSync';
 import confetti from 'canvas-confetti';
 import {
   Award,
@@ -37,8 +38,16 @@ export const ExamResultPage: React.FC = () => {
   const [filterMode, setFilterMode] = useState<'semua' | 'salah' | 'benar'>('semua');
 
   // Find session to display
-  const session = sessions.find((s) => s.id === selectedSessionId) || sessions[0];
-  const pkg = session ? packages.find((p) => p.id === session.paketId) : null;
+  const session =
+    sessions.find((s) => s.id === selectedSessionId || s.localSessionId === selectedSessionId) ||
+    sessions[0];
+  const pkg = session
+    ? packages.find(
+        (p) =>
+          p.id === session.paketId ||
+          p.judul.trim().toLowerCase() === session.paketJudul.trim().toLowerCase()
+      )
+    : null;
 
   // Trigger confetti if high score
   useEffect(() => {
@@ -141,7 +150,14 @@ export const ExamResultPage: React.FC = () => {
                 {session.paketJudul}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Peserta: <strong>{session.muridNama}</strong> · Kelas: <strong>{session.kelasNama}</strong> · Selesai pada: {new Date(session.waktuSelesai || '').toLocaleString('id-ID')}
+                Peserta: <strong>{session.muridNama}</strong> · Kelas: <strong>{session.kelasNama}</strong> · Selesai pada:{' '}
+                {formatSafeDateTime(session.waktuSelesai || session.waktuMulai, {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
               </p>
             </div>
 
@@ -198,7 +214,9 @@ export const ExamResultPage: React.FC = () => {
                 <span className="font-semibold">Waktu Terpakai</span>
               </div>
               <div className="text-2xl font-bold font-mono text-indigo-700 dark:text-indigo-300">
-                {formatDuration(session.durasiDetikTerpakai)}
+                {session.durasiDetikTerpakai > 0
+                  ? formatDuration(session.durasiDetikTerpakai)
+                  : '-'}
               </div>
             </div>
           </div>
@@ -314,7 +332,18 @@ export const ExamResultPage: React.FC = () => {
 
           {/* Questions list with solutions */}
           <div className="space-y-4">
-            {filteredQuestions.map((q, idx) => {
+            {sessionQuestions.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center space-y-2 shadow-xs">
+                <BookOpen className="h-8 w-8 text-indigo-500 mx-auto" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Ringkasan Nilai Tersinkron dari Google Sheets
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+                  Riwayat ujian ini dimuat dari rekap Google Sheets (total {session.totalSoal ?? (session.jumlahBenar ?? 0) + (session.jumlahSalah ?? 0) + (session.jumlahKosong ?? 0)} soal: {session.jumlahBenar} benar, {session.jumlahSalah} salah). Detail pembahasan per nomor hanya tersimpan di browser perangkat saat ujian dikerjakan.
+                </p>
+              </div>
+            ) : (
+              filteredQuestions.map((q, idx) => {
               if (!q) return null;
               const ans = session.answers[q.id];
               const isCorrect = ans?.isFullyCorrect;
@@ -528,7 +557,8 @@ export const ExamResultPage: React.FC = () => {
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         </div>
       </div>

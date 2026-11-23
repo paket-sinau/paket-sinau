@@ -8,11 +8,15 @@ import assert from 'node:assert/strict';
 import {
   buildSimpanNilaiPayload,
   mapQuestionToSheetSoal,
+  mapSheetNilaiToSession,
   mapSheetPesertaToUser,
   mapSheetSoalToQuestion,
   mapUserToSheetPeserta,
+  mergeSheetNilaiSessions,
   mergeUsersWithAdminFallback,
+  parseSheetTimestamp,
   reconcilePackagesWithSheetQuestions,
+  sanitizeCsvCell,
   sanitizeImageUrl,
 } from './sheetsSync.ts';
 import type { ExamPackage, ExamSession, Question, Stimulus, User } from '../types/index.ts';
@@ -356,3 +360,176 @@ test('buildSimpanNilaiPayload constructs exact GAS schema for exam completion', 
     total_soal: 4,
   });
 });
+
+test('parseSheetTimestamp parses Indonesian DD/MM/YYYY HH:mm:ss and ISO dates without Invalid Date', () => {
+  const iso1 = parseSheetTimestamp('23/11/2026 08:38:08');
+  const d1 = new Date(iso1);
+  assert.equal(Number.isNaN(d1.getTime()), false);
+  assert.equal(d1.getFullYear(), 2026);
+  assert.equal(d1.getMonth(), 10); // November = 10
+  assert.equal(d1.getDate(), 23);
+  assert.equal(d1.getHours(), 8);
+  assert.equal(d1.getMinutes(), 38);
+
+  const iso2 = parseSheetTimestamp('23/11/2026 09.15.00');
+  const d2 = new Date(iso2);
+  assert.equal(d2.getHours(), 9);
+  assert.equal(d2.getMinutes(), 15);
+});
+
+test('mapSheetNilaiToSession maps live Google Sheets nilai row and resolves student & package IDs', () => {
+  const users: User[] = [
+    {
+      id: 'usr-murid-3',
+      username: 'fajar.h',
+      nama: 'Fajar Nugraha',
+      email: 'fajar@siswa.sch.id',
+      role: 'murid',
+      kelasId: 'Kelas 6A',
+      aktif: true,
+      createdAt: '2026-01-15T07:10:00Z',
+    },
+  ];
+  const packages: ExamPackage[] = [
+    {
+      id: 'pkg-1',
+      judul: 'Tryout TKA Matematika SD/MI 2026 (30 Soal Lengkap)',
+      mapelId: 'matematika',
+      deskripsi: 'Desc',
+      durasiMenit: 60,
+      bobotBenar: 4,
+      bobotSalah: 0,
+      bobotKosong: 0,
+      acakSoal: true,
+      acakOpsi: true,
+      waktuBuka: '2026-01-01T00:00:00Z',
+      waktuTutup: '2026-12-31T23:59:00Z',
+      kelasAkses: ['semua'],
+      soalIds: ['mtk-1'],
+      status: 'terbit',
+      izinkanLihatPembahasan: true,
+      deteksiPindahTab: true,
+      pembuatId: 'u1',
+      pembuatNama: 'Guru',
+      createdAt: '2026-01-01T00:00:00Z',
+    },
+  ];
+
+  const liveNilaiRow = {
+    id: 'nilai_1',
+    waktu: '23/11/2026 08:38:08',
+    nama_siswa: 'Fajar Nugraha',
+    username: 'fajar.h',
+    kelas: 'Kelas 6A',
+    paket_ujian: 'Tryout TKA Matematika SD/MI 2026 (30 Soal Lengkap)',
+    mapel: 'matematika',
+    skor: 4.4,
+    benar: 1,
+    salah: 2,
+    total_soal: 30,
+  };
+
+  const session = mapSheetNilaiToSession(liveNilaiRow, 0, users, packages);
+  assert.ok(session);
+  assert.equal(session.id, 'nilai_1');
+  assert.equal(session.muridId, 'usr-murid-3');
+  assert.equal(session.muridUsername, 'fajar.h');
+  assert.equal(session.paketId, 'pkg-1');
+  assert.equal(session.persentaseNilai, 4.4);
+  assert.equal(session.jumlahBenar, 1);
+  assert.equal(session.jumlahSalah, 2);
+  assert.equal(session.jumlahKosong, 27);
+  assert.equal(session.totalSoal, 30);
+  assert.equal(session.fromGoogleSheets, true);
+  assert.equal(session.nilaiSyncStatus, 'saved');
+});
+
+test('mergeSheetNilaiSessions prevents duplicates on repeated GET and merges newly submitted local sessions', () => {
+  const localSubmitted: ExamSession = {
+    id: 'ses-1760000001-3',
+    paketId: 'pkg-1',
+    paketJudul: 'Tryout TKA Matematika SD/MI 2026 (30 Soal Lengkap)',
+    mapelId: 'matematika',
+    muridId: 'usr-murid-3',
+    muridUsername: 'fajar.h',
+    muridNama: 'Fajar Nugraha',
+    kelasNama: 'Kelas 6A',
+    waktuMulai: '2026-11-23T08:00:00.000Z',
+    waktuSelesai: '2026-11-23T08:38:00.000Z',
+    durasiDetikTerpakai: 450,
+    sisaDetik: 3150,
+    status: 'selesai',
+    answers: {
+      'mtk-1': { questionId: 'mtk-1', modelSoal: 'pilgan', state: 'sudah_dijawab', pilganAnswer: 'B', isFullyCorrect: true },
+    },
+    shuffledSoalIds: ['mtk-1', 'mtk-2'],
+    jumlahPelanggaranTab: 1,
+    persentaseNilai: 4.4,
+    jumlahBenar: 1,
+    jumlahSalah: 2,
+    jumlahKosong: 27,
+    totalSoal: 30,
+    nilaiSyncStatus: 'saved',
+    fromGoogleSheets: false,
+  };
+
+  const unsyncedErrorLocal: ExamSession = {
+    ...localSubmitted,
+    id: 'ses-1760000002-error',
+    persentaseNilai: 90,
+    jumlahBenar: 27,
+    jumlahSalah: 3,
+    jumlahKosong: 0,
+    nilaiSyncStatus: 'error',
+  };
+
+  const sheetSession: ExamSession = {
+    id: 'nilai_1',
+    paketId: 'pkg-1',
+    paketJudul: 'Tryout TKA Matematika SD/MI 2026 (30 Soal Lengkap)',
+    mapelId: 'matematika',
+    muridId: 'usr-murid-3',
+    muridUsername: 'fajar.h',
+    muridNama: 'Fajar Nugraha',
+    kelasNama: 'Kelas 6A',
+    waktuMulai: '2026-11-23T08:38:08.000Z',
+    waktuSelesai: '2026-11-23T08:38:08.000Z',
+    durasiDetikTerpakai: 0,
+    sisaDetik: 0,
+    status: 'selesai',
+    answers: {},
+    shuffledSoalIds: [],
+    jumlahPelanggaranTab: 0,
+    persentaseNilai: 4.4,
+    jumlahBenar: 1,
+    jumlahSalah: 2,
+    jumlahKosong: 27,
+    totalSoal: 30,
+    nilaiSyncStatus: 'saved',
+    fromGoogleSheets: true,
+  };
+
+  const merged1 = mergeSheetNilaiSessions([sheetSession], [localSubmitted, unsyncedErrorLocal]);
+  // Should have 2 entries: 1 unsynced error local + 1 merged nilai_1 (localSubmitted deduplicated)
+  assert.equal(merged1.sessions.length, 2);
+  assert.equal(merged1.remappedIds['ses-1760000001-3'], 'nilai_1');
+
+  const mergedSheetItem = merged1.sessions.find((s) => s.id === 'nilai_1');
+  assert.ok(mergedSheetItem);
+  assert.equal(mergedSheetItem.durasiDetikTerpakai, 450);
+  assert.deepEqual(mergedSheetItem.shuffledSoalIds, ['mtk-1', 'mtk-2']);
+  assert.equal(mergedSheetItem.answers['mtk-1']?.pilganAnswer, 'B');
+
+  // Re-syncing again produces the exact same 2 sessions without duplicating
+  const merged2 = mergeSheetNilaiSessions([sheetSession], merged1.sessions);
+  assert.equal(merged2.sessions.length, 2);
+});
+
+test('sanitizeCsvCell neutralizes spreadsheet formula injection and escapes quotes', () => {
+  assert.equal(sanitizeCsvCell('=CMD("calc")'), `"'=CMD(""calc"")"`);
+  assert.equal(sanitizeCsvCell('+1+1'), `"'${'+1+1'}"`);
+  assert.equal(sanitizeCsvCell('-2+3'), `"'${'-2+3'}"`);
+  assert.equal(sanitizeCsvCell('@SUM(A1)'), `"'${'@SUM(A1)'}"`);
+  assert.equal(sanitizeCsvCell('Fajar "Bintang"'), '"Fajar ""Bintang"""');
+});
+

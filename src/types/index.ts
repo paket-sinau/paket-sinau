@@ -174,8 +174,11 @@ export interface ExamSession {
   jumlahBenar?: number;
   jumlahSalah?: number;
   jumlahKosong?: number;
+  totalSoal?: number;
   nilaiSyncStatus?: NilaiSyncStatus;
   nilaiSyncError?: string;
+  fromGoogleSheets?: boolean;
+  localSessionId?: string;
 }
 
 export interface Announcement {
