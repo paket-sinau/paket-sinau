@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import {
   Announcement,
   ClassRoom,
@@ -15,7 +15,6 @@ import {
   SubjectId,
   SystemSettings,
   User,
-  UserRole,
 } from '../types';
 import {
   INITIAL_ANNOUNCEMENTS,
@@ -28,6 +27,17 @@ import {
   INITIAL_USERS,
 } from '../data/seedData';
 import { evaluateExamSession } from '../utils/examScoring';
+import {
+  buildSimpanNilaiPayload,
+  mergeUsersWithAdminFallback,
+  reconcilePackagesWithSheetQuestions,
+} from '../utils/sheetsSync';
+import {
+  fetchSheetsDatabase,
+  submitNilaiToSheets,
+  syncPesertaToSheets,
+  syncSoalToSheets,
+} from '../services/sheetsApi';
 
 export type ActiveView =
   | 'welcome'
@@ -63,7 +73,7 @@ interface AppContextType {
   setTheme: (theme: 'light' | 'dark') => void;
   fontSize: 'sm' | 'md' | 'lg';
   setFontSize: (size: 'sm' | 'md' | 'lg') => void;
-  
+
   // Data State
   users: User[];
   classes: ClassRoom[];
@@ -77,6 +87,12 @@ interface AppContextType {
   settings: SystemSettings;
   toasts: ToastMessage[];
 
+  // Google Sheets Sync State & Actions
+  isSyncingSheets: boolean;
+  lastSyncedAt: string | null;
+  syncFromGoogleSheets: (silent?: boolean) => Promise<void>;
+  retrySyncExamScore: (sessionId: string) => Promise<void>;
+
   // Actions
   login: (identity: string, pass: string) => boolean;
   logout: () => void;
@@ -85,6 +101,7 @@ interface AppContextType {
 
   // Question CRUD
   saveQuestion: (question: Question) => void;
+  saveQuestionsBulk: (newQuestions: Question[]) => void;
   duplicateQuestion: (questionId: string) => void;
   deleteQuestion: (questionId: string) => void;
   saveStimulus: (stimulus: Stimulus) => void;
@@ -100,7 +117,8 @@ interface AppContextType {
   submitExamSession: (sessionId?: string) => void;
 
   // Admin & User Management
-  saveUser: (user: User) => void;
+  saveUser: (user: User, customMessage?: string) => void;
+  saveUsersBulk: (newUsers: User[]) => void;
   deleteUser: (userId: string) => void;
   updateStudentKkm: (kkm: Partial<Record<SubjectId | 'umum', number>>) => void;
   saveClass: (cls: ClassRoom) => void;
@@ -115,6 +133,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEY_PREFIX = 'paketsinau_cbt_sd_v2_';
 const SEED_VERSION = 'tka_mtk_sd_2026_v1';
+const FALLBACK_ADMINS: User[] = INITIAL_USERS.filter((u) => u.role === 'admin');
 
 function migrateSeedDataIfNeeded() {
   if (typeof window === 'undefined') return;
@@ -122,7 +141,6 @@ function migrateSeedDataIfNeeded() {
     const currentVer = localStorage.getItem(`${STORAGE_KEY_PREFIX}seed_version`);
     if (currentVer === SEED_VERSION) return;
 
-    // 1. Update Questions: replace old default mtk-* questions with all 30 TKA Matematika SD 2026 questions while preserving custom teacher questions
     const savedQuestionsRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}questions`);
     if (savedQuestionsRaw) {
       const savedQuestions: Question[] = JSON.parse(savedQuestionsRaw);
@@ -131,7 +149,6 @@ function migrateSeedDataIfNeeded() {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}questions`, JSON.stringify([...newMtk, ...nonOldMtk]));
     }
 
-    // 2. Update Stimuli: remove deprecated SMA stimulus stm-2
     const savedStimuliRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}stimuli`);
     if (savedStimuliRaw) {
       const savedStimuli: Stimulus[] = JSON.parse(savedStimuliRaw);
@@ -139,7 +156,6 @@ function migrateSeedDataIfNeeded() {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}stimuli`, JSON.stringify(filteredStimuli));
     }
 
-    // 3. Update Packages: update default pkg-1 to 30-soal Tryout TKA Matematika SD/MI 2026
     const savedPackagesRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}packages`);
     if (savedPackagesRaw) {
       const savedPackages: ExamPackage[] = JSON.parse(savedPackagesRaw);
@@ -153,7 +169,6 @@ function migrateSeedDataIfNeeded() {
       }
     }
 
-    // 4. Update sample seeded MTK sessions so review answers align with new mtk-1..mtk-30
     const savedSessionsRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}sessions`);
     if (savedSessionsRaw) {
       const savedSessions: ExamSession[] = JSON.parse(savedSessionsRaw);
@@ -164,7 +179,6 @@ function migrateSeedDataIfNeeded() {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}sessions`, JSON.stringify(nextSessions));
     }
 
-    // 5. Clear active in-progress pkg-1 session if it references stale questions
     const savedActiveRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}active_session`);
     if (savedActiveRaw) {
       const savedActive: ExamSession = JSON.parse(savedActiveRaw);
@@ -182,7 +196,6 @@ function migrateSeedDataIfNeeded() {
 migrateSeedDataIfNeeded();
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load initial states from LocalStorage or fallbacks
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}user`);
@@ -294,19 +307,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [isSyncingSheets, setIsSyncingSheets] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
 
-  // Toast helper
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+  // Refs to prevent stale closures & double submits during async Sheets calls
+  const usersRef = useRef<User[]>(users);
+  usersRef.current = users;
+  const questionsRef = useRef<Question[]>(questions);
+  questionsRef.current = questions;
+  const packagesRef = useRef<ExamPackage[]>(packages);
+  packagesRef.current = packages;
+  const stimuliRef = useRef<Stimulus[]>(stimuli);
+  stimuliRef.current = stimuli;
+  const sessionsRef = useRef<ExamSession[]>(sessions);
+  sessionsRef.current = sessions;
+  const submittingSessionIdsRef = useRef<Set<string>>(new Set());
+
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3500);
-  };
+    }, 3800);
+  }, []);
 
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
   // Sync state to LocalStorage
   useEffect(() => {
@@ -354,16 +381,88 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [theme]);
 
-  // Auth methods
+  // Sinkronisasi GET dari Google Sheets
+  const syncFromGoogleSheets = useCallback(
+    async (silent = false) => {
+      setIsSyncingSheets(true);
+      try {
+        const result = await fetchSheetsDatabase();
+
+        if (result.users.length > 0) {
+          const nextUsers = mergeUsersWithAdminFallback(
+            result.users,
+            usersRef.current,
+            FALLBACK_ADMINS
+          );
+          usersRef.current = nextUsers;
+          setUsers(nextUsers);
+        }
+
+        if (result.stimuli.length > 0) {
+          const existingMap = new Map(stimuliRef.current.map((s) => [s.id, s]));
+          result.stimuli.forEach((st) => existingMap.set(st.id, st));
+          const mergedStimuli = Array.from(existingMap.values());
+          stimuliRef.current = mergedStimuli;
+          setStimuli(mergedStimuli);
+        }
+
+        if (result.questions.length > 0) {
+          questionsRef.current = result.questions;
+          setQuestions(result.questions);
+
+          const nextPackages = reconcilePackagesWithSheetQuestions(
+            packagesRef.current,
+            result.questions
+          );
+          packagesRef.current = nextPackages;
+          setPackages(nextPackages);
+        }
+
+        setLastSyncedAt(new Date().toISOString());
+
+        if (!silent) {
+          if (result.users.length > 0 || result.questions.length > 0) {
+            showToast(
+              `Sinkronisasi Google Sheets berhasil (${result.users.length} peserta, ${result.questions.length} soal).`,
+              'success'
+            );
+          } else {
+            showToast(
+              'Terhubung ke Google Sheets. Sheet masih kosong, menggunakan data cadangan lokal.',
+              'info'
+            );
+          }
+        }
+      } catch {
+        if (!silent) {
+          showToast(
+            'Gagal memuat data dari Google Sheets. Periksa koneksi internet Anda.',
+            'error'
+          );
+        }
+      } finally {
+        setIsSyncingSheets(false);
+      }
+    },
+    [showToast]
+  );
+
+  // Sinkronisasi awal saat aplikasi dibuka
+  useEffect(() => {
+    void syncFromGoogleSheets(true);
+  }, [syncFromGoogleSheets]);
+
+  // Auth methods (gunakan users utama + cadangan Admin bawaan agar admin tidak terkunci)
   const login = (identity: string, pass: string): boolean => {
     const cleanId = identity.trim().toLowerCase();
-    const user = users.find(
-      (u) =>
-        (u.username.toLowerCase() === cleanId ||
-          u.email.toLowerCase() === cleanId ||
-          u.nama.toLowerCase() === cleanId) &&
-        (u.password === pass || pass === 'demo' || pass === 'admin123' || pass === '123456')
-    );
+    const matchUser = (u: User) =>
+      (u.username.toLowerCase() === cleanId ||
+        (u.nomorInduk && u.nomorInduk.toLowerCase() === cleanId) ||
+        u.email.toLowerCase() === cleanId ||
+        u.nama.toLowerCase() === cleanId) &&
+      u.password === pass;
+
+    const user = usersRef.current.find(matchUser) || FALLBACK_ADMINS.find(matchUser);
 
     if (user) {
       if (!user.aktif) {
@@ -387,77 +486,139 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('Anda telah berhasil keluar.', 'info');
   };
 
+  // Helper sinkronisasi Bank Soal ke Google Sheets
+  const pushQuestionsToSheets = useCallback(
+    async (
+      nextQuestions: Question[],
+      nextPackages: ExamPackage[],
+      nextStimuli: Stimulus[],
+      successMsg: string
+    ) => {
+      try {
+        await syncSoalToSheets(nextQuestions, nextPackages, nextStimuli);
+        setLastSyncedAt(new Date().toISOString());
+        showToast(successMsg, 'success');
+      } catch {
+        showToast(
+          'Perubahan soal disimpan lokal, namun gagal disinkronkan ke Google Sheets.',
+          'error'
+        );
+      }
+    },
+    [showToast]
+  );
+
   // Question actions
   const saveQuestion = (q: Question) => {
-    setQuestions((prev) => {
-      const idx = prev.findIndex((item) => item.id === q.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = { ...q, updatedAt: new Date().toISOString() };
-        return next;
-      }
-      return [{ ...q, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, ...prev];
-    });
-    showToast('Soal berhasil disimpan ke Bank Soal.', 'success');
+    const now = new Date().toISOString();
+    const prev = questionsRef.current;
+    const idx = prev.findIndex((item) => item.id === q.id);
+    const next =
+      idx >= 0
+        ? prev.map((item, i) => (i === idx ? { ...q, updatedAt: now } : item))
+        : [{ ...q, createdAt: q.createdAt || now, updatedAt: now }, ...prev];
+
+    questionsRef.current = next;
+    setQuestions(next);
+    void pushQuestionsToSheets(
+      next,
+      packagesRef.current,
+      stimuliRef.current,
+      'Soal berhasil disimpan & disinkronkan ke Google Sheets.'
+    );
+  };
+
+  const saveQuestionsBulk = (newQuestions: Question[]) => {
+    if (newQuestions.length === 0) return;
+    const now = new Date().toISOString();
+    const normalized = newQuestions.map((q) => ({
+      ...q,
+      createdAt: q.createdAt || now,
+      updatedAt: now,
+    }));
+    const next = [...normalized, ...questionsRef.current];
+    questionsRef.current = next;
+    setQuestions(next);
+    void pushQuestionsToSheets(
+      next,
+      packagesRef.current,
+      stimuliRef.current,
+      `${newQuestions.length} butir soal berhasil diimpor & disinkronkan ke Google Sheets.`
+    );
   };
 
   const duplicateQuestion = (questionId: string) => {
-    const original = questions.find((q) => q.id === questionId);
+    const original = questionsRef.current.find((q) => q.id === questionId);
     if (!original) return;
 
+    const now = new Date().toISOString();
     const newQuestion: Question = {
       ...original,
       id: `q-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       teksSoal: `${original.teksSoal} (Salinan)`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     };
 
-    setQuestions((prev) => [newQuestion, ...prev]);
-    showToast('Soal berhasil diduplikasi.', 'success');
+    const next = [newQuestion, ...questionsRef.current];
+    questionsRef.current = next;
+    setQuestions(next);
+    void pushQuestionsToSheets(
+      next,
+      packagesRef.current,
+      stimuliRef.current,
+      'Soal diduplikasi & disinkronkan ke Google Sheets.'
+    );
   };
 
   const deleteQuestion = (questionId: string) => {
-    setQuestions((prev) => prev.filter((q) => q.id !== questionId));
-    // Remove from packages that contain it
-    setPackages((prev) =>
-      prev.map((pkg) => ({
-        ...pkg,
-        soalIds: pkg.soalIds.filter((id) => id !== questionId),
-      }))
+    const nextQuestions = questionsRef.current.filter((q) => q.id !== questionId);
+    const nextPackages = packagesRef.current.map((pkg) => ({
+      ...pkg,
+      soalIds: pkg.soalIds.filter((id) => id !== questionId),
+    }));
+
+    questionsRef.current = nextQuestions;
+    packagesRef.current = nextPackages;
+    setQuestions(nextQuestions);
+    setPackages(nextPackages);
+
+    void pushQuestionsToSheets(
+      nextQuestions,
+      nextPackages,
+      stimuliRef.current,
+      'Soal dihapus & Bank Soal Google Sheets diperbarui.'
     );
-    showToast('Soal berhasil dihapus dari Bank Soal.', 'info');
   };
 
   const saveStimulus = (stim: Stimulus) => {
-    setStimuli((prev) => {
-      const idx = prev.findIndex((s) => s.id === stim.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = stim;
-        return next;
-      }
-      return [...prev, stim];
-    });
+    const prev = stimuliRef.current;
+    const idx = prev.findIndex((s) => s.id === stim.id);
+    const next =
+      idx >= 0 ? prev.map((s, i) => (i === idx ? stim : s)) : [...prev, stim];
+
+    stimuliRef.current = next;
+    setStimuli(next);
     showToast('Wacana/Stimulus berhasil disimpan.', 'success');
   };
 
   // Package actions
   const savePackage = (pkg: ExamPackage) => {
-    setPackages((prev) => {
-      const idx = prev.findIndex((p) => p.id === pkg.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = pkg;
-        return next;
-      }
-      return [{ ...pkg, createdAt: new Date().toISOString() }, ...prev];
-    });
+    const prev = packagesRef.current;
+    const idx = prev.findIndex((p) => p.id === pkg.id);
+    const next =
+      idx >= 0
+        ? prev.map((p, i) => (i === idx ? pkg : p))
+        : [{ ...pkg, createdAt: new Date().toISOString() }, ...prev];
+    packagesRef.current = next;
+    setPackages(next);
     showToast(`Paket soal "${pkg.judul}" berhasil disimpan.`, 'success');
   };
 
   const deletePackage = (pkgId: string) => {
-    setPackages((prev) => prev.filter((p) => p.id !== pkgId));
+    const next = packagesRef.current.filter((p) => p.id !== pkgId);
+    packagesRef.current = next;
+    setPackages(next);
     showToast('Paket soal telah dihapus.', 'info');
   };
 
@@ -465,7 +626,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const startExam = (packageId: string): boolean => {
     if (!currentUser) return false;
 
-    const pkg = packages.find((p) => p.id === packageId);
+    const pkg = packagesRef.current.find((p) => p.id === packageId);
     if (!pkg) {
       showToast('Paket ujian tidak ditemukan.', 'error');
       return false;
@@ -476,13 +637,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return false;
     }
 
-    // Check if already in progress
     if (activeSession && activeSession.paketId === packageId && activeSession.status === 'berjalan') {
       setActiveView('murid-ujian');
       return true;
     }
 
-    // Fisher-Yates shuffle algorithm to ensure uniform and independent randomization per student
     const shuffleArray = <T,>(array: T[]): T[] => {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -492,7 +651,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return arr;
     };
 
-    // Pertahankan pengacakan independen tiap murid agar setiap murid menerima urutan soal yang berbeda
     const questionOrder = pkg.acakSoal !== false ? shuffleArray(pkg.soalIds) : [...pkg.soalIds];
 
     const durationSeconds = pkg.durasiMenit * 60;
@@ -502,6 +660,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       paketJudul: pkg.judul,
       mapelId: pkg.mapelId,
       muridId: currentUser.id,
+      muridUsername: currentUser.username,
       muridNama: currentUser.nama,
       kelasNama: currentUser.kelasId || 'Umum',
       waktuMulai: new Date().toISOString(),
@@ -511,6 +670,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       answers: {},
       shuffledSoalIds: questionOrder,
       jumlahPelanggaranTab: 0,
+      nilaiSyncStatus: 'idle',
     };
 
     setActiveSession(newSession);
@@ -544,73 +704,198 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const submitExamSession = (sessionId?: string) => {
-    const sessionToFinish = sessionId
-      ? sessions.find((s) => s.id === sessionId) || activeSession
-      : activeSession;
+  const sendExamScoreToSheets = useCallback(
+    async (sessionObj: ExamSession) => {
+      if (submittingSessionIdsRef.current.has(sessionObj.id)) return;
+      submittingSessionIdsRef.current.add(sessionObj.id);
 
-    if (!sessionToFinish) return;
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === sessionObj.id
+            ? { ...s, nilaiSyncStatus: 'saving', nilaiSyncError: undefined }
+            : s
+        )
+      );
 
-    const pkg = packages.find((p) => p.id === sessionToFinish.paketId);
-    if (!pkg) return;
+      const matchedUser =
+        usersRef.current.find((u) => u.id === sessionObj.muridId) || currentUser;
+      const payload = buildSimpanNilaiPayload(
+        sessionObj,
+        sessionObj.muridUsername || matchedUser?.username
+      );
 
-    // Retrieve question objects for scoring
-    const sessionQuestions = sessionToFinish.shuffledSoalIds
-      .map((id) => questions.find((q) => q.id === id))
-      .filter((q): q is Question => Boolean(q));
-
-    const evaluation = evaluateExamSession(sessionQuestions, sessionToFinish.answers, pkg);
-
-    const completedSession: ExamSession = {
-      ...sessionToFinish,
-      status: 'selesai',
-      waktuSelesai: new Date().toISOString(),
-      durasiDetikTerpakai: (pkg.durasiMenit * 60) - sessionToFinish.sisaDetik,
-      totalSkor: evaluation.totalSkor,
-      skorMaksimal: evaluation.skorMaksimal,
-      persentaseNilai: evaluation.persentaseNilai,
-      jumlahBenar: evaluation.jumlahBenar,
-      jumlahSalah: evaluation.jumlahSalah,
-      jumlahKosong: evaluation.jumlahKosong,
-      answers: evaluation.answers,
-    };
-
-    setSessions((prev) => {
-      const idx = prev.findIndex((s) => s.id === completedSession.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = completedSession;
-        return next;
+      try {
+        await submitNilaiToSheets(payload);
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.id === sessionObj.id
+              ? { ...s, nilaiSyncStatus: 'saved', nilaiSyncError: undefined }
+              : s
+          )
+        );
+        showToast('Nilai ujian berhasil tersimpan ke Google Sheets.', 'success');
+      } catch (err) {
+        const msg =
+          err instanceof Error
+            ? err.message
+            : 'Koneksi ke Google Sheets terputus.';
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.id === sessionObj.id
+              ? { ...s, nilaiSyncStatus: 'error', nilaiSyncError: msg }
+              : s
+          )
+        );
+        showToast(
+          'Gagal mengirim nilai ke Google Sheets. Gunakan tombol Kirim Ulang Nilai.',
+          'error'
+        );
+      } finally {
+        submittingSessionIdsRef.current.delete(sessionObj.id);
       }
-      return [completedSession, ...prev];
-    });
+    },
+    [currentUser, showToast]
+  );
 
-    if (activeSession?.id === completedSession.id) {
-      setActiveSession(null);
-    }
+  const submitExamSession = useCallback(
+    (sessionId?: string) => {
+      const sessionToFinish = sessionId
+        ? sessionsRef.current.find((s) => s.id === sessionId) || activeSession
+        : activeSession;
 
-    setSelectedSessionId(completedSession.id);
-    setActiveView('murid-hasil');
-    showToast(`Ujian selesai! Skor akhir Anda: ${completedSession.persentaseNilai} / 100`, 'success');
-  };
+      if (!sessionToFinish) return;
+      if (sessionToFinish.status === 'selesai') return;
+      if (submittingSessionIdsRef.current.has(sessionToFinish.id)) return;
+
+      const pkg = packagesRef.current.find((p) => p.id === sessionToFinish.paketId);
+      if (!pkg) return;
+
+      const sessionQuestions = sessionToFinish.shuffledSoalIds
+        .map((id) => questionsRef.current.find((q) => q.id === id))
+        .filter((q): q is Question => Boolean(q));
+
+      const evaluation = evaluateExamSession(sessionQuestions, sessionToFinish.answers, pkg);
+
+      const matchedUser =
+        usersRef.current.find((u) => u.id === sessionToFinish.muridId) || currentUser;
+
+      const completedSession: ExamSession = {
+        ...sessionToFinish,
+        muridUsername:
+          sessionToFinish.muridUsername || matchedUser?.username || sessionToFinish.muridId,
+        status: 'selesai',
+        waktuSelesai: new Date().toISOString(),
+        durasiDetikTerpakai: pkg.durasiMenit * 60 - sessionToFinish.sisaDetik,
+        totalSkor: evaluation.totalSkor,
+        skorMaksimal: evaluation.skorMaksimal,
+        persentaseNilai: evaluation.persentaseNilai,
+        jumlahBenar: evaluation.jumlahBenar,
+        jumlahSalah: evaluation.jumlahSalah,
+        jumlahKosong: evaluation.jumlahKosong,
+        answers: evaluation.answers,
+        nilaiSyncStatus: 'saving',
+        nilaiSyncError: undefined,
+      };
+
+      setSessions((prev) => {
+        const idx = prev.findIndex((s) => s.id === completedSession.id);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = completedSession;
+          sessionsRef.current = next;
+          return next;
+        }
+        const next = [completedSession, ...prev];
+        sessionsRef.current = next;
+        return next;
+      });
+
+      if (activeSession?.id === completedSession.id) {
+        setActiveSession(null);
+      }
+
+      setSelectedSessionId(completedSession.id);
+      setActiveView('murid-hasil');
+      showToast(
+        `Ujian selesai! Skor akhir Anda: ${completedSession.persentaseNilai} / 100`,
+        'success'
+      );
+
+      void sendExamScoreToSheets(completedSession);
+    },
+    [activeSession, currentUser, sendExamScoreToSheets, showToast]
+  );
+
+  const retrySyncExamScore = useCallback(
+    async (sessionId: string) => {
+      const target = sessionsRef.current.find((s) => s.id === sessionId);
+      if (!target || target.nilaiSyncStatus === 'saving') return;
+      await sendExamScoreToSheets(target);
+    },
+    [sendExamScoreToSheets]
+  );
+
+  // Helper sinkronisasi peserta ke Google Sheets
+  const pushUsersToSheets = useCallback(
+    async (nextUsers: User[], successMsg: string) => {
+      try {
+        await syncPesertaToSheets(nextUsers);
+        setLastSyncedAt(new Date().toISOString());
+        showToast(successMsg, 'success');
+      } catch {
+        showToast(
+          'Perubahan akun disimpan lokal, namun gagal disinkronkan ke Google Sheets.',
+          'error'
+        );
+      }
+    },
+    [showToast]
+  );
 
   // User management
-  const saveUser = (u: User) => {
-    setUsers((prev) => {
-      const idx = prev.findIndex((item) => item.id === u.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = u;
-        return next;
-      }
-      return [...prev, { ...u, createdAt: new Date().toISOString() }];
-    });
-    showToast(`Data pengguna "${u.nama}" berhasil disimpan.`, 'success');
+  const saveUser = (u: User, customMessage?: string) => {
+    const prev = usersRef.current;
+    const idx = prev.findIndex((item) => item.id === u.id);
+    const next =
+      idx >= 0
+        ? prev.map((item, i) => (i === idx ? u : item))
+        : [...prev, { ...u, createdAt: u.createdAt || new Date().toISOString() }];
+
+    usersRef.current = next;
+    setUsers(next);
+
+    if (currentUser && currentUser.id === u.id) {
+      setCurrentUser(u);
+    }
+
+    void pushUsersToSheets(
+      next,
+      customMessage || `Perubahan akun "${u.nama}" telah tersimpan ke Google Sheets.`
+    );
+  };
+
+  const saveUsersBulk = (newUsers: User[]) => {
+    if (newUsers.length === 0) return;
+    const prev = usersRef.current;
+    const next = [...prev, ...newUsers];
+    usersRef.current = next;
+    setUsers(next);
+
+    void pushUsersToSheets(
+      next,
+      `${newUsers.length} akun pengguna berhasil diimpor & tersimpan ke Google Sheets.`
+    );
   };
 
   const deleteUser = (userId: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== userId));
-    showToast('Pengguna telah dihapus.', 'info');
+    const next = usersRef.current.filter((u) => u.id !== userId);
+    usersRef.current = next;
+    setUsers(next);
+
+    void pushUsersToSheets(
+      next,
+      'Penghapusan akun telah tersimpan ke Google Sheets.'
+    );
   };
 
   const updateStudentKkm = (kkm: Partial<Record<SubjectId | 'umum', number>>) => {
@@ -623,7 +908,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       },
     };
     setCurrentUser(updatedUser);
-    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+    const next = usersRef.current.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+    usersRef.current = next;
+    setUsers(next);
     showToast('Target KKM berhasil disimpan!', 'success');
   };
 
@@ -670,6 +957,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetAllDataToDefault = () => {
+    usersRef.current = INITIAL_USERS;
+    questionsRef.current = INITIAL_QUESTIONS;
+    stimuliRef.current = INITIAL_STIMULI;
+    packagesRef.current = INITIAL_PACKAGES;
+    sessionsRef.current = INITIAL_SESSIONS;
+
     setUsers(INITIAL_USERS);
     setClasses(INITIAL_CLASSES);
     setQuestions(INITIAL_QUESTIONS);
@@ -679,7 +972,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSessions(INITIAL_SESSIONS);
     setSettings(INITIAL_SETTINGS);
     setActiveSession(null);
-    setCurrentUser(INITIAL_USERS[3]); // Default Raditya
+    setCurrentUser(INITIAL_USERS[3]);
     try {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}seed_version`, SEED_VERSION);
     } catch {
@@ -712,11 +1005,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setActiveSession,
       settings,
       toasts,
+      isSyncingSheets,
+      lastSyncedAt,
+      syncFromGoogleSheets,
+      retrySyncExamScore,
       login,
       logout,
       showToast,
       removeToast,
       saveQuestion,
+      saveQuestionsBulk,
       duplicateQuestion,
       deleteQuestion,
       saveStimulus,
@@ -727,6 +1025,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       recordTabViolation,
       submitExamSession,
       saveUser,
+      saveUsersBulk,
       deleteUser,
       updateStudentKkm,
       saveClass,
@@ -753,6 +1052,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       activeSession,
       settings,
       toasts,
+      isSyncingSheets,
+      lastSyncedAt,
+      syncFromGoogleSheets,
+      retrySyncExamScore,
+      submitExamSession,
+      showToast,
+      removeToast,
     ]
   );
 

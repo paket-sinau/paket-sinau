@@ -19,12 +19,20 @@ import {
   Shield,
   GraduationCap,
   BookOpen,
-  X,
-  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 
 export const AdminUserManagement: React.FC = () => {
-  const { users, classes, saveUser, deleteUser, showToast } = useApp();
+  const {
+    users,
+    classes,
+    saveUser,
+    saveUsersBulk,
+    deleteUser,
+    showToast,
+    syncFromGoogleSheets,
+    isSyncingSheets,
+  } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'semua'>('semua');
@@ -36,6 +44,7 @@ export const AdminUserManagement: React.FC = () => {
   // Form states
   const [nama, setNama] = useState('');
   const [username, setUsername] = useState('');
+  const [nomorInduk, setNomorInduk] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<UserRole>('murid');
   const [kelasId, setKelasId] = useState(classes[0]?.nama || 'Kelas 6A');
@@ -65,6 +74,7 @@ export const AdminUserManagement: React.FC = () => {
     setEditingUser(null);
     setNama('');
     setUsername('');
+    setNomorInduk('');
     setEmail('');
     setRole('murid');
     setKelasId(classes[0]?.nama || 'Kelas 6A');
@@ -77,6 +87,7 @@ export const AdminUserManagement: React.FC = () => {
     setEditingUser(user);
     setNama(user.nama);
     setUsername(user.username);
+    setNomorInduk(user.nomorInduk || user.username);
     setEmail(user.email);
     setRole(user.role);
     setKelasId(user.kelasId || classes[0]?.nama || 'Kelas 6A');
@@ -95,6 +106,7 @@ export const AdminUserManagement: React.FC = () => {
       id: editingUser ? editingUser.id : `usr-${Date.now()}`,
       nama: nama.trim(),
       username: username.trim(),
+      nomorInduk: nomorInduk.trim() || username.trim(),
       email: email.trim() || `${username.trim()}@sekolah.sch.id`,
       role,
       kelasId: role === 'murid' ? kelasId : undefined,
@@ -109,13 +121,17 @@ export const AdminUserManagement: React.FC = () => {
 
   const handleResetPassword = (user: User) => {
     const defaultPass = user.role === 'murid' ? 'siswa' : user.role === 'guru' ? 'guru' : 'admin';
-    saveUser({ ...user, password: defaultPass });
-    showToast(`Password untuk ${user.nama} di-reset ke "${defaultPass}"`, 'info');
+    saveUser(
+      { ...user, password: defaultPass },
+      `Password ${user.nama} di-reset ke "${defaultPass}" & tersimpan ke Google Sheets.`
+    );
   };
 
   const handleToggleAktif = (user: User) => {
-    saveUser({ ...user, aktif: !user.aktif });
-    showToast(`Status pengguna ${user.nama} diubah menjadi ${!user.aktif ? 'Aktif' : 'Nonaktif'}`, 'info');
+    saveUser(
+      { ...user, aktif: !user.aktif },
+      `Status ${user.nama} (${!user.aktif ? 'Aktif' : 'Nonaktif'}) tersimpan ke Google Sheets.`
+    );
   };
 
   // Bulk CSV Import for Users
@@ -126,22 +142,24 @@ export const AdminUserManagement: React.FC = () => {
     }
 
     const lines = bulkCsvText.trim().split('\n');
-    let importedCount = 0;
+    const importedUsers: User[] = [];
+    const baseTimestamp = Date.now();
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-      const [uName, uUsername, uEmail, uRole, uKelas, uPass] = line
+      const [uName, uUsername, uEmail, uRole, uKelas, uPass, uNomorInduk] = line
         .split(',')
         .map((p) => p.replace(/^"|"$/g, '').trim());
 
       if (uName && uUsername) {
         const validRole: UserRole =
           uRole === 'guru' || uRole === 'admin' ? uRole : 'murid';
-        saveUser({
-          id: `usr-bulk-${Date.now()}-${i}`,
+        importedUsers.push({
+          id: `usr-bulk-${baseTimestamp}-${i}`,
           nama: uName,
           username: uUsername,
+          nomorInduk: uNomorInduk || uUsername,
           email: uEmail || `${uUsername}@sekolah.sch.id`,
           role: validRole,
           kelasId: validRole === 'murid' ? uKelas || classes[0]?.nama || 'Kelas 6A' : undefined,
@@ -149,11 +167,15 @@ export const AdminUserManagement: React.FC = () => {
           aktif: true,
           createdAt: new Date().toISOString(),
         });
-        importedCount++;
       }
     }
 
-    showToast(`Berhasil mengimpor ${importedCount} pengguna baru!`, 'success');
+    if (importedUsers.length === 0) {
+      showToast('Tidak ada baris pengguna valid yang dapat diimpor.', 'error');
+      return;
+    }
+
+    saveUsersBulk(importedUsers);
     setIsBulkImportOpen(false);
     setBulkCsvText('');
   };
@@ -175,6 +197,15 @@ export const AdminUserManagement: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => void syncFromGoogleSheets(false)}
+              disabled={isSyncingSheets}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-xs font-semibold hover:bg-slate-50 disabled:opacity-60 transition-colors"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 text-indigo-600 ${isSyncingSheets ? 'animate-spin' : ''}`} />
+              <span>{isSyncingSheets ? 'Menyinkronkan...' : 'Sinkronkan Data'}</span>
+            </button>
             <button
               type="button"
               onClick={() => setIsBulkImportOpen(true)}
@@ -383,14 +414,24 @@ export const AdminUserManagement: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1">Username / NIS</label>
+                  <label className="block font-semibold mb-1">Username</label>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Contoh: budi.p"
+                    className="w-full rounded-xl border py-2 px-3 bg-white dark:bg-slate-800 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">Nomor Induk (NIS/NIP)</label>
+                  <input
+                    type="text"
+                    value={nomorInduk}
+                    onChange={(e) => setNomorInduk(e.target.value)}
+                    placeholder="Opsional (default username)"
                     className="w-full rounded-xl border py-2 px-3 bg-white dark:bg-slate-800 font-mono"
                   />
                 </div>

@@ -19,6 +19,8 @@ import {
   RotateCcw,
   Sparkles,
   BookOpen,
+  CloudUpload,
+  RefreshCw,
 } from 'lucide-react';
 
 export const ExamResultPage: React.FC = () => {
@@ -29,6 +31,7 @@ export const ExamResultPage: React.FC = () => {
     packages,
     setActiveView,
     startExam,
+    retrySyncExamScore,
   } = useApp();
 
   const [filterMode, setFilterMode] = useState<'semua' | 'salah' | 'benar'>('semua');
@@ -208,6 +211,59 @@ export const ExamResultPage: React.FC = () => {
               </span>
             </div>
           )}
+
+          {/* Status Penyimpanan Nilai ke Google Sheets */}
+          <div
+            className={`mt-4 rounded-xl border p-3.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden ${
+              session.nilaiSyncStatus === 'saved'
+                ? 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200'
+                : session.nilaiSyncStatus === 'error'
+                ? 'border-rose-200 bg-rose-50/80 dark:border-rose-900/60 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200'
+                : 'border-indigo-200 bg-indigo-50/70 dark:border-indigo-900/60 dark:bg-indigo-950/30 text-indigo-800 dark:text-indigo-200'
+            }`}
+          >
+            <div className="flex items-start sm:items-center gap-2.5">
+              {session.nilaiSyncStatus === 'saving' ? (
+                <RefreshCw className="h-4 w-4 animate-spin shrink-0 mt-0.5 sm:mt-0" />
+              ) : session.nilaiSyncStatus === 'saved' ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+              ) : session.nilaiSyncStatus === 'error' ? (
+                <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5 sm:mt-0" />
+              ) : (
+                <CloudUpload className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5 sm:mt-0" />
+              )}
+              <div>
+                <div className="font-bold">
+                  {session.nilaiSyncStatus === 'saving'
+                    ? 'Menyimpan nilai ujian ke Google Sheets...'
+                    : session.nilaiSyncStatus === 'saved'
+                    ? 'Nilai ujian berhasil tersimpan otomatis ke Google Sheets'
+                    : session.nilaiSyncStatus === 'error'
+                    ? 'Gagal mengirim nilai ujian ke Google Sheets'
+                    : 'Status Nilai Google Sheets: Siap dikirim'}
+                </div>
+                {session.nilaiSyncStatus === 'error' && (
+                  <div className="text-[11px] opacity-90 mt-0.5">
+                    {session.nilaiSyncError || 'Koneksi terputus. Tekan tombol Kirim Ulang Nilai untuk mencoba kembali.'}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {session.nilaiSyncStatus !== 'saved' && (
+              <button
+                type="button"
+                disabled={session.nilaiSyncStatus === 'saving'}
+                onClick={() => void retrySyncExamScore(session.id)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-white dark:bg-slate-900 border border-current/20 px-3.5 py-1.5 text-xs font-bold shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors shrink-0"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${session.nilaiSyncStatus === 'saving' ? 'animate-spin' : ''}`} />
+                <span>
+                  {session.nilaiSyncStatus === 'saving' ? 'Mengirim...' : 'Kirim Ulang Nilai'}
+                </span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Pembahasan & Review Section */}
@@ -316,6 +372,7 @@ export const ExamResultPage: React.FC = () => {
                       <img
                         src={q.gambarUrl}
                         alt={q.gambarAlt || 'Gambar Soal'}
+                        referrerPolicy="no-referrer"
                         className="w-full h-auto object-contain max-h-64"
                         loading="lazy"
                       />
@@ -365,6 +422,7 @@ export const ExamResultPage: React.FC = () => {
                                   <img
                                     src={pickedOpt.gambarUrl}
                                     alt={`Pilihan Anda ${pickedOpt.label}`}
+                                    referrerPolicy="no-referrer"
                                     className="max-h-36 w-auto object-contain"
                                     loading="lazy"
                                   />
@@ -378,6 +436,7 @@ export const ExamResultPage: React.FC = () => {
                                   <img
                                     src={keyOpt.gambarUrl}
                                     alt={`Kunci ${keyOpt.label}`}
+                                    referrerPolicy="no-referrer"
                                     className="max-h-36 w-auto object-contain"
                                     loading="lazy"
                                   />
@@ -430,6 +489,7 @@ export const ExamResultPage: React.FC = () => {
                                     <img
                                       src={stmt.gambarUrl}
                                       alt={stmt.teks}
+                                      referrerPolicy="no-referrer"
                                       className="max-h-24 w-auto rounded border border-slate-200 bg-white p-1"
                                       loading="lazy"
                                     />

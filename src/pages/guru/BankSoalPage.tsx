@@ -24,6 +24,7 @@ import {
   ArrowUpDown,
   Bookmark,
   RotateCcw,
+  RefreshCw,
 } from 'lucide-react';
 
 export const BankSoalPage: React.FC = () => {
@@ -31,8 +32,10 @@ export const BankSoalPage: React.FC = () => {
     questions,
     deleteQuestion,
     duplicateQuestion,
-    saveQuestion,
+    saveQuestionsBulk,
     showToast,
+    syncFromGoogleSheets,
+    isSyncingSheets,
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -201,8 +204,7 @@ export const BankSoalPage: React.FC = () => {
   };
 
   const handleSaveImport = () => {
-    importPreviewData.forEach((q) => saveQuestion(q));
-    showToast(`Berhasil menambahkan ${importPreviewData.length} butir soal ke Bank Soal!`, 'success');
+    saveQuestionsBulk(importPreviewData);
     setIsImportModalOpen(false);
     setImportCsvText('');
     setImportPreviewData([]);
@@ -225,6 +227,16 @@ export const BankSoalPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              type="button"
+              onClick={() => void syncFromGoogleSheets(false)}
+              disabled={isSyncingSheets}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 text-indigo-600 ${isSyncingSheets ? 'animate-spin' : ''}`} />
+              <span>{isSyncingSheets ? 'Menyinkronkan...' : 'Sinkronkan Data'}</span>
+            </button>
+
             <button
               type="button"
               onClick={downloadCsvTemplate}
@@ -554,6 +566,7 @@ export const BankSoalPage: React.FC = () => {
                 <img
                   src={previewQuestion.gambarUrl}
                   alt={previewQuestion.gambarAlt || 'Gambar Soal'}
+                  referrerPolicy="no-referrer"
                   className="w-full h-auto object-contain max-h-64"
                 />
               </div>
@@ -584,6 +597,7 @@ export const BankSoalPage: React.FC = () => {
                               <img
                                 src={opt.gambarUrl}
                                 alt={`Opsi ${opt.label}`}
+                                referrerPolicy="no-referrer"
                                 className="max-h-36 w-auto rounded border border-slate-200 bg-white p-1"
                               />
                             </div>
@@ -645,6 +659,7 @@ export const BankSoalPage: React.FC = () => {
                         <img
                           src={stmt.gambarUrl}
                           alt={stmt.teks}
+                          referrerPolicy="no-referrer"
                           className="max-h-28 w-auto rounded border border-slate-200 bg-white p-1"
                         />
                       )}

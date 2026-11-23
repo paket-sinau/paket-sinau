@@ -14,6 +14,7 @@ export type DifficultyLevel = 'mudah' | 'sedang' | 'sulit';
 export interface User {
   id: string;
   username: string; // atau NIS untuk murid / NIP untuk guru
+  nomorInduk?: string; // NIS / NIP eksplisit untuk sinkronisasi Google Sheets
   nama: string;
   email: string;
   role: UserRole;
@@ -74,6 +75,8 @@ export interface Question {
   id: string;
   mapelId: SubjectId;
   topik: string;
+  kelas?: string;
+  paketUjian?: string;
   tingkatKesulitan: DifficultyLevel;
   modelSoal: QuestionModel;
   teksSoal: string;
@@ -146,12 +149,15 @@ export interface StudentAnswerItem {
   maxScorePossible?: number; // Nilai maksimum untuk soal ini
 }
 
+export type NilaiSyncStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export interface ExamSession {
   id: string;
   paketId: string;
   paketJudul: string;
   mapelId: SubjectId;
   muridId: string;
+  muridUsername?: string;
   muridNama: string;
   kelasNama: string;
   waktuMulai: string;
@@ -168,6 +174,8 @@ export interface ExamSession {
   jumlahBenar?: number;
   jumlahSalah?: number;
   jumlahKosong?: number;
+  nilaiSyncStatus?: NilaiSyncStatus;
+  nilaiSyncError?: string;
 }
 
 export interface Announcement {

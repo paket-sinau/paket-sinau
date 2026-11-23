@@ -51,6 +51,7 @@ export const ExamPlayer: React.FC = () => {
   const [showTabWarningModal, setShowTabWarningModal] = useState(false);
   const [tabWarningCount, setTabWarningCount] = useState(0);
   const [showStimulusMobile, setShowStimulusMobile] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // If no active session, render fallback
   if (!activeSession) {
@@ -400,6 +401,7 @@ export const ExamPlayer: React.FC = () => {
                     <img
                       src={currentStimulus.gambarUrl}
                       alt={currentStimulus.gambarAlt || 'Diagram Stimulus Wacana'}
+                      referrerPolicy="no-referrer"
                       className="w-full h-auto object-contain cursor-pointer max-h-64"
                       onClick={() => {
                         setZoomImageUrl(currentStimulus.gambarUrl || '');
@@ -439,6 +441,7 @@ export const ExamPlayer: React.FC = () => {
                   <img
                     src={currentQuestion.gambarUrl}
                     alt={currentQuestion.gambarAlt || 'Gambar Soal'}
+                    referrerPolicy="no-referrer"
                     className="w-full h-auto object-contain cursor-pointer rounded-lg max-h-80"
                     onClick={() => {
                       setZoomImageUrl(currentQuestion.gambarUrl || '');
@@ -495,6 +498,7 @@ export const ExamPlayer: React.FC = () => {
                               <img
                                 src={opt.gambarUrl}
                                 alt={`Gambar Opsi ${opt.label}`}
+                                referrerPolicy="no-referrer"
                                 className="max-h-52 sm:max-h-56 w-auto object-contain rounded-lg border border-slate-200 dark:border-slate-700 bg-white p-1.5"
                                 loading="lazy"
                               />
@@ -567,6 +571,7 @@ export const ExamPlayer: React.FC = () => {
                               <img
                                 src={opt.gambarUrl}
                                 alt={`Gambar Opsi ${opt.label}`}
+                                referrerPolicy="no-referrer"
                                 className="mt-2 max-h-48 w-auto object-contain rounded-lg border border-slate-200 dark:border-slate-700 bg-white p-1.5"
                                 loading="lazy"
                               />
@@ -620,6 +625,7 @@ export const ExamPlayer: React.FC = () => {
                                     <img
                                       src={stmt.gambarUrl}
                                       alt={`Ilustrasi Pernyataan ${idx + 1}`}
+                                      referrerPolicy="no-referrer"
                                       onClick={() => {
                                         setZoomImageUrl(stmt.gambarUrl || '');
                                         setZoomImageAlt(stmt.teks || `Ilustrasi Pernyataan ${idx + 1}`);
@@ -907,13 +913,16 @@ export const ExamPlayer: React.FC = () => {
               </button>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => {
+                  if (isSubmitting) return;
+                  setIsSubmitting(true);
                   setShowSubmitModal(false);
                   submitExamSession();
                 }}
-                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 text-xs font-semibold shadow-xs transition-colors"
+                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-5 py-2 text-xs font-semibold shadow-xs transition-colors"
               >
-                Yakin, Kirim Sekarang
+                {isSubmitting ? 'Mengirim Nilai...' : 'Yakin, Kirim Sekarang'}
               </button>
             </div>
           </div>

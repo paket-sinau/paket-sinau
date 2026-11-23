@@ -636,6 +636,7 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
                             <img
                               src={customStimulusGambarUrl}
                               alt="Pratinjau wacana"
+                              referrerPolicy="no-referrer"
                               className="h-8 w-14 object-cover rounded-md border border-slate-300 dark:border-slate-700"
                             />
                           )}
@@ -740,6 +741,14 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
                       />
                     </label>
 
+                    <input
+                      type="text"
+                      value={gambarUrl}
+                      onChange={(e) => setGambarUrl(e.target.value)}
+                      placeholder="Atau tempelkan URL gambar (Google Drive / HTTPS)..."
+                      className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 py-1.5 px-2.5 text-xs text-slate-900 dark:text-white"
+                    />
+
                     {/* Presets */}
                     <div className="mt-2 text-[11px] text-slate-500 flex flex-wrap gap-1 items-center">
                       <span>Contoh preset:</span>
@@ -764,6 +773,7 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
                       <img
                         src={gambarUrl}
                         alt={gambarAlt || 'Pratinjau'}
+                        referrerPolicy="no-referrer"
                         className="max-h-36 w-auto object-contain rounded"
                       />
                       <input
@@ -1118,6 +1128,7 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
                     <img
                       src={stimulusMode === 'custom' ? customStimulusGambarUrl : stimuli.find((s) => s.id === stimulusId)?.gambarUrl}
                       alt="Gambar Wacana"
+                      referrerPolicy="no-referrer"
                       className="max-h-48 object-contain rounded-lg border bg-white dark:bg-slate-800"
                     />
                   )}
@@ -1140,7 +1151,7 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
 
               {gambarUrl && (
                 <div className="max-w-md rounded-xl overflow-hidden border border-slate-200 p-1 bg-white">
-                  <img src={gambarUrl} alt={gambarAlt} className="w-full h-auto object-contain max-h-56" />
+                  <img src={gambarUrl} alt={gambarAlt} referrerPolicy="no-referrer" className="w-full h-auto object-contain max-h-56" />
                 </div>
               )}
 

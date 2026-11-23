@@ -5,10 +5,19 @@
 
 import React from 'react';
 import { useApp, ActiveView } from '../context/AppContext';
-import { Sun, Moon, LogOut, LogIn, Sparkles } from 'lucide-react';
+import { Sun, Moon, LogOut, LogIn, RefreshCw } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { currentUser, activeView, setActiveView, theme, setTheme, logout } = useApp();
+  const {
+    currentUser,
+    activeView,
+    setActiveView,
+    theme,
+    setTheme,
+    logout,
+    syncFromGoogleSheets,
+    isSyncingSheets,
+  } = useApp();
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -56,7 +65,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md transition-colors">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 sm:gap-8 px-4 sm:px-6 lg:px-8">
         
         {/* Zone 1: Single text element wordmark with logo */}
         <button
@@ -102,7 +111,21 @@ export const Navbar: React.FC = () => {
         </nav>
 
         {/* Zone 3: 1 primary action cluster */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Manual Google Sheets Sync Button */}
+          <button
+            type="button"
+            onClick={() => void syncFromGoogleSheets(false)}
+            disabled={isSyncingSheets}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors whitespace-nowrap shrink-0"
+            title="Sinkronkan data peserta & bank soal dari Google Sheets"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 ${isSyncingSheets ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">
+              {isSyncingSheets ? 'Menyinkronkan...' : 'Sinkronkan Data'}
+            </span>
+          </button>
+
           {/* Theme toggle */}
           <button
             type="button"
