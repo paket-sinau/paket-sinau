@@ -48,6 +48,7 @@ export const Navbar: React.FC = () => {
         { label: 'Bank Soal SD', view: 'guru-bank-soal' },
         { label: 'Kelola Paket', view: 'guru-paket-soal' },
         { label: 'Hasil & Analisis', view: 'guru-hasil' },
+        { label: 'Live Monitoring', view: 'admin-monitoring' },
       ];
     }
 

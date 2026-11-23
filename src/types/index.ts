@@ -199,3 +199,18 @@ export interface SystemSettings {
   footerNotice: string;
   maksimalPeringatanTab: number;
 }
+
+export type MonitoringStatus = 'Mengerjakan' | 'Selesai';
+
+export interface MonitoringEntry {
+  username: string;
+  namaSiswa: string;
+  kelas: string;
+  paketUjian: string;
+  status: string;
+  progres: string;
+  pindahTab: number;
+  updateTerakhir: string;
+  timestamp: number;
+}
+

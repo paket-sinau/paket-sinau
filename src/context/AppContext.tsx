@@ -9,6 +9,8 @@ import {
   ClassRoom,
   ExamPackage,
   ExamSession,
+  MonitoringEntry,
+  MonitoringStatus,
   Question,
   Stimulus,
   StudentAnswerItem,
@@ -29,6 +31,8 @@ import {
 import { evaluateExamSession } from '../utils/examScoring';
 import {
   buildSimpanNilaiPayload,
+  buildUpdateMonitoringPayload,
+  isMonitoringEntryActive,
   mapSheetNilaiToSession,
   mergeSheetNilaiSessions,
   mergeUsersWithAdminFallback,
@@ -39,6 +43,7 @@ import {
   submitNilaiToSheets,
   syncPesertaToSheets,
   syncSoalToSheets,
+  updateMonitoringToSheets,
 } from '../services/sheetsApi';
 
 export type ActiveView =
@@ -95,6 +100,18 @@ interface AppContextType {
   syncFromGoogleSheets: (silent?: boolean) => Promise<void>;
   retrySyncExamScore: (sessionId: string) => Promise<void>;
 
+  // Live Monitoring State & Actions
+  monitoringEntries: MonitoringEntry[];
+  monitoringLastUpdatedAt: string | null;
+  isRefreshingMonitoring: boolean;
+  refreshMonitoring: (silent?: boolean) => Promise<void>;
+  reportExamMonitoring: (params: {
+    status: MonitoringStatus;
+    progres: string;
+    pindahTab?: number;
+    session?: ExamSession;
+  }) => Promise<void>;
+
   // Actions
   login: (identity: string, pass: string) => boolean;
   logout: () => void;
@@ -116,7 +133,7 @@ interface AppContextType {
   startExam: (packageId: string) => boolean;
   saveStudentAnswer: (questionId: string, answer: StudentAnswerItem) => void;
   recordTabViolation: () => void;
-  submitExamSession: (sessionId?: string) => void;
+  submitExamSession: (sessionId?: string, finalProgres?: string) => void;
 
   // Admin & User Management
   saveUser: (user: User, customMessage?: string) => void;
@@ -311,10 +328,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isSyncingSheets, setIsSyncingSheets] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [monitoringEntries, setMonitoringEntries] = useState<MonitoringEntry[]>([]);
+  const [monitoringLastUpdatedAt, setMonitoringLastUpdatedAt] = useState<string | null>(null);
+  const [isRefreshingMonitoring, setIsRefreshingMonitoring] = useState(false);
 
   // Refs to prevent stale closures & double submits during async Sheets calls
   const usersRef = useRef<User[]>(users);
   usersRef.current = users;
+  const currentUserRef = useRef<User | null>(currentUser);
+  currentUserRef.current = currentUser;
   const questionsRef = useRef<Question[]>(questions);
   questionsRef.current = questions;
   const packagesRef = useRef<ExamPackage[]>(packages);
@@ -323,9 +345,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   stimuliRef.current = stimuli;
   const sessionsRef = useRef<ExamSession[]>(sessions);
   sessionsRef.current = sessions;
+  const activeSessionRef = useRef<ExamSession | null>(activeSession);
+  activeSessionRef.current = activeSession;
   const selectedSessionIdRef = useRef<string | null>(selectedSessionId);
   selectedSessionIdRef.current = selectedSessionId;
   const submittingSessionIdsRef = useRef<Set<string>>(new Set());
+  const isRefreshingMonitoringRef = useRef(false);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -442,7 +467,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         }
 
-        setLastSyncedAt(new Date().toISOString());
+        setMonitoringEntries(result.monitoring);
+        const nowIso = new Date().toISOString();
+        setMonitoringLastUpdatedAt(nowIso);
+        setLastSyncedAt(nowIso);
 
         if (!silent) {
           if (
@@ -475,10 +503,114 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     [showToast]
   );
 
+  // Pembaruan khusus Live Monitoring (GET URL_DATABASE)
+  const refreshMonitoring = useCallback(
+    async (silent = false) => {
+      if (isRefreshingMonitoringRef.current) return;
+      isRefreshingMonitoringRef.current = true;
+      setIsRefreshingMonitoring(true);
+
+      try {
+        const result = await fetchSheetsDatabase();
+        setMonitoringEntries(result.monitoring);
+        const nowIso = new Date().toISOString();
+        setMonitoringLastUpdatedAt(nowIso);
+
+        const sheetSessions = result.rawNilai
+          .map((row, idx) =>
+            mapSheetNilaiToSession(row, idx, usersRef.current, packagesRef.current)
+          )
+          .filter((s): s is ExamSession => Boolean(s));
+
+        if (sheetSessions.length > 0) {
+          const { sessions: mergedSessions, remappedIds } = mergeSheetNilaiSessions(
+            sheetSessions,
+            sessionsRef.current
+          );
+          sessionsRef.current = mergedSessions;
+          setSessions(mergedSessions);
+
+          const currentSelectedId = selectedSessionIdRef.current;
+          if (currentSelectedId && remappedIds[currentSelectedId]) {
+            setSelectedSessionId(remappedIds[currentSelectedId]);
+          }
+        }
+
+        if (!silent) {
+          const activeCount = result.monitoring.filter((entry) =>
+            isMonitoringEntryActive(entry)
+          ).length;
+          showToast(
+            `Live Monitoring diperbarui (${activeCount} peserta sedang mengerjakan).`,
+            'success'
+          );
+        }
+      } catch {
+        if (!silent) {
+          showToast(
+            'Gagal memperbarui data Live Monitoring dari Google Sheets.',
+            'error'
+          );
+        }
+      } finally {
+        isRefreshingMonitoringRef.current = false;
+        setIsRefreshingMonitoring(false);
+      }
+    },
+    [showToast]
+  );
+
+  const reportExamMonitoring = useCallback(
+    async (params: {
+      status: MonitoringStatus;
+      progres: string;
+      pindahTab?: number;
+      session?: ExamSession;
+    }) => {
+      const targetSession = params.session || activeSessionRef.current;
+      if (!targetSession) return;
+
+      const matchedUser =
+        usersRef.current.find((u) => u.id === targetSession.muridId) ||
+        currentUserRef.current;
+
+      const payload = buildUpdateMonitoringPayload({
+        session: targetSession,
+        username: targetSession.muridUsername || matchedUser?.username,
+        status: params.status,
+        progres: params.progres,
+        pindahTab: params.pindahTab,
+      });
+
+      try {
+        await updateMonitoringToSheets(payload);
+      } catch {
+        // Biarkan pengerjaan ujian tetap berjalan lancar jika koneksi monitoring terganggu sementara
+      }
+    },
+    []
+  );
+
   // Sinkronisasi awal saat aplikasi dibuka
   useEffect(() => {
     void syncFromGoogleSheets(true);
   }, [syncFromGoogleSheets]);
+
+  // Auto-refresh polling setiap 10 detik saat Admin/Guru berada di Live Monitoring atau Beranda
+  useEffect(() => {
+    const canMonitor = currentUser?.role === 'admin' || currentUser?.role === 'guru';
+    const isMonitorScreen =
+      activeView === 'admin-monitoring' || activeView === 'beranda';
+
+    if (!canMonitor || !isMonitorScreen) return;
+
+    void refreshMonitoring(true);
+    const intervalId = setInterval(() => {
+      void refreshMonitoring(true);
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [currentUser?.role, activeView, refreshMonitoring]);
 
   // Auth methods (gunakan users utama + cadangan Admin bawaan agar admin tidak terkunci)
   const login = (identity: string, pass: string): boolean => {
@@ -733,7 +865,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const sendExamScoreToSheets = useCallback(
-    async (sessionObj: ExamSession) => {
+    async (sessionObj: ExamSession, finalProgres?: string) => {
       if (submittingSessionIdsRef.current.has(sessionObj.id)) return;
       submittingSessionIdsRef.current.add(sessionObj.id);
 
@@ -748,11 +880,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
 
       const matchedUser =
-        usersRef.current.find((u) => u.id === sessionObj.muridId) || currentUser;
-      const payload = buildSimpanNilaiPayload(
-        sessionObj,
-        sessionObj.muridUsername || matchedUser?.username
-      );
+        usersRef.current.find((u) => u.id === sessionObj.muridId) || currentUserRef.current;
+      const resolvedUsername = sessionObj.muridUsername || matchedUser?.username;
+
+      // 1. Kirim update_monitoring dengan status "Selesai" terlebih dahulu sebelum simpan_nilai
+      const totalSoalCount =
+        sessionObj.totalSoal ||
+        sessionObj.shuffledSoalIds.length ||
+        1;
+      const monitoringPayload = buildUpdateMonitoringPayload({
+        session: sessionObj,
+        username: resolvedUsername,
+        status: 'Selesai',
+        progres: finalProgres || `Soal ${totalSoalCount} dari ${totalSoalCount}`,
+        pindahTab: sessionObj.jumlahPelanggaranTab ?? 0,
+      });
+
+      try {
+        await updateMonitoringToSheets(monitoringPayload);
+      } catch {
+        // Jangan gagalkan pengiriman nilai apabila update_monitoring gagal sementara
+      }
+
+      // 2. Kirim hasil akhir ujian ke simpan_nilai
+      const payload = buildSimpanNilaiPayload(sessionObj, resolvedUsername);
 
       try {
         await submitNilaiToSheets(payload);
@@ -788,14 +939,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         submittingSessionIdsRef.current.delete(sessionObj.id);
       }
     },
-    [currentUser, showToast]
+    [showToast]
   );
 
   const submitExamSession = useCallback(
-    (sessionId?: string) => {
+    (sessionId?: string, finalProgres?: string) => {
+      const currentActive = activeSessionRef.current;
       const sessionToFinish = sessionId
-        ? sessionsRef.current.find((s) => s.id === sessionId) || activeSession
-        : activeSession;
+        ? sessionsRef.current.find((s) => s.id === sessionId) || currentActive
+        : currentActive;
 
       if (!sessionToFinish) return;
       if (sessionToFinish.status === 'selesai') return;
@@ -811,7 +963,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const evaluation = evaluateExamSession(sessionQuestions, sessionToFinish.answers, pkg);
 
       const matchedUser =
-        usersRef.current.find((u) => u.id === sessionToFinish.muridId) || currentUser;
+        usersRef.current.find((u) => u.id === sessionToFinish.muridId) || currentUserRef.current;
 
       const completedSession: ExamSession = {
         ...sessionToFinish,
@@ -846,7 +998,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return next;
       });
 
-      if (activeSession?.id === completedSession.id) {
+      if (currentActive?.id === completedSession.id) {
         setActiveSession(null);
       }
 
@@ -857,9 +1009,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         'success'
       );
 
-      void sendExamScoreToSheets(completedSession);
+      void sendExamScoreToSheets(completedSession, finalProgres);
     },
-    [activeSession, currentUser, sendExamScoreToSheets, showToast]
+    [sendExamScoreToSheets, showToast]
   );
 
   const retrySyncExamScore = useCallback(
@@ -1045,6 +1197,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       lastSyncedAt,
       syncFromGoogleSheets,
       retrySyncExamScore,
+      monitoringEntries,
+      monitoringLastUpdatedAt,
+      isRefreshingMonitoring,
+      refreshMonitoring,
+      reportExamMonitoring,
       login,
       logout,
       showToast,
@@ -1092,6 +1249,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       lastSyncedAt,
       syncFromGoogleSheets,
       retrySyncExamScore,
+      monitoringEntries,
+      monitoringLastUpdatedAt,
+      isRefreshingMonitoring,
+      refreshMonitoring,
+      reportExamMonitoring,
       submitExamSession,
       showToast,
       removeToast,

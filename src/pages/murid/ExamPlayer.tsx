@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { MathRenderer } from '../../components/MathRenderer';
 import { ImageModal } from '../../components/ImageModal';
@@ -37,6 +37,7 @@ export const ExamPlayer: React.FC = () => {
     saveStudentAnswer,
     submitExamSession,
     recordTabViolation,
+    reportExamMonitoring,
     fontSize,
     setFontSize,
     theme,
@@ -53,50 +54,60 @@ export const ExamPlayer: React.FC = () => {
   const [showStimulusMobile, setShowStimulusMobile] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If no active session, render fallback
-  if (!activeSession) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
-        <div className="text-center max-w-md">
-          <HelpCircle className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white">Tidak Ada Sesi Ujian Aktif</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Silakan kembali ke daftar paket soal untuk memulai ujian.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const pkg = packages.find((p) => p.id === activeSession.paketId);
+  const pkg = activeSession
+    ? packages.find((p) => p.id === activeSession.paketId)
+    : undefined;
 
   // All questions in this session's assigned order
   const sessionQuestions = useMemo(() => {
+    if (!activeSession) return [];
     return activeSession.shuffledSoalIds
       .map((id) => questions.find((q) => q.id === id))
       .filter((q): q is Question => Boolean(q));
-  }, [activeSession.shuffledSoalIds, questions]);
+  }, [activeSession, questions]);
 
-  const currentQuestion = sessionQuestions[currentIndex] || sessionQuestions[0];
-  const currentStimulus = currentQuestion?.stimulusId
-    ? stimuli.find((s) => s.id === currentQuestion.stimulusId)
-    : null;
+  const activeSessionRef = useRef(activeSession);
+  activeSessionRef.current = activeSession;
+  const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
+  const totalCountRef = useRef(sessionQuestions.length);
+  totalCountRef.current = sessionQuestions.length;
+  const pindahTabCountRef = useRef(activeSession?.jumlahPelanggaranTab || 0);
+  const isSubmittingRef = useRef(false);
+  const lastTabEventMsRef = useRef(0);
 
-  // Retrieve current student answer item
-  const currentAnswer: StudentAnswerItem = activeSession.answers[currentQuestion?.id] || {
-    questionId: currentQuestion?.id,
-    modelSoal: currentQuestion?.modelSoal,
-    state: 'belum_dijawab',
-  };
+  // Sinkronkan ref saat sesi ujian baru dimulai
+  useEffect(() => {
+    isSubmittingRef.current = false;
+    lastTabEventMsRef.current = 0;
+    pindahTabCountRef.current = activeSession?.jumlahPelanggaranTab || 0;
+    setIsSubmitting(false);
+    setCurrentIndex(0);
+    setTabWarningCount(activeSession?.jumlahPelanggaranTab || 0);
+  }, [activeSession?.id]);
+
+  // Jaga agar jumlahPelanggaranTab tetap sinkron jika diperbarui dari state
+  useEffect(() => {
+    if (typeof activeSession?.jumlahPelanggaranTab === 'number') {
+      pindahTabCountRef.current = Math.max(
+        pindahTabCountRef.current,
+        activeSession.jumlahPelanggaranTab
+      );
+    }
+  }, [activeSession?.jumlahPelanggaranTab]);
 
   // Timer Countdown Effect (Reactive & Thread-safe)
   useEffect(() => {
+    if (!activeSession?.id) return;
     const timer = setInterval(() => {
       setActiveSession((prev) => {
         if (!prev || prev.status !== 'berjalan') return prev;
         if (prev.sisaDetik <= 1) {
           clearInterval(timer);
-          setTimeout(() => submitExamSession(), 0);
+          isSubmittingRef.current = true;
+          const total = Math.max(1, totalCountRef.current || prev.shuffledSoalIds.length || 1);
+          const nomor = Math.min(total, currentIndexRef.current + 1);
+          setTimeout(() => submitExamSession(undefined, `Soal ${nomor} dari ${total}`), 0);
           return {
             ...prev,
             sisaDetik: 0,
@@ -112,18 +123,92 @@ export const ExamPlayer: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [setActiveSession, submitExamSession]);
+  }, [activeSession?.id, setActiveSession, submitExamSession]);
 
-  // Tab switch & visibility detector
+  // Kirim status Live Monitoring saat mulai ujian & setiap berpindah nomor soal
+  useEffect(() => {
+    if (!activeSession?.id || activeSession.status !== 'berjalan' || isSubmittingRef.current) {
+      return;
+    }
+    const ses = activeSessionRef.current || activeSession;
+    const total = Math.max(1, sessionQuestions.length || ses.shuffledSoalIds.length || 1);
+    const nomor = Math.min(total, currentIndex + 1);
+    const currentPindahTab = Math.max(ses.jumlahPelanggaranTab || 0, pindahTabCountRef.current);
+
+    void reportExamMonitoring({
+      status: 'Mengerjakan',
+      progres: `Soal ${nomor} dari ${total}`,
+      pindahTab: currentPindahTab,
+      session: ses,
+    });
+  }, [
+    activeSession?.id,
+    activeSession?.status,
+    currentIndex,
+    sessionQuestions.length,
+    reportExamMonitoring,
+  ]);
+
+  // Heartbeat Live Monitoring setiap 20 detik selama ujian berlangsung
+  useEffect(() => {
+    if (!activeSession?.id || activeSession.status !== 'berjalan') return;
+
+    const heartbeat = setInterval(() => {
+      if (isSubmittingRef.current) return;
+      const ses = activeSessionRef.current;
+      if (!ses || ses.status !== 'berjalan') return;
+
+      const total = Math.max(1, totalCountRef.current || ses.shuffledSoalIds.length || 1);
+      const nomor = Math.min(total, currentIndexRef.current + 1);
+      const currentPindahTab = Math.max(ses.jumlahPelanggaranTab || 0, pindahTabCountRef.current);
+
+      void reportExamMonitoring({
+        status: 'Mengerjakan',
+        progres: `Soal ${nomor} dari ${total}`,
+        pindahTab: currentPindahTab,
+        session: ses,
+      });
+    }, 20000);
+
+    return () => clearInterval(heartbeat);
+  }, [activeSession?.id, activeSession?.status, reportExamMonitoring]);
+
+  // Deteksi pindah tab / keluar jendela browser (visibilitychange & blur)
   const handleTabSwitch = useCallback(() => {
+    if (isSubmittingRef.current) return;
+    const ses = activeSessionRef.current;
+    if (!ses || ses.status !== 'berjalan') return;
+
+    const now = Date.now();
+    // Hindari penghitungan ganda apabila visibilitychange & blur terpicu bersamaan
+    if (now - lastTabEventMsRef.current < 800) {
+      return;
+    }
+    lastTabEventMsRef.current = now;
+
+    const nextViolationCount =
+      Math.max(ses.jumlahPelanggaranTab || 0, pindahTabCountRef.current) + 1;
+    pindahTabCountRef.current = nextViolationCount;
+    recordTabViolation();
+
     if (pkg?.deteksiPindahTab) {
-      recordTabViolation();
-      setTabWarningCount((prev) => prev + 1);
+      setTabWarningCount(nextViolationCount);
       setShowTabWarningModal(true);
     }
-  }, [pkg, recordTabViolation]);
+
+    const total = Math.max(1, totalCountRef.current || ses.shuffledSoalIds.length || 1);
+    const nomor = Math.min(total, currentIndexRef.current + 1);
+    void reportExamMonitoring({
+      status: 'Mengerjakan',
+      progres: `Soal ${nomor} dari ${total}`,
+      pindahTab: nextViolationCount,
+      session: ses,
+    });
+  }, [pkg?.deteksiPindahTab, recordTabViolation, reportExamMonitoring]);
 
   useEffect(() => {
+    if (!activeSession?.id || activeSession.status !== 'berjalan') return;
+
     const onVisibilityChange = () => {
       if (document.hidden) {
         handleTabSwitch();
@@ -141,7 +226,34 @@ export const ExamPlayer: React.FC = () => {
       document.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('blur', onBlur);
     };
-  }, [handleTabSwitch]);
+  }, [activeSession?.id, activeSession?.status, handleTabSwitch]);
+
+  // If no active session, render fallback
+  if (!activeSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+        <div className="text-center max-w-md">
+          <HelpCircle className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white">Tidak Ada Sesi Ujian Aktif</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Silakan kembali ke daftar paket soal untuk memulai ujian.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentQuestion = sessionQuestions[currentIndex] || sessionQuestions[0];
+  const currentStimulus = currentQuestion?.stimulusId
+    ? stimuli.find((s) => s.id === currentQuestion.stimulusId)
+    : null;
+
+  // Retrieve current student answer item
+  const currentAnswer: StudentAnswerItem = activeSession.answers[currentQuestion?.id] || {
+    questionId: currentQuestion?.id,
+    modelSoal: currentQuestion?.modelSoal,
+    state: 'belum_dijawab',
+  };
 
   // Fullscreen toggle handler
   const toggleFullscreen = () => {
@@ -915,10 +1027,13 @@ export const ExamPlayer: React.FC = () => {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => {
-                  if (isSubmitting) return;
+                  if (isSubmitting || isSubmittingRef.current) return;
+                  isSubmittingRef.current = true;
                   setIsSubmitting(true);
                   setShowSubmitModal(false);
-                  submitExamSession();
+                  const total = Math.max(1, totalCount || activeSession.shuffledSoalIds.length || 1);
+                  const nomor = Math.min(total, currentIndex + 1);
+                  submitExamSession(undefined, `Soal ${nomor} dari ${total}`);
                 }}
                 className="rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-5 py-2 text-xs font-semibold shadow-xs transition-colors"
               >

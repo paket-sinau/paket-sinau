@@ -7,6 +7,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildSimpanNilaiPayload,
+  buildUpdateMonitoringPayload,
+  isMonitoringEntryActive,
+  mapMonitoringRows,
   mapQuestionToSheetSoal,
   mapSheetNilaiToSession,
   mapSheetPesertaToUser,
@@ -14,12 +17,13 @@ import {
   mapUserToSheetPeserta,
   mergeSheetNilaiSessions,
   mergeUsersWithAdminFallback,
+  parseMonitoringTimestampMs,
   parseSheetTimestamp,
   reconcilePackagesWithSheetQuestions,
   sanitizeCsvCell,
   sanitizeImageUrl,
 } from './sheetsSync.ts';
-import type { ExamPackage, ExamSession, Question, Stimulus, User } from '../types/index.ts';
+import type { ExamPackage, ExamSession, MonitoringEntry, Question, Stimulus, User } from '../types/index.ts';
 
 test('sanitizeImageUrl allows safe https, relative paths, and raster data URLs while blocking dangerous URIs', () => {
   assert.equal(
@@ -531,5 +535,149 @@ test('sanitizeCsvCell neutralizes spreadsheet formula injection and escapes quot
   assert.equal(sanitizeCsvCell('-2+3'), `"'${'-2+3'}"`);
   assert.equal(sanitizeCsvCell('@SUM(A1)'), `"'${'@SUM(A1)'}"`);
   assert.equal(sanitizeCsvCell('Fajar "Bintang"'), '"Fajar ""Bintang"""');
+});
+
+test('buildUpdateMonitoringPayload constructs exact GAS update_monitoring schema', () => {
+  const session: ExamSession = {
+    id: 'ses-mon-1',
+    paketId: 'pkg-1',
+    paketJudul: 'Tryout TKA Matematika SD/MI 2026',
+    mapelId: 'matematika',
+    muridId: 'usr-murid-1',
+    muridUsername: 'raditya.p',
+    muridNama: 'Raditya Pratama',
+    kelasNama: 'Kelas 6A',
+    waktuMulai: '2026-11-23T08:00:00Z',
+    durasiDetikTerpakai: 45,
+    sisaDetik: 3555,
+    status: 'berjalan',
+    answers: {},
+    shuffledSoalIds: ['q1', 'q2', 'q3'],
+    jumlahPelanggaranTab: 1,
+  };
+
+  assert.deepEqual(
+    buildUpdateMonitoringPayload({
+      session,
+      status: 'Mengerjakan',
+      progres: 'Soal 2 dari 3',
+    }),
+    {
+      action: 'update_monitoring',
+      username: 'raditya.p',
+      nama_siswa: 'Raditya Pratama',
+      kelas: 'Kelas 6A',
+      paket_ujian: 'Tryout TKA Matematika SD/MI 2026',
+      status: 'Mengerjakan',
+      progres: 'Soal 2 dari 3',
+      pindah_tab: 1,
+    }
+  );
+
+  assert.deepEqual(
+    buildUpdateMonitoringPayload({
+      session,
+      status: 'Selesai',
+      progres: 'Soal 3 dari 3',
+      pindahTab: 2,
+    }),
+    {
+      action: 'update_monitoring',
+      username: 'raditya.p',
+      nama_siswa: 'Raditya Pratama',
+      kelas: 'Kelas 6A',
+      paket_ujian: 'Tryout TKA Matematika SD/MI 2026',
+      status: 'Selesai',
+      progres: 'Soal 3 dari 3',
+      pindah_tab: 2,
+    }
+  );
+});
+
+test('parseMonitoringTimestampMs handles epoch ms, epoch seconds, and Indonesian update_terakhir fallback', () => {
+  assert.equal(parseMonitoringTimestampMs(1795400000000), 1795400000000);
+  assert.equal(parseMonitoringTimestampMs(1795400000), 1795400000000);
+  assert.equal(parseMonitoringTimestampMs('1795400000123'), 1795400000123);
+  const fromStr = parseMonitoringTimestampMs('', '23/11/2026 09:30:00');
+  assert.equal(fromStr > 0, true);
+  assert.equal(parseMonitoringTimestampMs('', ''), 0);
+});
+
+test('mapMonitoringRows deduplicates student+package keeping latest timestamp and sorts newest first', () => {
+  const rows = [
+    {
+      username: 'raditya.p',
+      nama_siswa: 'Raditya Pratama',
+      kelas: 'Kelas 6A',
+      paket_ujian: 'Tryout TKA Matematika SD/MI 2026',
+      status: 'Mengerjakan',
+      progres: 'Soal 1 dari 30',
+      pindah_tab: 0,
+      update_terakhir: '09:00:00',
+      timestamp: 1000000000000,
+    },
+    {
+      username: 'raditya.p',
+      nama_siswa: 'Raditya Pratama',
+      kelas: 'Kelas 6A',
+      paket_ujian: 'Tryout TKA Matematika SD/MI 2026',
+      status: 'Mengerjakan',
+      progres: 'Soal 5 dari 30',
+      pindah_tab: 2,
+      update_terakhir: '09:02:10',
+      timestamp: 1000000130000,
+    },
+    {
+      username: 'fajar.h',
+      nama_siswa: 'Fajar Nugraha',
+      kelas: 'Kelas 6A',
+      paket_ujian: 'Tryout TKA Matematika SD/MI 2026',
+      status: 'Selesai',
+      progres: 'Soal 30 dari 30',
+      pindah_tab: 0,
+      update_terakhir: '09:03:00',
+      timestamp: 1000000180000,
+    },
+  ];
+
+  const mapped = mapMonitoringRows(rows);
+  assert.equal(mapped.length, 2);
+  assert.equal(mapped[0].username, 'fajar.h');
+  assert.equal(mapped[1].username, 'raditya.p');
+  assert.equal(mapped[1].progres, 'Soal 5 dari 30');
+  assert.equal(mapped[1].pindahTab, 2);
+});
+
+test('isMonitoringEntryActive filters by status === Mengerjakan and within 180000 ms', () => {
+  const now = 2_000_000_000_000;
+  const activeEntry: MonitoringEntry = {
+    username: 'raditya.p',
+    namaSiswa: 'Raditya Pratama',
+    kelas: 'Kelas 6A',
+    paketUjian: 'Tryout TKA',
+    status: 'Mengerjakan',
+    progres: 'Soal 4 dari 30',
+    pindahTab: 0,
+    updateTerakhir: '09:10:00',
+    timestamp: now - 179_999,
+  };
+  const staleEntry: MonitoringEntry = {
+    ...activeEntry,
+    timestamp: now - 180_000,
+  };
+  const finishedEntry: MonitoringEntry = {
+    ...activeEntry,
+    status: 'Selesai',
+    timestamp: now - 10_000,
+  };
+  const zeroTsEntry: MonitoringEntry = {
+    ...activeEntry,
+    timestamp: 0,
+  };
+
+  assert.equal(isMonitoringEntryActive(activeEntry, now), true);
+  assert.equal(isMonitoringEntryActive(staleEntry, now), false);
+  assert.equal(isMonitoringEntryActive(finishedEntry, now), false);
+  assert.equal(isMonitoringEntryActive(zeroTsEntry, now), false);
 });
 

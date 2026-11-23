@@ -4,8 +4,9 @@
  */
 
 import { SHEETS_POST_HEADERS, URL_DATABASE } from '../config/sheets';
-import { ExamPackage, Question, Stimulus, User } from '../types';
+import { ExamPackage, MonitoringEntry, Question, Stimulus, User } from '../types';
 import {
+  mapMonitoringRows,
   mapQuestionToSheetSoal,
   mapSheetPesertaToUser,
   mapSheetSoalToQuestion,
@@ -13,6 +14,7 @@ import {
   SimpanNilaiPayload,
   SyncPesertaPayload,
   SyncSoalPayload,
+  UpdateMonitoringPayload,
 } from '../utils/sheetsSync';
 
 export interface SheetsFetchResult {
@@ -20,6 +22,7 @@ export interface SheetsFetchResult {
   questions: Question[];
   stimuli: Stimulus[];
   rawNilai: Record<string, unknown>[];
+  monitoring: MonitoringEntry[];
   rawStatus?: string;
 }
 
@@ -96,6 +99,8 @@ export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
   const rawNilai = Array.isArray(root?.nilai)
     ? root.nilai.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
     : [];
+  const rawMonitoring = Array.isArray(root?.monitoring) ? root.monitoring : [];
+  const monitoring = mapMonitoringRows(rawMonitoring);
 
   const users = rawPeserta
     .map((item, idx) =>
@@ -125,6 +130,7 @@ export async function fetchSheetsDatabase(): Promise<SheetsFetchResult> {
     questions,
     stimuli: extractedStimuli,
     rawNilai,
+    monitoring,
     rawStatus: typeof rawData?.status === 'string' ? rawData.status : undefined,
   };
 }
@@ -160,6 +166,15 @@ export async function syncSoalToSheets(
  */
 export async function submitNilaiToSheets(
   payload: SimpanNilaiPayload
+): Promise<SheetsPostResponse> {
+  return postToSheets(payload);
+}
+
+/**
+ * Mengirim pembaruan status live monitoring ujian siswa ke Google Sheets (update_monitoring).
+ */
+export async function updateMonitoringToSheets(
+  payload: UpdateMonitoringPayload
 ): Promise<SheetsPostResponse> {
   return postToSheets(payload);
 }

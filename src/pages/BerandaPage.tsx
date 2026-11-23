@@ -7,6 +7,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { SUBJECTS } from '../data/seedData';
 import { StudentPerformanceProgress } from '../components/StudentPerformanceProgress';
+import { LiveMonitoringCard } from '../components/LiveMonitoringCard';
 import { doesSessionMatchStudent, safeTimestampMs } from '../utils/sheetsSync';
 import {
   BookOpen,
@@ -359,6 +360,9 @@ export const BerandaPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Live Monitoring Real-Time Card */}
+            <LiveMonitoringCard />
+
             {/* Quick Actions & Recent Sessions */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs">
@@ -506,6 +510,9 @@ export const BerandaPage: React.FC = () => {
                 <div className="text-[11px] text-slate-400 mt-1">Terekam di sistem & Google Sheets</div>
               </div>
             </div>
+
+            {/* Live Monitoring Real-Time Card */}
+            <LiveMonitoringCard />
 
             {/* Admin Quick Action Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

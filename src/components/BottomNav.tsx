@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useApp, ActiveView } from '../context/AppContext';
-import { Home, BookOpen, Clock, FileEdit, Users, LayoutDashboard } from 'lucide-react';
+import { Home, BookOpen, Clock, FileEdit, Users, LayoutDashboard, Activity } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
   const { currentUser, activeView, setActiveView } = useApp();
@@ -34,6 +34,7 @@ export const BottomNav: React.FC = () => {
       { label: 'Bank Soal', view: 'guru-bank-soal', icon: FileEdit },
       { label: 'Paket Soal', view: 'guru-paket-soal', icon: BookOpen },
       { label: 'Analisis', view: 'guru-hasil', icon: LayoutDashboard },
+      { label: 'Monitoring', view: 'admin-monitoring', icon: Activity },
     ];
   } else {
     items = [

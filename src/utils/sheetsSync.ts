@@ -8,6 +8,8 @@ import {
   ExamPackage,
   ExamSession,
   KategoriStatement,
+  MonitoringEntry,
+  MonitoringStatus,
   PilganOption,
   Question,
   QuestionModel,
@@ -75,6 +77,17 @@ export interface SyncPesertaPayload {
 export interface SyncSoalPayload {
   action: 'sync_soal';
   soal: SheetSoalRow[];
+}
+
+export interface UpdateMonitoringPayload {
+  action: 'update_monitoring';
+  username: string;
+  nama_siswa: string;
+  kelas: string;
+  paket_ujian: string;
+  status: MonitoringStatus;
+  progres: string;
+  pindah_tab: number;
 }
 
 const SAFE_DATA_IMAGE_REGEX = /^data:image\/(png|jpe?g|webp|gif|bmp);base64,[A-Za-z0-9+/=]+$/i;
@@ -933,6 +946,131 @@ export function mergeSheetNilaiSessions(
   );
 
   return { sessions: combined, remappedIds };
+}
+
+export function buildUpdateMonitoringPayload(params: {
+  session: ExamSession;
+  username?: string;
+  status: MonitoringStatus;
+  progres: string;
+  pindahTab?: number;
+}): UpdateMonitoringPayload {
+  const { session, username, status, progres, pindahTab } = params;
+  return {
+    action: 'update_monitoring',
+    username: username || session.muridUsername || session.muridId,
+    nama_siswa: session.muridNama,
+    kelas: session.kelasNama || 'Umum',
+    paket_ujian: session.paketJudul,
+    status,
+    progres,
+    pindah_tab: Math.max(0, Math.round(pindahTab ?? session.jumlahPelanggaranTab ?? 0)),
+  };
+}
+
+/**
+ * Mengurai timestamp monitoring (epoch ms, epoch detik, atau format tanggal/ISO) ke milidetik.
+ */
+export function parseMonitoringTimestampMs(
+  rawTimestamp: unknown,
+  rawUpdateTerakhir?: unknown
+): number {
+  if (typeof rawTimestamp === 'number' && Number.isFinite(rawTimestamp) && rawTimestamp > 0) {
+    return rawTimestamp < 1e12 ? Math.round(rawTimestamp * 1000) : Math.round(rawTimestamp);
+  }
+
+  if (typeof rawTimestamp === 'string') {
+    const trimmed = rawTimestamp.trim();
+    if (trimmed) {
+      if (/^\d+(\.\d+)?$/.test(trimmed)) {
+        const num = Number(trimmed);
+        if (Number.isFinite(num) && num > 0) {
+          return num < 1e12 ? Math.round(num * 1000) : Math.round(num);
+        }
+      }
+      const parsedMs = safeTimestampMs(trimmed);
+      if (parsedMs > 0) return parsedMs;
+    }
+  }
+
+  const fallbackStr = asString(rawUpdateTerakhir);
+  if (fallbackStr) {
+    return safeTimestampMs(fallbackStr);
+  }
+
+  return 0;
+}
+
+export function mapSheetMonitoringRow(raw: Record<string, unknown>): MonitoringEntry | null {
+  const username = asString(raw.username ?? raw.Username ?? raw.nis);
+  const namaSiswa = asString(raw.nama_siswa ?? raw.namaSiswa ?? raw.nama);
+  const paketUjian = asString(raw.paket_ujian ?? raw.paketUjian ?? raw.paket);
+
+  if (!username && !namaSiswa) return null;
+
+  const kelas = asString(raw.kelas ?? raw.Kelas, 'Umum');
+  const status = asString(raw.status ?? raw.Status, 'Mengerjakan');
+  const progres = asString(raw.progres ?? raw.Progres, '-');
+  const pindahTab = Math.max(0, Math.round(asNumber(raw.pindah_tab ?? raw.pindahTab, 0)));
+  const rawUpdateTerakhir = raw.update_terakhir ?? raw.updateTerakhir ?? raw.waktu;
+  const timestamp = parseMonitoringTimestampMs(
+    raw.timestamp ?? raw.Timestamp,
+    rawUpdateTerakhir
+  );
+
+  const updateTerakhir =
+    asString(rawUpdateTerakhir) ||
+    (timestamp > 0
+      ? new Date(timestamp).toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+      : '-');
+
+  return {
+    username: username || namaSiswa,
+    namaSiswa: namaSiswa || username,
+    kelas,
+    paketUjian: paketUjian || 'Paket Ujian CBT',
+    status,
+    progres,
+    pindahTab,
+    updateTerakhir,
+    timestamp,
+  };
+}
+
+export function mapMonitoringRows(rawList: unknown[]): MonitoringEntry[] {
+  const deduped = new Map<string, MonitoringEntry>();
+
+  rawList.forEach((item) => {
+    if (!item || typeof item !== 'object') return;
+    const mapped = mapSheetMonitoringRow(item as Record<string, unknown>);
+    if (!mapped) return;
+
+    const key = `${(mapped.username || mapped.namaSiswa).trim().toLowerCase()}::${mapped.paketUjian.trim().toLowerCase()}`;
+    const existing = deduped.get(key);
+    if (!existing || mapped.timestamp >= existing.timestamp) {
+      deduped.set(key, mapped);
+    }
+  });
+
+  return Array.from(deduped.values()).sort((a, b) => b.timestamp - a.timestamp);
+}
+
+/**
+ * Menentukan apakah peserta tercatat aktif mengerjakan dalam 3 menit (180.000 ms) terakhir.
+ */
+export function isMonitoringEntryActive(
+  entry: MonitoringEntry,
+  nowMs: number = Date.now()
+): boolean {
+  return (
+    entry.status.trim().toLowerCase() === 'mengerjakan' &&
+    entry.timestamp > 0 &&
+    nowMs - entry.timestamp < 180000
+  );
 }
 
 /**
