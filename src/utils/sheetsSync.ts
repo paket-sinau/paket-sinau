@@ -401,7 +401,7 @@ function parseKunciList(rawKunci: unknown): string[] {
     }
   }
   return str
-    .split(/[;,|]/)
+    .split(/[,;|]/)
     .map((s) => s.trim())
     .filter(Boolean);
 }

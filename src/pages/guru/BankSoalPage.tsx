@@ -31,6 +31,7 @@ import {
 export const BankSoalPage: React.FC = () => {
   const {
     questions,
+    stimuli,
     deleteQuestion,
     duplicateQuestion,
     saveQuestionsBulk,
@@ -458,7 +459,10 @@ export const BankSoalPage: React.FC = () => {
                           (Wacana)
                         </span>
                       )}
-                      {q.gambarUrl && (
+                      {(q.gambarUrl ||
+                        q.pilganOptions?.some((o) => Boolean(o.gambarUrl)) ||
+                        q.mcmaOptions?.some((o) => Boolean(o.gambarUrl)) ||
+                        q.kategoriPernyataan?.some((s) => Boolean(s.gambarUrl))) && (
                         <span className="text-[10px] text-emerald-600 font-medium">
                           (Gambar)
                         </span>
@@ -561,6 +565,31 @@ export const BankSoalPage: React.FC = () => {
                 ✕
               </button>
             </div>
+
+            {previewQuestion.stimulusId && (() => {
+              const stim = stimuli.find((s) => s.id === previewQuestion.stimulusId);
+              if (!stim) return null;
+              return (
+                <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/40 dark:bg-indigo-950/20 p-3.5 space-y-2">
+                  <div className="text-xs font-bold text-indigo-800 dark:text-indigo-300">
+                    📖 Wacana: {stim.judul}
+                  </div>
+                  {stim.gambarUrl && (
+                    <div className="max-w-md rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white p-1.5">
+                      <img
+                        src={stim.gambarUrl}
+                        alt={stim.gambarAlt || stim.judul}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-auto object-contain max-h-48"
+                      />
+                    </div>
+                  )}
+                  <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line font-serif">
+                    <MathRenderer content={stim.teks} />
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="text-sm font-semibold text-slate-900 dark:text-white leading-relaxed">
               <MathRenderer content={previewQuestion.teksSoal} />

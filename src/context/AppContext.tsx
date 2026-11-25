@@ -155,7 +155,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEY_PREFIX = 'paketsinau_cbt_sd_v2_';
-const SEED_VERSION = 'tka_mtk_sd_2026_4opsi_v1';
+const SEED_VERSION = 'tka_bind_sd_2026_v2';
 const FALLBACK_ADMINS: User[] = INITIAL_USERS.filter((u) => u.role === 'admin');
 
 function migrateSeedDataIfNeeded() {
@@ -167,38 +167,56 @@ function migrateSeedDataIfNeeded() {
     const savedQuestionsRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}questions`);
     if (savedQuestionsRaw) {
       const savedQuestions: Question[] = JSON.parse(savedQuestionsRaw);
-      const nonOldMtk = savedQuestions
-        .filter((q) => !q.id.startsWith('mtk-'))
+      const nonSeedSubjects = savedQuestions
+        .filter((q) => !q.id.startsWith('mtk-') && !q.id.startsWith('bind-'))
         .map(sanitizeQuestionPilgan);
       const newMtk = INITIAL_QUESTIONS.filter((q) => q.id.startsWith('mtk-'));
-      localStorage.setItem(`${STORAGE_KEY_PREFIX}questions`, JSON.stringify([...newMtk, ...nonOldMtk]));
+      const newBind = INITIAL_QUESTIONS.filter((q) => q.id.startsWith('bind-'));
+      localStorage.setItem(
+        `${STORAGE_KEY_PREFIX}questions`,
+        JSON.stringify([...newMtk, ...newBind, ...nonSeedSubjects])
+      );
     }
 
     const savedStimuliRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}stimuli`);
     if (savedStimuliRaw) {
       const savedStimuli: Stimulus[] = JSON.parse(savedStimuliRaw);
-      const filteredStimuli = savedStimuli.filter((s) => s.id !== 'stm-2');
-      localStorage.setItem(`${STORAGE_KEY_PREFIX}stimuli`, JSON.stringify(filteredStimuli));
+      const filteredStimuli = savedStimuli.filter(
+        (s) => s.id !== 'stm-2' && s.id !== 'stm-3' && !s.id.startsWith('stm-bind-')
+      );
+      const newBindStimuli = INITIAL_STIMULI.filter((s) => s.id.startsWith('stm-bind-'));
+      localStorage.setItem(
+        `${STORAGE_KEY_PREFIX}stimuli`,
+        JSON.stringify([...filteredStimuli, ...newBindStimuli])
+      );
     }
 
     const savedPackagesRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}packages`);
     if (savedPackagesRaw) {
       const savedPackages: ExamPackage[] = JSON.parse(savedPackagesRaw);
       const defaultPkg1 = INITIAL_PACKAGES.find((p) => p.id === 'pkg-1');
+      const defaultPkg2 = INITIAL_PACKAGES.find((p) => p.id === 'pkg-2');
+      let nextPackages = savedPackages;
       if (defaultPkg1) {
-        const hasPkg1 = savedPackages.some((p) => p.id === 'pkg-1');
-        const nextPackages = hasPkg1
-          ? savedPackages.map((p) => (p.id === 'pkg-1' ? defaultPkg1 : p))
-          : [defaultPkg1, ...savedPackages];
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}packages`, JSON.stringify(nextPackages));
+        nextPackages = nextPackages.some((p) => p.id === 'pkg-1')
+          ? nextPackages.map((p) => (p.id === 'pkg-1' ? defaultPkg1 : p))
+          : [defaultPkg1, ...nextPackages];
       }
+      if (defaultPkg2) {
+        nextPackages = nextPackages.some((p) => p.id === 'pkg-2')
+          ? nextPackages.map((p) => (p.id === 'pkg-2' ? defaultPkg2 : p))
+          : [...nextPackages, defaultPkg2];
+      }
+      localStorage.setItem(`${STORAGE_KEY_PREFIX}packages`, JSON.stringify(nextPackages));
     }
 
     const savedSessionsRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}sessions`);
     if (savedSessionsRaw) {
       const savedSessions: ExamSession[] = JSON.parse(savedSessionsRaw);
       const updatedSeedMap = new Map(
-        INITIAL_SESSIONS.filter((s) => s.mapelId === 'matematika').map((s) => [s.id, s])
+        INITIAL_SESSIONS.filter(
+          (s) => s.mapelId === 'matematika' || s.mapelId === 'bahasa_indonesia'
+        ).map((s) => [s.id, s])
       );
       const nextSessions = savedSessions.map((s) => updatedSeedMap.get(s.id) || s);
       localStorage.setItem(`${STORAGE_KEY_PREFIX}sessions`, JSON.stringify(nextSessions));
@@ -207,7 +225,10 @@ function migrateSeedDataIfNeeded() {
     const savedActiveRaw = localStorage.getItem(`${STORAGE_KEY_PREFIX}active_session`);
     if (savedActiveRaw) {
       const savedActive: ExamSession = JSON.parse(savedActiveRaw);
-      if (savedActive.paketId === 'pkg-1' && savedActive.shuffledSoalIds.length <= 10) {
+      if (
+        (savedActive.paketId === 'pkg-1' || savedActive.paketId === 'pkg-2') &&
+        savedActive.shuffledSoalIds.length <= 10
+      ) {
         localStorage.removeItem(`${STORAGE_KEY_PREFIX}active_session`);
       }
     }

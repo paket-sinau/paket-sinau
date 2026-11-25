@@ -845,7 +845,7 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
                             </span>
                           </label>
 
-                          <div className="flex-1">
+                          <div className="flex-1 space-y-2">
                             <input
                               type="text"
                               value={opt.teks}
@@ -857,6 +857,27 @@ export const SoalFormModal: React.FC<SoalFormModalProps> = ({
                               placeholder={`Teks opsi ${opt.label} (mendukung $formula$)`}
                               className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 py-1.5 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                             />
+                            {opt.gambarUrl && (
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={opt.gambarUrl}
+                                  alt={`Gambar Opsi ${opt.label}`}
+                                  referrerPolicy="no-referrer"
+                                  className="max-h-20 w-auto rounded border border-slate-200 dark:border-slate-700 bg-white p-1"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = [...pilganOptions];
+                                    delete next[idx].gambarUrl;
+                                    setPilganOptions(next);
+                                  }}
+                                  className="text-[11px] text-rose-500 hover:underline"
+                                >
+                                  Hapus Gambar Opsi
+                                </button>
+                              </div>
+                            )}
                           </div>
 
                           {isKey && (

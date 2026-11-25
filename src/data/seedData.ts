@@ -244,14 +244,226 @@ Kerusakan hutan bakau akibat konversi lahan tambak udang intensif terbukti memut
   },
 
   {
-    id: 'stm-3',
-    judul: 'Wacana 3: Akselerasi Transisi Energi Terbarukan & Efisiensi Pembangkit Nasional',
-    teks: `Pemerintah Indonesia menargetkan bauran energi baru terbarukan (EBT) mencapai 34% pada tahun 2030 sebagai bagian dari komitmen penurunan emisi gas rumah kaca. Berdasarkan data infografis transisi energi nasional dekade 2020–2030, ekspansi pembangkit listrik tenaga surya (PLTS) mencatatkan pertumbuhan tercepat akibat anjloknya biaya modul fotovoltaik global hingga 45% sejak tahun 2020.
+    id: 'stm-bind-1',
+    judul: 'Indahnya Hutan-Hutan Mangrove di Indonesia',
+    teks: `Hutan Mangrove di Kulon Progo, Yogyakarta adalah tempat yang menyuguhkan keindahan alam menyejukkan hati. Hutan ini terletak di dekat Pantai Congot, kawasan ini terbagi menjadi beberapa zona menarik seperti Pasir Mendit, Jembatan Api-Api, dan Pantai Kadilangu. Luasnya mencapai sekitar tiga kilometer persegi, dipenuhi pohon-pohon bakau dengan akar unik yang menjulur di atas air.
 
-Sementara itu, proyek pembangkit listrik tenaga bayu (PLTB) lepas pantai (*offshore wind*) dan darat mulai dikembangkan di Sulawesi Selatan dan pesisir selatan Jawa. Tantangan teknis utama dalam integrasi EBT skala besar adalah sifat intermitensi daya (fluktuasi penyinaran matahari dan kecepatan angin), yang menuntut adopsi sistem penyimpanan baterai (BESS) serta modernisasi jaringan transmisi cerdas (*smart grid*).`,
-    sumber: 'Laporan Dewan Energi Nasional & Kompas Edukasi (2026)',
-    gambarUrl: '/src/assets/images/stimulus_literasi_infografis_1793242665841.jpg',
-    gambarAlt: 'Infografis Transisi Energi Bersih Terbarukan Nasional',
+Begitu melangkah ke dalam area, pengunjung akan disambut oleh jembatan kayu dan suasana rindang yang membuat hati tenang. Banyak spot foto menarik seperti ayunan, gazebo, dan menara pandang. Tak heran jika tempat ini disebut sebagai "permata tersembunyi" di Kulon Progo.
+
+Selain indah, hutan ini juga menjadi rumah bagi beragam satwa seperti burung kuntul, kepiting, udang, dan biawak kecil. Ada jalur kayu yang bisa dilewati sambil menikmati semilir angin pantai. Jika ingin lebih dekat dengan alam, pengunjung juga bisa naik perahu menyusuri rimbunnya hutan.
+
+Hutan Mangrove Kulon Progo bukan hanya indah dipandang mata, tapi juga punya peran penting bagi lingkungan. Tempat ini ibarat "paru-paru kecil" pesisir yang menjaga alam tetap seimbang sekaligus menjadi lokasi belajar mencintai alam sejak dini.`,
+    sumber: 'Kompas Yogyakarta, Detik Jogja & Kompasiana',
+  },
+  {
+    id: 'stm-bind-2',
+    judul: 'Keunikan & Asal-Usul Bakwan',
+    teks: `Bakwan merupakan makanan unik yang banyak disukai. Bakwan muncul karena pengaruh dari berbagai budaya, seperti Cina, Jepang, bahkan Eropa (Portugis).
+
+Awalnya, bakwan terbuat dari daging dan tepung yang digoreng. Di Jepang, sayur yang digoreng tepung disebut "tempura". Makanan tersebut bisa jadi ikut mempengaruhi berkembangnya bakwan di Indonesia.
+
+Kini, bakwan berisi aneka sayuran, seperti taoge, kol, dan wortel, yang dicampur dengan adonan tepung berbumbu rempah. Bisa juga ditambahkan isian udang, sosis, atau bakso.
+
+Nama bakwan berbeda di tiap daerah. Jakarta, Yogyakarta, Manado, dan Lampung menyebutnya bakwan. Di banyak kota di Jawa Timur disebut ote-ote atau weci. Di Bandung disebut bala-bala. Sementara, di Semarang dan Pekalongan disebut badak.`,
+    sumber: 'IDN Times & RRI.co.id',
+  },
+  {
+    id: 'stm-bind-3',
+    judul: 'Si Biru Kesayangan (Salma, Alvin, dan Siva)',
+    teks: `Salma, Alvin, dan Siva sedang menikmati waktu istirahat.
+
+Salma : (memeluk botol minumnya) "Minum dulu, ah! Botolku ini hadiah dari Ibu waktu ulang tahun. Aku beri nama dia Si Biru."
+Alvin : "Hah? Botol aja dikasih nama? Aneh banget, Sal!"
+Siva : "Ih, botol minum Salma lucu banget. Kamu tiap hari bawa Si Biru, ya?"
+Salma : "Iya, dong. Si Biru sudah menemani aku setahun ini. Aku jadi nggak pernah beli minuman kemasan lagi!"
+Alvin : "Ah, ribet. Aku sih, tinggal beli aja. Kalau sudah habis tinggal buang." (mengejek Salma)
+Salma : "Vin, tahu, nggak? Plastik yang kamu buang itu bisa jadi sampah lingkungan bertahun-tahun. Bisa mencemari tanah dan air juga, lho."
+Siva : "Benar, Vin. Aku juga sekarang bawa botol. Nih, gambar dinosaurus!"
+Salma : "Kita nggak bisa terus tutup mata soal sampah plastik. Kita harus peduli. Mulai dari hal kecil, seperti bawa botol sendiri."
+Alvin : "Hmm, kalau aku punya botol keren, mungkin aku jadi ingin bawa botol."
+Salma : "Benar sekali. Kita bantu cari botol yang cocok buat kamu, deh."
+Alvin : "Oke, setuju! Aku mau botol warna oranye, biar beda dari yang lain!"
+Siva : "Siap, nanti kita cari bersama, ya!"`,
+    sumber: 'Soal TKA Bahasa Indonesia SD/MI Tahun 2026',
+  },
+  {
+    id: 'stm-bind-4',
+    judul: 'Buku Harianku: Melihat Hujan Meteor bersama Ayah',
+    teks: `Buku harianku,
+
+Ayah akan mengajakku melihat hujan meteor. Meteor adalah batu atau debu antar-planet. Ketika meteor jatuh ke bumi, meteor terbakar karena gesekan lapisan udara bumi. Itu sebabnya, meteor terlihat seperti bintang jatuh atau bintang berpindah.
+
+Aku berdoa supaya hari itu tidak hujan. Meteor tampak lebih jelas jika langit cerah. Jika aku beruntung, aku dapat melihat belasan meteor per jam.
+
+Awalnya aku khawatir kalau bintang jatuh dapat menimpaku. Untunglah, ayah sudah menenangkanku. Hujan meteor tidak berbahaya, kok. Jangan takut, meteor ini akan habis terbakar di langit.
+
+Duh, rasanya tidak sabar. Aku senang sekali menghabiskan waktu dengan ayah!`,
+    sumber: 'BRIN — Akhir Juli 2022 Hujan Meteor Hiasi Langit Malam (Ilustrasi Gambar oleh Sonny)',
+  },
+  {
+    id: 'stm-bind-5',
+    judul: 'Giga si Segitiga',
+    teks: `Giga si Segitiga mempunyai banyak ide. Dia senang menirukan bentuk. Dia sering mengajak teman-temannya bermain bersama.
+
+Banyak bentuk yang bisa ditiru. Bentuk dan sudut yang sama membuat mereka selalu serasi. Contohnya pohon cemara, gunung, atap rumah, bendera, dan kipas angin.
+
+Giga juga suka bermain dengan Pasukan Kotak. Banyak bentuk yang bisa ditirukan, seperti roket, ikan, dan menara.
+
+Saat bermain dengan Heksagonal, dia menirukan bentuk bunga.
+
+Bentuk mereka memang berbeda. Namun, mereka memiliki sudut-sudut yang pas.
+
+Giga sedih Lingkaran tak mau bermain dengannya. Lingkaran takut pada sudut-sudut tajam milik Giga. Padahal, Giga bisa berhati-hati. Giga juga sudah membayangkan bentuk-bentuk yang bisa dibuat.`,
+    sumber: 'Soal TKA Bahasa Indonesia SD/MI Tahun 2026',
+    gambarUrl: '/assets/bind_tka_2026/q11_segitiga.png',
+    gambarAlt: 'Ilustrasi bentuk segitiga: bendera, gunung, dan atap rumah',
+  },
+  {
+    id: 'stm-bind-6',
+    judul: 'Perayaan Cap Go Meh di Pulau Kemaro',
+    teks: `Oleh: Avyubie Cantika Yuranda
+
+Adit dan Danu senang sekali hari ini karena Ibu dan Ayah akan mengajak mereka pergi melihat perayaan Cap Go Meh di Pulau Kemaro. Masyarakat Tionghoa di Kota Palembang merayakan Cap Go Meh, dan orangtuanya ingin mengenalkan perayaan tersebut kepada mereka.
+
+Ini adalah kedua kalinya Adit dan Danu pergi ke Pulau Kemaro. Waktu itu, mereka naik kapal dari bawah jembatan Musi. Kali ini, mereka akan menyeberangi sungai Musi dengan berjalan kaki di atas jembatan ponton, yang dipasang khusus saat perayaan Imlek setiap tahunnya. Mereka berangkat setelah makan malam.
+
+Malam itu, banyak orang berjalan kaki melewati jembatan ponton ke Pulau Kemaro. Semua orang memakai baju merah, termasuk keluarga Adit dan Danu. Di Pulau Kemaro, mereka menyaksikan pertunjukkan barongsai dan penerbangan lampion. Acaranya sangat meriah. Adit dan Danu senang bisa mengenal kebudayaan Tionghoa melalui perayaan Cap Go Meh.
+
+Namun, ketika mereka tiba di Pulau Kemaro, mereka kecewa karena hujan deras turun. Pertunjukkan barongsai dan penerbangan lampion harus dibatalkan. Adit dan Danu merasa sedih karena tidak bisa melihat semua acara yang telah mereka nantikan. Meskipun begitu, mereka tetap berusaha menikmati perayaan Cap Go Meh dengan berkeliling pulau dan mencoba makanan khas Imlek. Mereka belajar bahwa tidak semua hal bisa berjalan sesuai rencana, dan yang terpenting adalah tetap bersyukur dan menjalani dengan baik apa yang ada.`,
+    sumber: 'Detik Sumbagsel, Bisnis Sumatra, Antara & Tribunnews',
+  },
+  {
+    id: 'stm-bind-7',
+    judul: 'Konsep Kota Berkelanjutan',
+    teks: `Perubahan iklim, bencana alam, dan kesehatan manusia adalah masalah serius.
+Untuk mengatasinya, pemerintah berupaya membangun kota berkelanjutan.
+Kita perlu tahu ciri-ciri kota yang nyaman dan sehat.
+Kota berkelanjutan memiliki transportasi publik ramah lingkungan dan murah.
+Bus dan kereta tidak mencemari udara serta terjangkau.
+Kendaraan pribadi juga harus ramah lingkungan, seperti mobil listrik.
+Kota ini menyediakan jalur khusus untuk pejalan kaki dan pesepeda.
+Listrik di kota berkelanjutan berasal dari tenaga surya.
+Gedung-gedung dirancang hemat energi dan ramah lingkungan.
+Penggunaan air pun dilakukan secara bijak dan efisien.
+Fasilitas publik mudah diakses oleh semua orang.
+Taman, perpustakaan, dan rumah sakit tersedia di berbagai lokasi.
+Kota juga memiliki ruang terbuka hijau yang nyaman dan asri.
+Kota berkelanjutan memperhatikan produksi makanan ramah lingkungan.
+Pengelolaan sampah dilakukan dengan baik, termasuk daur ulang sampah.
+Dengan semua ciri-ciri ini, kota menjadi sehat, nyaman, dan ramah lingkungan.
+Mari jaga kota kita agar tetap berkelanjutan!`,
+    sumber: 'Kompas Properti — Berkenalan dengan Konsep Kota Berkelanjutan Ramah Lingkungan',
+  },
+  {
+    id: 'stm-bind-8',
+    judul: 'Rara dan Tradisi Ruwatan',
+    teks: `"Pokoknya Rara mau *hp* sebelum ruwatan!" Rengek Rara.
+"Maaf, Nak! Ibu belum bisa membelikannya!" Terang Ibu.
+"Jadi Rara tidak bisa ikut tradisi ruwatan?" tanyanya kesal.
+Ibu sedih mendengar pertanyaan Rara.
+Ayah yang tidak sengaja lewat, ikut mendengar.
+"Rara! Kamu minta *hp*?" Tanya Ayah
+"Iya!" Jawabnya
+"Kata ketua adat, Rara boleh minta satu permintaan ke ayah ibu." Terang Rara.
+"*Trus*, permintaan Rara itu harus dipenuhi, baru Rara bisa ikut ruwatan, Yah!" Lanjut Rara.
+Ayah mengangguk, dan perlahan menjelaskan keadaan mereka.
+Ibunya seorang pedagang kecil dan ayah hanya penjaga vila.
+Jadi cukup berat untuk membelikan *hp*.
+Rara sadar, dirinya tidak kaya dan meminta maaf ke Ayah dan Ibu.
+Akhirnya Rara hanya meminta dibelikan buku cerita di pasar.
+Tibalah hari Ruwatan, saat rambut Rara akan dipotong.
+Rara sudah bersiap dengan baju adat.
+"Wuah, bagus bajunya!" Kata Rara takjub.
+"Ayo, Nak! Kamu harus segera bergabung dengan teman lainnya!" Perintah Ibu.
+"Mau kemana, Bu?" Tanya Rara
+Ibu menjelaskan kalau Rara akan dibawa ke tempat ritual ruwatan.
+Di sana Ketua adat akan memotong rambut gimbal Rara.
+"Setelah rambut Rara dipotong, Rara *ngapain*, Bu?"
+"Penyerahan permintaan dan larung rambut!" Jawab Ibu dan Rara menjadi bingung.
+"Ibu dan ayah akan memberikan barang yang kamu minta kemarin." Jawab Ibu
+"Asik! Terima kasih, Bu!" ucap Rara.
+"Tapi kamu harus tetap ikut acara larung rambut, ya, di sungai dekat desa!"
+"Baik, Ibu!" Sambil memberikan jempol.
+
+Daftar istilah:
+*HP* = Handphone/ponsel/telepon genggam
+Tradisi Ruwatan adalah tradisi mencukur rambut anak gimbal untuk melepaskan seseorang dari keburukan.`,
+    sumber: 'Soal TKA Bahasa Indonesia SD/MI Tahun 2026',
+  },
+  {
+    id: 'stm-bind-9',
+    judul: 'Nilai Ujian Arul dan Belajar Bersama',
+    teks: `Nilai Arul selalu bagus sejak dulu. Padahal, dia tidak pernah belajar. Tapi, nilai Arul mulai menurun.
+Dewi : "Arul, belajar bareng, yuk! Bareng Reno dan Erni."
+Arul : "Enggak mau, ah! Aku malas."
+Dewi : "Ya, sudah. Aku belajar bareng dulu, ya."
+Arul : "Belajar saja sana. Paling nilainya lebih bagus aku."
+Arul : "Mending aku main bola."
+Arul kembali bermain. Dia mengambil sepatunya. Dia berlari ke lapangan sambil membawa bola. Dia menendang bola ke gawang yang kosong.
+
+Keesokan hari setelah ujian, Arul kaget saat melihat nilainya.
+Arul : "Kok nilaiku jelek banget?"
+Reno : "Emang apa yang kamu pelajari, Rul?"
+Arul : "Buat apa aku belajar? Nilaiku loh selalu bagus."
+Erni : "Ya, enggak bisa begitu, Arul. Pelajaran kita kan semakin susah."
+Dewi : "Iya, kita sudah harus rajin belajar."
+Arul : "Dulu aku tidak belajar. Nilaiku juga selalu bagus, 'kan?"
+Reno : "Iya. Itu 'kan dulu. Lihat nilaimu sekarang. Semakin lama semakin jelek, 'kan?"
+Arul hanya bisa memandangi nilainya.
+Dewi : "Kamu harus belajar kalau mau nilai bagus."
+Erni : "Iya. Berakit-rakit ke hulu, berenang-renang kemudian. Bersakit-sakit dahulu, bersenang-senang kemudian."
+Dewi : "Betul. Harus berusaha kalau mau berhasil."
+Arul : "Apa itu?"
+Reno : "Peribahasa, Rul. Ayo belajar bareng biar sama-sama tahu."
+Arul pun mengangguk.`,
+    sumber: 'Soal TKA Bahasa Indonesia SD/MI Tahun 2026',
+  },
+  {
+    id: 'stm-bind-10',
+    judul: 'Yunus dan Kamal sang Nelayan',
+    teks: `Sudah bertahun-tahun Yunus bekerja sebagai nelayan. Setiap hari ia mengarungi laut dan melempar jala. Asal tidak badai, Yunus pasti melaut.
+
+Hal ini sangat berbeda dengan Kamal. Padahal keduanya sama-sama mencari hidup di laut. Tapi, Kamal sering bermalas-malasan.
+
+Suatu hari, Kamal datang ke rumah Yunus.
+"Yunus, bolehkah aku minta ikan?" kata Kamal.
+"Lho, kamu tidak dapat ikan?" tanya Yunus. "Padahal lagi musim ikan, lho."
+"Ah, itu. Aku kemarin tidak melaut. Aku sibuk memperbaiki perahuku yang rusak."
+Merasa kasihan, Yunus memberikan beberapa ikan. Yunus juga mengingatkan Kamal untuk segera melaut.
+Beberapa hari berlalu, Kamal masih belum melaut. Alasan Kamal seluas lautan. Tidak ada habisnya. Mulai dari ombak, perahu, sampai anak.
+
+Semuanya dijadikan alasan oleh Kamal. Yunus sampai kesal.
+Saat Kamal datang untuk meminta ikan lagi.
+"Kamal, ayo melaut. Ikut aku kalau perahumu masih rusak," tegas Yunus.
+"Waduh, belum bisa," tolak Kamal.
+"Ikut saja. Aku kesal melihatmu bermalas-malasan setiap hari," kata Yunus.
+"Orang kampung juga malas denganmu," kata Yunus. "Setiap hari hanya tiduran, lalu meminta ikan pada tetangga."
+Kamal hanya terdiam. Kamal memang sudah semakin susah meminta ikan. Dengan berat, Kamal melawan rasa malasnya. Ia ikut Yunus melaut. Setiap hari, Kamal ikut dengan Yunus.
+
+Sekarang Kamal sudah melaut setiap hari. Kamal bahkan melaut dengan perahunya sendiri.`,
+    sumber: 'Soal TKA Bahasa Indonesia SD/MI Tahun 2026',
+  },
+  {
+    id: 'stm-bind-11',
+    judul: 'Mama, Aku Bukan Dia',
+    teks: `Halo! Namaku Lianne. Aku suka sekali menggambar. Ini teman-temanku. Ada Albert, Giffari, dan Amber. Kami sedang bermain bersama.
+
+Suatu hari, Albert memenangi lomba matematika. Sebagai temannya, aku sangat bangga kepadanya! Namun, saat aku pulang, Mama berkata, "Coba saja kamu pintar seperti Albert! Dia pintar matematika! Dia pasti rajin belajar!"
+
+Aku tidak boleh mengecewakan Mama. Aku harus bisa seperti Albert. Namun, hasil belajarku semalam suntuk tetap saja tidak berhasil.
+
+Saat aku jalan bersama Mama, aku bertemu Giffari. Dia sedang bermain basket. Keren sekali. "Coba saja kamu pandai bermain basket seperti Giffari!" seru Mama.
+
+Aku berlatih basket. Susah sekali ternyata. Aku tidak bisa.
+
+Saat pulang, aku melihat Amber sedang bernyanyi. Wah, merdu sekali! "Coba saja kamu pandai bernyanyi seperti Amber! Lihat! Bagus sekali, bukan?" seru Mama.
+
+Aku mencoba menyanyi, "Bukan begitu!!! Nada kamu salah!!!" teriak Amber.
+
+Uuuh! Aku kesal sekali. Lebih baik aku menggambar saja. Sebaiknya, aku melatih kemampuan menggambarku di luar. Bertemu dengan orang-orang. Berkeliling tempat berbeda. Mencari ide menarik. Menyenangkan sekali!
+
+Wah, ada lomba menggambar! Aku pun mengirimkan gambarku. Beberapa hari kemudian, tiba-tiba Mama memberitahuku. Katanya, aku menang lomba menggambar! Mama bangga sekali denganku. Mama sadar bahwa setiap anak memiliki kelebihan masing-masing. Aku senang akhirnya Mama menerima bakatku apa adanya.`,
+    sumber: 'Budi Kemdikbud — Baca Buku: Mama, Aku Bukan Dia',
   },
 ];
 
@@ -1070,237 +1282,719 @@ Karena total peserta karya wisata $72$ siswa, maka banyak siswa kelas 6C $= 72 -
     updatedAt: '2026-02-01T08:30:00Z',
   },
 
-  // ================= BAHASA INDONESIA (10 SOAL) =================
-  // BIND 1: PILGAN (Stimulus 3 - Literasi & Ide Pokok)
+  // ================= BAHASA INDONESIA TKA SD/MI 2026 (29 SOAL RESMI) =================
+  // BIND 1: PILGAN (Wacana 1 - Bagan Hutan Mangrove)
   {
     id: 'bind-1',
     mapelId: 'bahasa_indonesia',
-    stimulusId: 'stm-3',
-    topik: 'Gagasan Utama & Makna Tersurat',
-    tingkatKesulitan: 'mudah',
+    stimulusId: 'stm-bind-1',
+    topik: 'Menyusun Ikhtisar & Bagan Isi Teks',
+    tingkatKesulitan: 'sedang',
     modelSoal: 'pilgan',
-    teksSoal: 'Berdasarkan Wacana 3, gagasan pokok yang terkandung pada paragraf pertama adalah...',
+    teksSoal: 'Bagan manakah yang sesuai untuk menggambarkan hutan mangrove pada teks?',
     pilganKunci: 'B',
     pilganOptions: [
-      { label: 'A', teks: 'Dampak emisi gas rumah kaca terhadap perubahan iklim nasional.' },
-      { label: 'B', teks: 'Target bauran energi baru terbarukan dan akselerasi pertumbuhan PLTS di Indonesia.' },
-      { label: 'C', teks: 'Keunggulan modul fotovoltaik impor dibandingkan modul produksi dalam negeri.' },
-      { label: 'D', teks: 'Rendahnya efisiensi turbin angin lepas pantai di kawasan selatan Pulau Jawa.' },
+      {
+        label: 'A',
+        teks: 'Bagan A (Lokasi: Kulon Progo · Zona Menarik: Ayunan · Contoh Satwa: Kepiting)',
+        gambarUrl: '/assets/bind_tka_2026/q01_bagan_a.png',
+      },
+      {
+        label: 'B',
+        teks: 'Bagan B (Lokasi: Dekat Pantai Congot · Zona Menarik: Jembatan Api-Api · Contoh Satwa: Udang)',
+        gambarUrl: '/assets/bind_tka_2026/q01_bagan_b.png',
+      },
+      {
+        label: 'C',
+        teks: 'Bagan C (Lokasi: Kulon Progo · Zona Menarik: Menara Pandang · Contoh Satwa: Biawak)',
+        gambarUrl: '/assets/bind_tka_2026/q01_bagan_c.png',
+      },
+      {
+        label: 'D',
+        teks: 'Bagan D (Lokasi: Dekat Pantai Congot · Zona Menarik: Gazebo · Contoh Satwa: Burung Kuntul)',
+        gambarUrl: '/assets/bind_tka_2026/q01_bagan_d.png',
+      },
     ],
-    pembahasan: `Paragraf pertama memfokuskan pembahasannya pada komitmen pemerintah mencapai target 34% bauran EBT pada 2030 serta akselerasi pesat PLTS yang didorong penurunan biaya modul surya. Opsi B paling merangkum inti gagasan tersebut.`,
+    pembahasan: `Pada paragraf pertama dijelaskan bahwa hutan mangrove terletak di dekat Pantai Congot (Kulon Progo), memiliki zona menarik seperti Pasir Mendit, Jembatan Api-Api, dan Pantai Kadilangu, serta dihuni satwa seperti burung kuntul, kepiting, udang, dan biawak kecil. Ayunan, Menara Pandang, dan Gazebo adalah spot foto (bukan zona menarik). Bagan yang tepat pada ketiga kolomnya adalah Bagan B.`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T09:00:00Z',
-    updatedAt: '2026-01-21T09:00:00Z',
+    createdAt: '2026-02-01T09:01:00Z',
+    updatedAt: '2026-02-01T09:01:00Z',
   },
-  // BIND 2: MCMA (Stimulus 3 - Hubungan Sebab Akibat)
+  // BIND 2: MCMA (Wacana 1 - Makna Ungkapan "permata tersembunyi")
   {
     id: 'bind-2',
     mapelId: 'bahasa_indonesia',
-    stimulusId: 'stm-3',
-    topik: 'Hubungan Kausalitas & Kosakata Teknis',
+    stimulusId: 'stm-bind-1',
+    topik: 'Menjelaskan Makna Ungkapan',
     tingkatKesulitan: 'sedang',
     modelSoal: 'mcma',
-    teksSoal: 'Mengacu pada teks dan infografis Wacana 3, manakah faktor-faktor yang disebutkan sebagai tantangan sekaligus solusi teknis dalam integrasi pembangkit EBT skala besar? (Pilih semua yang tepat)',
-    mcmaKunci: ['A', 'C'],
+    teksSoal: 'Apa maksud istilah "permata tersembunyi" dalam teks?',
+    mcmaKunci: ['B', 'C'],
     mcmaScoringMode: 'proportional',
     mcmaOptions: [
-      { id: 'A', label: 'A', teks: 'Intermitensi daya akibat fluktuasi intensitas sinar matahari dan kecepatan angin.' },
-      { id: 'B', label: 'B', teks: 'Penolakan masyarakat pesisir terhadap pembangunan menara turbin angin lepas pantai.' },
-      { id: 'C', label: 'C', teks: 'Kebutuhan adopsi sistem penyimpanan energi baterai (BESS) dan transmisi cerdas (smart grid).' },
-      { id: 'D', label: 'D', teks: 'Ketiadaan regulasi pemerintah yang mengatur sertifikasi instalasi panel surya atap.' },
+      { id: 'A', label: 'A', teks: 'Letak yang tidak mudah dijangkau, tetapi ramai dikunjungi.' },
+      { id: 'B', label: 'B', teks: 'Tempat yang indah, tetapi belum dikenal banyak orang.' },
+      { id: 'C', label: 'C', teks: 'Lokasi yang jarang diketahui, tetapi memiliki banyak spot menarik.' },
     ],
-    pembahasan: `Teks pada paragraf kedua secara eksplisit menyebutkan intermitensi daya (Opsi A) sebagai tantangan teknis, dan adopsi BESS serta smart grid (Opsi C) sebagai solusi penyeimbang jaringan transmisi.`,
+    pembahasan: `Ungkapan "permata tersembunyi" (hidden gem) berarti tempat yang sangat indah dan punya banyak daya tarik atau spot foto menarik (C), namun belum banyak diketahui atau dikenal orang luas (B).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T09:15:00Z',
-    updatedAt: '2026-01-21T09:15:00Z',
+    createdAt: '2026-02-01T09:02:00Z',
+    updatedAt: '2026-02-01T09:02:00Z',
   },
-  // BIND 3: KATEGORI (Fakta vs Opini)
+  // BIND 3: KATEGORI (Wacana 1 - Kesesuaian Judul dengan Isi Teks)
   {
     id: 'bind-3',
     mapelId: 'bahasa_indonesia',
-    stimulusId: 'stm-3',
-    topik: 'Analisis Fakta dan Opini',
+    stimulusId: 'stm-bind-1',
+    topik: 'Kesesuaian Judul dengan Isi Teks',
     tingkatKesulitan: 'sedang',
     modelSoal: 'kategori',
-    teksSoal: 'Tentukan apakah klaim-klaim berikut tergolong sebagai FAKTA atau OPINI berdasarkan data wacana energi:',
-    kategoriLabels: ['Fakta', 'Opini'],
+    teksSoal: `Amara : "Menurutku, judul Indahnya Hutan-Hutan Mangrove di Indonesia kurang tepat. Teksnya hanya fokus membahas hutan mangrove di Kulon Progo, bukan seluruh Indonesia."
+Bima : "Setuju. Kalau mau pakai judul itu, isi teks seharusnya membahas beberapa hutan mangrove di daerah lain juga. Bukan satu tempat saja."
+Jena : "Tapi, judul itu menurutku masih cocok, kok. Soalnya, Hutan Kulon Progo juga bagian dari hutan-hutan mangrove di Indonesia. Jadi, tetap mewakili."
+
+Pendapat siapa yang tepat dalam menggambarkan kesesuaian judul dengan isi teks tersebut?`,
+    kategoriLabels: ['Benar', 'Salah'],
     kategoriScoringMode: 'per_row',
     kategoriPernyataan: [
-      { id: 'b-stmt-1', teks: 'Pemerintah Indonesia menargetkan bauran EBT mencapai 34% pada tahun 2030.', kunciJawaban: 'Fakta' },
-      { id: 'b-stmt-2', teks: 'Energi surya merupakan satu-satunya solusi terbaik yang mampu menyelamatkan bumi.', kunciJawaban: 'Opini' },
-      { id: 'b-stmt-3', teks: 'Biaya modul fotovoltaik global mengalami penurunan hingga 45% sejak tahun 2020.', kunciJawaban: 'Fakta' },
-      { id: 'b-stmt-4', teks: 'Pembangkit listrik tenaga angin darat di Sulawesi Selatan memiliki pemandangan paling estetik.', kunciJawaban: 'Opini' },
+      { id: 'b3-stmt-1', teks: 'Amara karena isi teks hanya fokus membahas Hutan Mangrove Kulon Progo.', kunciJawaban: 'Benar' },
+      { id: 'b3-stmt-2', teks: 'Bima karena judul lebih cocok jika membahas beberapa hutan mangrove lain juga.', kunciJawaban: 'Benar' },
+      { id: 'b3-stmt-3', teks: 'Jena karena Hutan Kulon Progo dapat mewakili seluruh hutan mangrove di Indonesia.', kunciJawaban: 'Salah' },
     ],
-    pembahasan: `Kalimat 1 dan 3 mengandung data kuantitatif objektif yang dapat diverifikasi (Fakta). Kalimat 2 dan 4 memuat kata-kata penilaian subjektif seperti "satu-satunya solusi terbaik" dan "paling estetik" (Opini).`,
+    pembahasan: `Judul "Indahnya Hutan-Hutan Mangrove di Indonesia" bermakna jamak dan luas, padahal isi teks hanya membahas satu lokasi saja yakni Hutan Mangrove Kulon Progo. Pendapat Amara (Benar) dan Bima (Benar) tepat menilai ketidaksesuaian cakupan judul, sedangkan pendapat Jena kurang tepat karena satu tempat belum mewakili seluruh hutan mangrove di Indonesia (Salah).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T09:30:00Z',
-    updatedAt: '2026-01-21T09:30:00Z',
+    createdAt: '2026-02-01T09:03:00Z',
+    updatedAt: '2026-02-01T09:03:00Z',
   },
-  // BIND 4: PILGAN (Ejaan Bahasa Indonesia - EBI)
+  // BIND 4: MCMA (Wacana 2 - Keunikan Bakwan)
   {
     id: 'bind-4',
     mapelId: 'bahasa_indonesia',
-    topik: 'Ejaan dan Tanda Baca (EBI)',
-    tingkatKesulitan: 'sedang',
-    modelSoal: 'pilgan',
-    teksSoal: 'Penulisan kalimat berikut yang seluruhnya mematuhi Pedoman Umum Ejaan Bahasa Indonesia (PUEBI) adalah...',
-    pilganKunci: 'D',
-    pilganOptions: [
-      { label: 'A', teks: 'Seminar itu dihadiri oleh Prof. Dr. Hendra Gunawan M.Sc di gedung serba guna.' },
-      { label: 'B', teks: 'Semua peserta ujian di larang membawa kalkulator, mau pun catatan rumus.' },
-      { label: 'C', teks: 'Pemerintah Propinsi DKI Jakarta mengimbau warga agar menerapkan pola hidup higienis.' },
-      { label: 'D', teks: 'Meskipun menghadapi medan yang berat, para peneliti berhasil mengidentifikasi varietas flora endemik tersebut.' },
+    stimulusId: 'stm-bind-2',
+    topik: 'Menyusun Kesimpulan & Relevansi Isi Teks',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'mcma',
+    teksSoal: 'Mengapa bakwan dikatakan sebagai makanan yang unik?',
+    gambarUrl: '/assets/bind_tka_2026/q04_bakwan.png',
+    gambarAlt: 'Foto makanan bakwan goreng renyah dengan cabai rawit',
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Memiliki isi yang sama dengan makanan Jepang.' },
+      { id: 'B', label: 'B', teks: 'Perkembangannya dipengaruhi budaya negara lain.' },
+      { id: 'C', label: 'C', teks: 'Ditemukan di berbagai daerah dengan sebutan berbeda.' },
     ],
-    pembahasan: `Analisis kesalahan opsi lain:
-A: 'serba guna' seharusnya digabung 'serbaguna', gelar M.Sc seharusnya ada koma sebelum gelar 'Gunawan, M.Sc.'.
-B: 'di larang' harusnya dirangkai 'dilarang' (pasif), 'mau pun' seharusnya dirangkai 'maupun'.
-C: 'Propinsi' tidak baku, bentuk baku adalah 'Provinsi'.
-D adalah kalimat baku yang tepat tanpa kesalahan tanda baca maupun kata bentukan.`,
+    pembahasan: `Teks menjelaskan bahwa bakwan muncul karena pengaruh berbagai budaya asing seperti Cina, Jepang, dan Eropa/Portugis (B), serta memiliki nama berbeda di berbagai daerah seperti ote-ote, weci, bala-bala, dan badak (C).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T09:45:00Z',
-    updatedAt: '2026-01-21T09:45:00Z',
+    createdAt: '2026-02-01T09:04:00Z',
+    updatedAt: '2026-02-01T09:04:00Z',
   },
-  // BIND 5: MCMA (Kalimat Efektif & Kerancuan Logika)
+  // BIND 5: KATEGORI (Wacana 2 - Perbedaan Bakwan Sebelum dan Sesudah)
   {
     id: 'bind-5',
     mapelId: 'bahasa_indonesia',
-    topik: 'Kalimat Efektif & Struktur Nalar',
-    tingkatKesulitan: 'sulit',
-    modelSoal: 'mcma',
-    teksSoal: 'Cermati beberapa kalimat berikut! Pilihlah kalimat-kalimat yang tergolong sebagai KALIMAT EFEKTIF (memiliki subjek-predikat jelas dan hemat kata):',
-    mcmaKunci: ['B', 'D'],
-    mcmaScoringMode: 'proportional',
-    mcmaOptions: [
-      { id: 'A', label: 'A', teks: 'Bagi para mahasiswa yang belum mengumpulkan laporan akhir harus segera melapor ke bagian administrasi.' },
-      { id: 'B', label: 'B', teks: 'Kenaikan tarif transportasi umum memengaruhi daya beli masyarakat berpenghasilan rendah.' },
-      { id: 'C', label: 'C', teks: 'Buku itu membahas tentang pengaruh perkembangan kecerdasan buatan terhadap masa depan profesi hukum.' },
-      { id: 'D', label: 'D', teks: 'Peneliti mengelompokkan sampel batuan berdasarkan tingkat kerapatan mineral dan usianya.' },
+    stimulusId: 'stm-bind-2',
+    topik: 'Menyimpulkan Perubahan Informasi dalam Teks',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'kategori',
+    teksSoal: 'Apa perbedaan bakwan sebelum dan sesudah terpengaruh budaya Jepang?',
+    gambarUrl: '/assets/bind_tka_2026/q04_bakwan.png',
+    gambarAlt: 'Foto makanan bakwan goreng renyah dengan cabai rawit',
+    kategoriLabels: ['Sebelum', 'Sesudah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'b5-stmt-1', teks: 'Berisi aneka sayuran.', kunciJawaban: 'Sesudah' },
+      { id: 'b5-stmt-2', teks: 'Isi hanya daging.', kunciJawaban: 'Sebelum' },
+      { id: 'b5-stmt-3', teks: 'Isinya ditambahkan udang', kunciJawaban: 'Sesudah' },
     ],
-    pembahasan: `A tidak efektif karena kehilangan subjek (diawali preposisi 'Bagi...').
-C tidak efektif karena pleonasme 'membahas tentang' ('membahas' adalah verba transitif yang langsung memerlukan objek tanpa preposisi 'tentang').
-B dan D adalah kalimat efektif dengan fungsi gramatikal lengkap dan hemat kata.`,
+    pembahasan: `Awalnya (sebelum pengaruh tempura Jepang), bakwan terbuat dari daging dan tepung goreng. Setelah berkembang bersama pengaruh sayur goreng tepung Jepang, kini bakwan berisi aneka sayuran (taoge, kol, wortel) serta bisa ditambahkan udang, sosis, atau bakso.`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T10:00:00Z',
-    updatedAt: '2026-01-21T10:00:00Z',
+    createdAt: '2026-02-01T09:05:00Z',
+    updatedAt: '2026-02-01T09:05:00Z',
   },
-  // BIND 6: PILGAN (Simpulan Logis Silogisme)
+  // BIND 6: MCMA (Wacana 3 - Nilai Moral Si Biru Kesayangan)
   {
     id: 'bind-6',
     mapelId: 'bahasa_indonesia',
-    topik: 'Penalaran Logis & Silogisme',
-    tingkatKesulitan: 'sedang',
-    modelSoal: 'pilgan',
-    teksSoal: `Premis 1: Semua siswa yang lulus seleksi beasiswa unggulan memiliki skor TKA di atas 750 atau memiliki prestasi sains tingkat nasional.
-Premis 2: Danu lulus seleksi beasiswa unggulan, tetapi skor TKA Danu adalah 710.
-
-Simpulan yang paling valid dan niscaya benar adalah...`,
-    pilganKunci: 'B',
-    pilganOptions: [
-      { label: 'A', teks: 'Danu tidak berhak menerima fasilitas penuh beasiswa unggulan.' },
-      { label: 'B', teks: 'Danu memiliki prestasi sains tingkat nasional.' },
-      { label: 'C', teks: 'Danu diwajibkan mengulang ujian TKA tahun berikutnya.' },
-      { label: 'D', teks: 'Skor TKA Danu mengalami kesalahan input administrasi panitia.' },
+    stimulusId: 'stm-bind-3',
+    topik: 'Menyimpulkan Nilai-Nilai dalam Teks',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'mcma',
+    teksSoal: 'Nilai moral apa saja yang diperoleh dari cerita tersebut?',
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Bebas memilih gaya hidup.' },
+      { id: 'B', label: 'B', teks: 'Peduli lingkungan itu penting.' },
+      { id: 'C', label: 'C', teks: 'Hal kecil bisa jadi langkah baik.' },
     ],
-    pembahasan: `Bentuk logika disjungtif: $P \\lor Q$.
-Karena Danu lulus seleksi beasiswa unggulan, maka Danu pasti memenuhi syarat (Skor > 750 ATAU Prestasi Sains Nasional).
-Diketahui skor Danu 710 (tidak > 750), maka secara silogisme disjungtif syarat kedua mutlak terpenuhi: Danu memiliki prestasi sains tingkat nasional. (Jawaban B).`,
+    pembahasan: `Dialog Salma menekankan pentingnya kepedulian terhadap lingkungan akibat sampah plastik (B) dan mengajak memulai aksi dari hal kecil seperti membawa botol minum sendiri (C).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T10:15:00Z',
-    updatedAt: '2026-01-21T10:15:00Z',
+    createdAt: '2026-02-01T09:06:00Z',
+    updatedAt: '2026-02-01T09:06:00Z',
   },
-  // BIND 7: KATEGORI (Kaidah Konjungsi)
+  // BIND 7: PILGAN (Wacana 3 - Makna Ungkapan Tutup Mata)
   {
     id: 'bind-7',
     mapelId: 'bahasa_indonesia',
-    topik: 'Hubungan Antarkalimat & Konjungsi',
+    stimulusId: 'stm-bind-3',
+    topik: 'Menjelaskan Makna Ungkapan/Idiom',
     tingkatKesulitan: 'mudah',
-    modelSoal: 'kategori',
-    teksSoal: 'Tentukan apakah penggunaan konjungsi antarkalimat pada tabel pernyataan berikut Tepat atau Keliru:',
-    kategoriLabels: ['Tepat', 'Keliru'],
-    kategoriScoringMode: 'per_row',
-    kategoriPernyataan: [
-      { id: 'bk-1', teks: 'Hujan lebat mengguyur wilayah hulu sejak dini hari. Oleh karena itu, debit air di pintu bendungan melonjak tajam.', kunciJawaban: 'Tepat' },
-      { id: 'bk-2', teks: 'Proyek renovasi jembatan itu molor dari jadwal. Tetapi, warga tetap sabar menunggu.', kunciJawaban: 'Keliru' },
-      { id: 'bk-3', teks: 'Produksi padi tahun ini melimpah. Meskipun demikian, pemerintah tetap menjaga stok cadangan beras nasional.', kunciJawaban: 'Tepat' },
+    modelSoal: 'pilgan',
+    teksSoal: 'Makna ungkapan *tutup mata* berdasarkan dialog yang diucapkan Salma dalam wacana tersebut adalah ....',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'mengabaikan masalah sampah di sekitar' },
+      { label: 'B', teks: 'melupakan berbagai isu lingkungan' },
+      { label: 'C', teks: 'menumpuk plastik sisa pakai' },
+      { label: 'D', teks: 'meningkatkan kasus pencemaran tanah' },
     ],
-    pembahasan: `1) 'Oleh karena itu' adalah konjungsi antarkalimat kausalitas yang tepat diikuti koma. (Tepat).
-2) 'Tetapi' adalah konjungsi intrakalimat koordinatif, tidak boleh digunakan di awal kalimat antarkalimat (seharusnya 'Namun,'). (Keliru).
-3) 'Meskipun demikian' adalah konjungsi antarkalimat pertentangan yang tepat diikuti koma. (Tepat).`,
+    pembahasan: `Pada kalimat "Kita nggak bisa terus tutup mata soal sampah plastik. Kita harus peduli.", ungkapan "tutup mata" bermakna sengaja tidak mau tahu atau mengabaikan masalah sampah di sekitar (Opsi A).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T10:30:00Z',
-    updatedAt: '2026-01-21T10:30:00Z',
+    createdAt: '2026-02-01T09:07:00Z',
+    updatedAt: '2026-02-01T09:07:00Z',
   },
-  // BIND 8: PILGAN (Makna Kata Kontekstual)
+  // BIND 8: KATEGORI (Wacana 3 - Refleksi Aksi Rania)
   {
     id: 'bind-8',
     mapelId: 'bahasa_indonesia',
-    topik: 'Semantik & Makna Kontekstual',
-    tingkatKesulitan: 'mudah',
-    modelSoal: 'pilgan',
-    teksSoal: 'Kata "intermitensi" pada teks Wacana 3 secara konteks ketenagalistrikan paling mendekati makna...',
-    pilganKunci: 'C',
-    pilganOptions: [
-      { label: 'A', teks: 'Kerusakan komponen mesin secara terus-menerus' },
-      { label: 'B', teks: 'Penurunan kapasitas daya akibat usia pakai turbin' },
-      { label: 'C', teks: 'Ketidaksinambungan atau ketersediaan daya yang terputus-putus tergantung cuaca' },
-      { label: 'D', teks: 'Kebocoran arus tegangan tinggi pada transmisi saluran kabel' },
+    stimulusId: 'stm-bind-3',
+    topik: 'Merefleksikan Peristiwa dalam Kehidupan Sehari-hari',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Rania telah membaca cerita *Si Biru Kesayangan*. Ia tersadar untuk memulai aksi peduli lingkungan seperti Alvin.
+Apa yang sebaiknya Rania lakukan untuk memulai aksinya berdasarkan cerita tersebut?`,
+    kategoriLabels: ['Sesuai', 'Tidak Sesuai'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'b8-stmt-1', teks: 'Menggunakan botol minum isi ulang setiap hari.', kunciJawaban: 'Sesuai' },
+      { id: 'b8-stmt-2', teks: 'Membeli botol minum isi ulang untuk teman-temannya.', kunciJawaban: 'Tidak Sesuai' },
+      { id: 'b8-stmt-3', teks: 'Mengajak teman-teman membatasi pembelian minuman kemasan.', kunciJawaban: 'Sesuai' },
     ],
-    pembahasan: `Kata 'intermiten' (intermittent) bermakna berselang-selang, berlangsung secara tidak berkesinambungan, atau terputus-putus pada selang waktu tertentu. Dalam pembangkit EBT surya/angin, daya hanya terpasok jika ada sinar matahari atau hembusan angin.`,
+    pembahasan: `Aksi yang dicontohkan dalam cerita adalah membawa botol minum sendiri setiap hari (Sesuai) dan mengedukasi/mengajak teman agar tidak membeli minuman kemasan sekali pakai (Sesuai), bukan membelikan botol untuk semua teman (Tidak Sesuai).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T10:45:00Z',
-    updatedAt: '2026-01-21T10:45:00Z',
+    createdAt: '2026-02-01T09:08:00Z',
+    updatedAt: '2026-02-01T09:08:00Z',
   },
-  // BIND 9: MCMA (Analisis Teks Argumentatif)
+  // BIND 9: PILGAN (Wacana 4 - Mengapa Hujan Meteor Tidak Berbahaya)
   {
     id: 'bind-9',
     mapelId: 'bahasa_indonesia',
-    topik: 'Struktur Teks Eksposisi & Argumentasi',
-    tingkatKesulitan: 'sedang',
-    modelSoal: 'mcma',
-    teksSoal: 'Manakah di antara pernyataan berikut yang merupakan ciri-ciri khas dari teks eksposisi analitis yang baik? (Pilih semua yang tepat)',
-    mcmaKunci: ['A', 'C'],
-    mcmaScoringMode: 'proportional',
-    mcmaOptions: [
-      { id: 'A', label: 'A', teks: 'Menyajikan tesis atau pendirian penulis yang didukung oleh data dan argumen logis.' },
-      { id: 'B', label: 'B', teks: 'Memuat alur pengenalan tokoh, konflik klimaks, dan resolusi cerita fiksi.' },
-      { id: 'C', label: 'C', teks: 'Menggunakan kata-kata persuasif dan peristilahan teknis yang relevan dengan bidang ilmu.' },
-      { id: 'D', label: 'D', teks: 'Menggunakan majas personifikasi dan hiperbola secara dominan untuk memancing emosi pembaca.' },
+    stimulusId: 'stm-bind-4',
+    topik: 'Mengidentifikasi Informasi Tersurat',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Mengapa hujan meteor tidak berbahaya?',
+    gambarUrl: '/assets/bind_tka_2026/q09_meteor.png',
+    gambarAlt: 'Ilustrasi anak dan ayah memandangi hujan meteor di langit malam',
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'Meteor dapat berpindah.' },
+      { label: 'B', teks: 'Hanya muncul saat langit cerah.' },
+      { label: 'C', teks: 'Hanya muncul saat hujan.' },
+      { label: 'D', teks: 'Akan habis terbakar di langit.' },
     ],
-    pembahasan: `Teks eksposisi menyajikan argumen objektif berbasis data (A) dan kosakata lugas/persuasif ilmiah (C). Opsi B adalah ciri teks naratif fiksi, dan opsi D adalah ciri karya sastra puisi/prosa.`,
+    pembahasan: `Dalam teks tertulis jelas ucapan ayah: "Hujan meteor tidak berbahaya, kok. Jangan takut, meteor ini akan habis terbakar di langit." (Opsi D).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T11:00:00Z',
-    updatedAt: '2026-01-21T11:00:00Z',
+    createdAt: '2026-02-01T09:09:00Z',
+    updatedAt: '2026-02-01T09:09:00Z',
   },
-  // BIND 10: KATEGORI (Penulisan Kata Serapan)
+  // BIND 10: MCMA (Wacana 4 - Hal yang Membuat Tokoh "Aku" Senang)
   {
     id: 'bind-10',
     mapelId: 'bahasa_indonesia',
-    topik: 'Penulisan Kata Serapan Baku',
-    tingkatKesulitan: 'mudah',
-    modelSoal: 'kategori',
-    teksSoal: 'Evaluasi pasangan kata serapan berikut berdasarkan Kamus Besar Bahasa Indonesia (KBBI):',
-    kategoriLabels: ['Baku', 'Tidak Baku'],
-    kategoriScoringMode: 'per_row',
-    kategoriPernyataan: [
-      { id: 'ks-1', teks: 'Kualitas (bukan kwalitas)', kunciJawaban: 'Baku' },
-      { id: 'ks-2', teks: 'Analisa (seharusnya analisis)', kunciJawaban: 'Tidak Baku' },
-      { id: 'ks-3', teks: 'Metode (bukan metoda)', kunciJawaban: 'Baku' },
-      { id: 'ks-4', teks: 'Aktifitas (seharusnya aktivitas)', kunciJawaban: 'Tidak Baku' },
+    stimulusId: 'stm-bind-4',
+    topik: 'Menyusun Inferensi & Kesimpulan',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: 'Berdasarkan cerita di atas, hal apa saja yang dapat membuat tokoh "Aku" senang?',
+    gambarUrl: '/assets/bind_tka_2026/q09_meteor.png',
+    gambarAlt: 'Ilustrasi anak dan ayah memandangi hujan meteor di langit malam',
+    mcmaKunci: ['A', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Menonton hujan meteor dengan ayahnya.' },
+      { id: 'B', label: 'B', teks: 'Menulis buku harian sambil melihat meteor.' },
+      { id: 'C', label: 'C', teks: 'Langit cerah ketika menonton hujan meteor.' },
     ],
-    pembahasan: `Bentuk baku menurut KBBI: kualitas (baku), analisis (analisa tidak baku), metode (baku), aktivitas (aktifitas tidak baku).`,
+    pembahasan: `Tokoh "Aku" menyatakan sangat senang menghabiskan waktu menonton hujan meteor bersama ayahnya (A) dan berdoa agar hari tidak hujan karena meteor terlihat jelas saat langit cerah (C).`,
     pembuatId: 'usr-guru-2',
     pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-21T11:15:00Z',
-    updatedAt: '2026-01-21T11:15:00Z',
+    createdAt: '2026-02-01T09:10:00Z',
+    updatedAt: '2026-02-01T09:10:00Z',
+  },
+  // BIND 11: PILGAN (Wacana 5 - Giga Bermain dengan Heksagonal)
+  {
+    id: 'bind-11',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-5',
+    topik: 'Mengidentifikasi Informasi Tersurat',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Bentuk apa yang bisa ditiru Giga saat bermain dengan Heksagonal?',
+    gambarUrl: '/assets/bind_tka_2026/q11_heksagonal.png',
+    gambarAlt: 'Ilustrasi bentuk bunga heksagonal bersama Giga si Segitiga',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'Bunga.' },
+      { label: 'B', teks: 'Pohon cemara.' },
+      { label: 'C', teks: 'Gunung.' },
+      { label: 'D', teks: 'Atap rumah.' },
+    ],
+    pembahasan: `Dalam teks dan gambar tertulis jelas: "Saat bermain dengan Heksagonal, dia menirukan bentuk bunga." (Opsi A).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:11:00Z',
+    updatedAt: '2026-02-01T09:11:00Z',
+  },
+  // BIND 12: MCMA (Wacana 5 - Giga Bermain dengan Pasukan Kotak)
+  {
+    id: 'bind-12',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-5',
+    topik: 'Mengidentifikasi Informasi Tersurat',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'mcma',
+    teksSoal: 'Apa yang dibuat Giga saat bermain bersama pasukan kotak?',
+    gambarUrl: '/assets/bind_tka_2026/q12_kotak.png',
+    gambarAlt: 'Ilustrasi bentuk menara jam dan roket bersama Pasukan Kotak',
+    mcmaKunci: ['A', 'B'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Roket.' },
+      { id: 'B', label: 'B', teks: 'Menara.' },
+      { id: 'C', label: 'C', teks: 'Bendera.' },
+    ],
+    pembahasan: `Pada cerita disebutkan: "Giga juga suka bermain dengan Pasukan Kotak. Banyak bentuk yang bisa ditirukan, seperti roket, ikan, dan menara." (Opsi A dan B; bendera adalah bentuk bersama sesama segitiga).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:12:00Z',
+    updatedAt: '2026-02-01T09:12:00Z',
+  },
+  // BIND 13: PILGAN (Wacana 6 - Cara Pergi Pertama Kali ke Pulau Kemaro)
+  {
+    id: 'bind-13',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-6',
+    topik: 'Mengidentifikasi Informasi Tersurat',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Bagaimana cara Keluarga Adit dan Danu pergi ke Pulau Kemaro saat pertama kalinya?',
+    gambarUrl: '/assets/bind_tka_2026/q13_capgomeh.png',
+    gambarAlt: 'Ilustrasi keluarga Adit dan Danu berbaju merah menyaksikan pagoda perayaan Cap Go Meh',
+    pilganKunci: 'C',
+    pilganOptions: [
+      { label: 'A', teks: 'Menyeberangi jembatan ponton dengan mobil.' },
+      { label: 'B', teks: 'Melewati jembatan ponton dengan berjalan kaki.' },
+      { label: 'C', teks: 'Menggunakan kapal dari bawah jembatan Musi.' },
+      { label: 'D', teks: 'Melewati jembatan Musi dengan berjalan kaki.' },
+    ],
+    pembahasan: `Paragraf kedua menjelaskan bahwa pada kunjungan pertama kalinya, mereka naik kapal dari bawah jembatan Musi, sedangkan kali kedua baru berjalan kaki melewati jembatan ponton. (Opsi C).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:13:00Z',
+    updatedAt: '2026-02-01T09:13:00Z',
+  },
+  // BIND 14: MCMA (Wacana 6 - Unsur Intrinsik & Rasa Syukur)
+  {
+    id: 'bind-14',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-6',
+    topik: 'Menyusun Kesimpulan Unsur Intrinsik',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: 'Apa peristiwa yang membuat Danu dan Adit berpikir bahwa bersyukur adalah hal yang penting di dalam hidup mereka?',
+    gambarUrl: '/assets/bind_tka_2026/q13_capgomeh.png',
+    gambarAlt: 'Ilustrasi keluarga Adit dan Danu berbaju merah menyaksikan pagoda perayaan Cap Go Meh',
+    mcmaKunci: ['A', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Pertunjukan barongsai ditiadakan sehingga mereka memilih berkeliling pulau.' },
+      { id: 'B', label: 'B', teks: 'Keluarga Danu berjalan kaki melewati jembatan Ponton meskipun hujan turun.' },
+      { id: 'C', label: 'C', teks: 'Penerbangan lampion dihilangkan, mereka memilih makan makanan khas imlek.' },
+    ],
+    pembahasan: `Karena hujan deras, pertunjukan barongsai dan penerbangan lampion dibatalkan. Namun Adit dan Danu tetap bersyukur dengan menikmati perayaan melalui berkeliling pulau (A) dan mencoba makanan khas Imlek (C).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:14:00Z',
+    updatedAt: '2026-02-01T09:14:00Z',
+  },
+  // BIND 15: PILGAN (Wacana 6 - Refleksi Kejadian dalam Kehidupan)
+  {
+    id: 'bind-15',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-6',
+    topik: 'Merefleksikan Pengetahuan Baru dalam Kehidupan',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Berdasarkan cerita, apa yang akan kamu lakukan jika rencana berlibur ke pantai batal akibat hujan?',
+    gambarUrl: '/assets/bind_tka_2026/q13_capgomeh.png',
+    gambarAlt: 'Ilustrasi keluarga Adit dan Danu berbaju merah menyaksikan pagoda perayaan Cap Go Meh',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'Berlapang dada dan memilih untuk menyusun rencana menyenangkan lain di rumah.' },
+      { label: 'B', teks: 'Merasa sedih sehingga memilih untuk melihat hujan dari jendela berharap hujan segera reda.' },
+      { label: 'C', teks: 'Bersikap biasa-biasa saja dan memilih untuk berdiam diri di rumah tanpa aktivitas apapun.' },
+      { label: 'D', teks: 'Memilih untuk melanjutkan tidur sembari berharap hujan bisa reda ketika sudah bangun nantinya.' },
+    ],
+    pembahasan: `Pesan cerita adalah tetap bersyukur dan mencari cara positif menikmati suasana meski rencana awal batal akibat hujan, yaitu berlapang dada dan menyusun rencana menyenangkan lain di rumah (Opsi A).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:15:00Z',
+    updatedAt: '2026-02-01T09:15:00Z',
+  },
+  // BIND 16: PILGAN (Wacana 7 - Fokus Utama Kota Berkelanjutan)
+  {
+    id: 'bind-16',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-7',
+    topik: 'Menjelaskan Ide Pokok / Fokus Utama Teks',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Apa yang menjadi fokus utama dalam teks tersebut?',
+    gambarUrl: '/assets/bind_tka_2026/q16_kota.png',
+    gambarAlt: 'Ilustrasi perkotaan dengan gedung tinggi, pepohonan, bangku taman, dan zebra cross',
+    pilganKunci: 'B',
+    pilganOptions: [
+      { label: 'A', teks: 'Manfaat menggunakan kendaraan tenaga listrik.' },
+      { label: 'B', teks: 'Pentingnya kota berkelanjutan untuk masa depan.' },
+      { label: 'C', teks: 'Fasilitas publik yang tersedia di kota berkelanjutan.' },
+      { label: 'D', teks: 'Cara pengolahan sampah di kota berkelanjutan.' },
+    ],
+    pembahasan: `Keseluruhan teks membahas upaya membangun kota berkelanjutan beserta ciri-ciri kenyamanan, energi bersih, transportasi, dan pengelolaannya demi mengatasi masalah iklim dan menjaga masa depan (Opsi B).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:16:00Z',
+    updatedAt: '2026-02-01T09:16:00Z',
+  },
+  // BIND 17: PILGAN (Wacana 7 - Dampak Pengolahan Sampah yang Baik)
+  {
+    id: 'bind-17',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-7',
+    topik: 'Menyimpulkan Isi & Substansi Teks',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Hasil apa yang diharapkan dari sistem pengolahan sampah yang baik?',
+    gambarUrl: '/assets/bind_tka_2026/q16_kota.png',
+    gambarAlt: 'Ilustrasi perkotaan dengan gedung tinggi, pepohonan, bangku taman, dan zebra cross',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'Kota menjadi bersih.' },
+      { label: 'B', teks: 'Air menjadi melimpah.' },
+      { label: 'C', teks: 'Udara menjadi sejuk.' },
+      { label: 'D', teks: 'Waktu menjadi efisien.' },
+    ],
+    pembahasan: `Pengelolaan sampah yang baik termasuk daur ulang bertujuan agar lingkungan kota bebas tumpukan limbah dan menjadi bersih, sehat, serta nyaman (Opsi A).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:17:00Z',
+    updatedAt: '2026-02-01T09:17:00Z',
+  },
+  // BIND 18: MCMA (Wacana 7 - Kesesuaian Ilustrasi dengan Isi Teks)
+  {
+    id: 'bind-18',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-7',
+    topik: 'Menilai Kesesuaian Ilustrasi dengan Isi Teks',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: 'Berdasarkan isi teks, mengapa ciri-ciri kota berkelanjutan belum nampak dalam gambar?',
+    gambarUrl: '/assets/bind_tka_2026/q16_kota.png',
+    gambarAlt: 'Ilustrasi perkotaan dengan gedung tinggi, pepohonan, bangku taman, dan zebra cross',
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Tidak ada gambar ruang terbuka hijau seperti taman dan lapangan.' },
+      { id: 'B', label: 'B', teks: 'Tidak ada gambar alat transportasi ramah lingkungan bertenaga listrik.' },
+      { id: 'C', label: 'C', teks: 'Tidak ada gambar manusia yang sedang melakukan aktivitas di jalan.' },
+    ],
+    pembahasan: `Pada gambar terlihat pepohonan hijau dan bangku taman di sepanjang trotoar (sehingga opsi A keliru), namun jalan raya tampak kosong tanpa transportasi publik/listrik (B) serta tidak tampak pejalan kaki/pesepeda atau aktivitas manusia (C).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:18:00Z',
+    updatedAt: '2026-02-01T09:18:00Z',
+  },
+  // BIND 19: PILGAN (Wacana 8 - Pemotong Rambut Rara)
+  {
+    id: 'bind-19',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-8',
+    topik: 'Mengidentifikasi Informasi Tersurat',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Siapa yang memotong rambut Rara saat ruwatan?',
+    gambarUrl: '/assets/bind_tka_2026/q19_ruwatan.png',
+    gambarAlt: 'Ilustrasi Rara berambut gimbal bersama ibu, ayah, dan ketua adat saat tradisi ruwatan',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'Ketua adat' },
+      { label: 'B', teks: 'Ibu Rara' },
+      { label: 'C', teks: 'Ayah Rara' },
+      { label: 'D', teks: 'Tukang cukur' },
+    ],
+    pembahasan: `Dalam cerita dijelaskan oleh Ibu: "Di sana Ketua adat akan memotong rambut gimbal Rara." (Opsi A).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:19:00Z',
+    updatedAt: '2026-02-01T09:19:00Z',
+  },
+  // BIND 20: PILGAN (Wacana 8 - Perasaan Rara)
+  {
+    id: 'bind-20',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-8',
+    topik: 'Menyimpulkan Perasaan & Sifat Tokoh',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: 'Bagaimana perasaan Rara setelah mendengar penjelasan Ayah?',
+    gambarUrl: '/assets/bind_tka_2026/q19_ruwatan.png',
+    gambarAlt: 'Ilustrasi Rara berambut gimbal bersama ibu, ayah, dan ketua adat saat tradisi ruwatan',
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'Lega.' },
+      { label: 'B', teks: 'Puas.' },
+      { label: 'C', teks: 'Ceria.' },
+      { label: 'D', teks: 'Ikhlas.' },
+    ],
+    pembahasan: `Setelah mendengar kondisi pekerjaan orang tuanya, Rara sadar, meminta maaf, dan mengganti permintaannya menjadi buku cerita di pasar tanpa memaksa lagi. Sikap menerima keadaan dengan rela tersebut menunjukkan perasaan ikhlas (Opsi D).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:20:00Z',
+    updatedAt: '2026-02-01T09:20:00Z',
+  },
+  // BIND 21: MCMA (Wacana 8 - Refleksi Meminta Barang pada Orang Tua)
+  {
+    id: 'bind-21',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-8',
+    topik: 'Merefleksikan Pengetahuan Baru dalam Kehidupan',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'mcma',
+    teksSoal: 'Sebelumnya kamu suka memaksa minta barang yang kamu inginkan kepada orang tua. Setelah membaca cerita tersebut, apa yang sebaiknya kamu lakukan jika suatu hari kamu ingin punya barang baru?',
+    gambarUrl: '/assets/bind_tka_2026/q19_ruwatan.png',
+    gambarAlt: 'Ilustrasi Rara berambut gimbal bersama ibu, ayah, dan ketua adat saat tradisi ruwatan',
+    mcmaKunci: ['A', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Bertanya kepada ayah dan ibu apakah punya uang atau tidak.' },
+      { id: 'B', label: 'B', teks: 'Meminta ayah dan ibu langsung membelikan barang itu.' },
+      { id: 'C', label: 'C', teks: 'Memikirkan apakah barang itu perlu atau tidak dimiliki saat ini.' },
+    ],
+    pembahasan: `Keteladanan Rara mengajarkan untuk mempertimbangkan kemampuan ekonomi orang tua (A) serta menimbang kebutuhan barang sebelum meminta (C), bukan memaksa langsung dibelikan (B).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:21:00Z',
+    updatedAt: '2026-02-01T09:21:00Z',
+  },
+  // BIND 22: PILGAN (Wacana 9 - Maksud Peribahasa Erni)
+  {
+    id: 'bind-22',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-9',
+    topik: 'Menentukan Makna Ungkapan/Peribahasa',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Dalam cerita tersebut, Erni mengatakan "bersakit-sakit dahulu, bersenang-senang kemudian".
+Apa maksud Erni saat mengatakan itu?`,
+    gambarUrl: '/assets/bind_tka_2026/q22_nilai40.png',
+    gambarAlt: 'Ilustrasi lembar ujian bertuliskan nilai 40 berwarna merah',
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'Menginformasikan kepada Arul bahwa ia harus lebih giat dan semangat lagi dalam belajar.' },
+      { label: 'B', teks: 'Memperjelas ucapan Erni bahwa Arul bisa mendapatkan nilai yang bagus kalau belajar bersama.' },
+      { label: 'C', teks: 'Menasihati Arul bahwa ia bisa mendapatkan nilai yang bagus kalau dia tidak sombong.' },
+      { label: 'D', teks: 'Memberitahukan kepada Arul bahwa ia harus mau belajar kalau ingin nilai ujiannya bagus lagi.' },
+    ],
+    pembahasan: `Ucapan Erni merespons kalimat Dewi ("Kamu harus belajar kalau mau nilai bagus") dan keluhan Arul yang nilainya turun drastis (40). Peribahasa tersebut bermaksud memberitahukan Arul bahwa ia harus mau bersusah-payah belajar terlebih dahulu apabila ingin nilai ujiannya bagus lagi (Opsi D).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:22:00Z',
+    updatedAt: '2026-02-01T09:22:00Z',
+  },
+  // BIND 23: PILGAN (Wacana 9 - Perubahan Sikap Arul)
+  {
+    id: 'bind-23',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-9',
+    topik: 'Menyimpulkan Perubahan Karakter/Watak Tokoh',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Bagaimana perubahan sikap Arul setelah menyadari nilainya jelek?',
+    gambarUrl: '/assets/bind_tka_2026/q22_nilai40.png',
+    gambarAlt: 'Ilustrasi lembar ujian bertuliskan nilai 40 berwarna merah',
+    pilganKunci: 'C',
+    pilganOptions: [
+      { label: 'A', teks: 'Arul menjadi lebih giat untuk belajar sendiri di rumah.' },
+      { label: 'B', teks: 'Arul berjanji belajar lebih giat kepada teman-temannya.' },
+      { label: 'C', teks: 'Arul akhirnya mau belajar bersama teman-temannya.' },
+      { label: 'D', teks: 'Arul merasa akan lebih mudah dalam ujian jika dia belajar.' },
+    ],
+    pembahasan: `Pada akhir dialog, ketika Reno mengajak "Ayo belajar bareng biar sama-sama tahu", Arul pun mengangguk tanda setuju mau belajar bersama teman-temannya (Opsi C).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:23:00Z',
+    updatedAt: '2026-02-01T09:23:00Z',
+  },
+  // BIND 24: KATEGORI (Wacana 9 - Refleksi Nilai Keteladanan Riza)
+  {
+    id: 'bind-24',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-9',
+    topik: 'Merefleksikan Nilai-Nilai Keteladanan',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Setelah membaca cerita tersebut, Riza merasa bahwa dirinya memiliki kesamaan dengan Arul yang sama-sama nilainya semakin memburuk.
+Apa yang bisa dilakukan Riza agar nilainya bisa bagus berdasarkan pengalaman cerita Arul?`,
+    gambarUrl: '/assets/bind_tka_2026/q22_nilai40.png',
+    gambarAlt: 'Ilustrasi lembar ujian bertuliskan nilai 40 berwarna merah',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'b24-stmt-1', teks: 'Belajar kelompok bersama teman-teman agar ada yang mengajari materi sulit.', kunciJawaban: 'Benar' },
+      { id: 'b24-stmt-2', teks: 'Meyakini kemampuan diri dan tetap menjalankan hobi bermain sepak bola di lapangan.', kunciJawaban: 'Salah' },
+      { id: 'b24-stmt-3', teks: 'Bertanya ketika guru menjelaskan pelajaran agar lebih yakin menjawab pertanyaan saat ujian.', kunciJawaban: 'Benar' },
+    ],
+    pembahasan: `Agar nilai membaik seperti pelajaran yang dipetik Arul, Riza perlu belajar kelompok bersama teman (Benar) dan aktif bertanya saat pelajaran berlangsung (Benar), bukan tetap bermalas-malasan bermain bola tanpa belajar (Salah).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:24:00Z',
+    updatedAt: '2026-02-01T09:24:00Z',
+  },
+  // BIND 25: PILGAN (Wacana 10 / PDF Indikator 26 - Perubahan Sikap Kamal)
+  {
+    id: 'bind-25',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-10',
+    topik: 'Menyimpulkan Perubahan Karakter Tokoh',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Bagaimana sikap Kamal setelah ia mendapat teguran dan dipaksa ikut melaut dengan Yunus?',
+    gambarUrl: '/assets/bind_tka_2026/q26_nelayan.png',
+    gambarAlt: 'Ilustrasi para nelayan melaut dengan perahu dan jala di laut senja berburung camar',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'Tersadar untuk rajin melaut setiap hari.' },
+      { label: 'B', teks: 'Bersemangat melaut bersama para warga.' },
+      { label: 'C', teks: 'Tergerak untuk serius memperbaiki kapal.' },
+      { label: 'D', teks: 'Berusaha keras membuktikan pada warga.' },
+    ],
+    pembahasan: `Dua kalimat terakhir cerita menyatakan bahwa setelah diajak melaut setiap hari bersama Yunus, "Sekarang Kamal sudah melaut setiap hari. Kamal bahkan melaut dengan perahunya sendiri." Ini menunjukkan ia tersadar untuk rajin melaut setiap hari (Opsi A).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:25:00Z',
+    updatedAt: '2026-02-01T09:25:00Z',
+  },
+  // BIND 26: KATEGORI (Wacana 10 / PDF Indikator 27 - Respons Emosional Terhadap Konflik Tokoh)
+  {
+    id: 'bind-26',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-10',
+    topik: 'Menentukan Respons Emosional terhadap Konflik Tokoh',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Setelah membaca cerita, Johan, Simon, dan Maria berpendapat sebagai berikut.
+Simon : "Aku kagum dengan sikap Yunus yang tetap mau menemani Kamal."
+Johan : "Iya, tapi Yunus terlalu sabar dengan perilaku Kamal. Itu menjengkelkan."
+Maria : "Aku pun geregetan karena Kamal memang pantas ditegur dengan keras."
+
+Pendapat siapa yang paling sesuai dengan bagian akhir cerita tersebut?`,
+    gambarUrl: '/assets/bind_tka_2026/q26_nelayan.png',
+    gambarAlt: 'Ilustrasi para nelayan melaut dengan perahu dan jala di laut senja berburung camar',
+    kategoriLabels: ['Sesuai', 'Tidak Sesuai'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'b26-stmt-1', teks: 'Johan karena Yunus memang terlalu baik hati pada Kamal dan tetangga.', kunciJawaban: 'Tidak Sesuai' },
+      { id: 'b26-stmt-2', teks: 'Simon karena Yunus mau menemani Kamal sampai terbiasa melaut sendiri.', kunciJawaban: 'Sesuai' },
+      { id: 'b26-stmt-3', teks: 'Maria karena Yunus menegur keras ketika perilaku Kamal sudah kelewat batas.', kunciJawaban: 'Sesuai' },
+    ],
+    pembahasan: `Di bagian akhir cerita, Yunus tidak hanya berdiam sabar; ia menegur Kamal dengan tegas/keras (sejalan dengan Maria -> Sesuai) dan mengajak serta menemani Kamal melaut setiap hari hingga Kamal terbiasa melaut sendiri (sejalan dengan Simon -> Sesuai). Pendapat Johan bahwa Yunus terlalu baik hati/terlalu sabar di bagian akhir tidak tepat (Tidak Sesuai).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:26:00Z',
+    updatedAt: '2026-02-01T09:26:00Z',
+  },
+  // BIND 27: PILGAN (Wacana 11 / PDF Indikator 28 - Tokoh yang Suka Menggambar)
+  {
+    id: 'bind-27',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-11',
+    topik: 'Mengidentifikasi Informasi Tersurat',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: 'Siapa yang sangat suka menggambar?',
+    gambarUrl: '/assets/bind_tka_2026/q28_lianne.png',
+    gambarAlt: 'Ilustrasi Mama mengangkat piala dan lukisan kemenangan lomba menggambar bersama Lianne',
+    pilganKunci: 'C',
+    pilganOptions: [
+      { label: 'A', teks: 'Albert.' },
+      { label: 'B', teks: 'Giffari.' },
+      { label: 'C', teks: 'Lianne.' },
+      { label: 'D', teks: 'Amber.' },
+    ],
+    pembahasan: `Kalimat pembuka cerita menyatakan langsung: "Halo! Namaku Lianne. Aku suka sekali menggambar." (Opsi C).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:27:00Z',
+    updatedAt: '2026-02-01T09:27:00Z',
+  },
+  // BIND 28: PILGAN (Wacana 11 / PDF Indikator 29 - Sifat Tokoh Lianne)
+  {
+    id: 'bind-28',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-11',
+    topik: 'Menyimpulkan Sifat & Karakter Tokoh',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: 'Bagaimana sifat yang ditunjukkan Lianne pada cerita tersebut?',
+    gambarUrl: '/assets/bind_tka_2026/q28_lianne.png',
+    gambarAlt: 'Ilustrasi Mama mengangkat piala dan lukisan kemenangan lomba menggambar bersama Lianne',
+    pilganKunci: 'C',
+    pilganOptions: [
+      { label: 'A', teks: 'Rajin belajar, dibuktikan dengan ia yang berprestasi pada pelajaran matematika.' },
+      { label: 'B', teks: 'Gemar olah raga, dibuktikan dengan ia yang rajin berlatih olah raga basket.' },
+      { label: 'C', teks: 'Pantang menyerah, dibuktikan dengan ia yang terus giat mengasah bakatnya.' },
+      { label: 'D', teks: 'Lapang dada, dibuktikan dengan ia yang dapat menerima kekurangan dirinya.' },
+    ],
+    pembahasan: `Meskipun sempat gagal dalam matematika, basket, dan menyanyi, Lianne tetap melatih kemampuan menggambarnya dengan berkeliling mencari ide menarik dan mengikuti lomba hingga menang. Hal ini membuktikan sifat pantang menyerah dalam mengasah bakatnya (Opsi C).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:28:00Z',
+    updatedAt: '2026-02-01T09:28:00Z',
+  },
+  // BIND 29: KATEGORI (Wacana 11 / PDF Indikator 30 - Respons Emosional Terhadap Perbandingan)
+  {
+    id: 'bind-29',
+    mapelId: 'bahasa_indonesia',
+    stimulusId: 'stm-bind-11',
+    topik: 'Menentukan Respons Emosional terhadap Konflik',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Dinda selesai membaca cerita "Mama, Aku Bukan Dia". Dinda juga tidak suka dibanding-bandingkan dengan orang lain. Ia yakin, setiap orang memiliki keunggulan yang berbeda-beda.
+Apa kemungkinan yang dirasakan oleh Dinda ketika Lianne selalu dibandingkan dengan teman-temannya oleh Mamanya?`,
+    gambarUrl: '/assets/bind_tka_2026/q28_lianne.png',
+    gambarAlt: 'Ilustrasi Mama mengangkat piala dan lukisan kemenangan lomba menggambar bersama Lianne',
+    kategoriLabels: ['Setuju', 'Tidak Setuju'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'b29-stmt-1', teks: 'Sedih, karena Lianne selalu tidak diakui keunikannya oleh mamanya.', kunciJawaban: 'Setuju' },
+      { id: 'b29-stmt-2', teks: 'Marah, karena teman-temannya selalu lebih unggul darinya.', kunciJawaban: 'Tidak Setuju' },
+      { id: 'b29-stmt-3', teks: 'Kecewa, karena ia tidak bisa menjadi dirinya sendiri di depan mamanya.', kunciJawaban: 'Setuju' },
+    ],
+    pembahasan: `Saat seorang anak terus dibanding-bandingkan, perasaan yang wajar timbul adalah sedih karena keunikannya tidak diakui (Setuju) dan kecewa karena dituntut menjadi orang lain (Setuju). Dalam cerita, Lianne justru bangga kepada prestasi temannya dan hanya kesal atas sikap pembandingan ibunya, bukan marah terhadap keunggulan teman-temannya (Tidak Setuju).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Dra. Siti Rahmawati',
+    createdAt: '2026-02-01T09:29:00Z',
+    updatedAt: '2026-02-01T09:29:00Z',
   },
 
   // ================= IPA TERPADU (10 SOAL) =================
@@ -1561,19 +2255,23 @@ export const INITIAL_PACKAGES: ExamPackage[] = [
   },
   {
     id: 'pkg-2',
-    judul: 'Uji Kemampuan Literasi Membaca & Bahasa Indonesia',
+    judul: 'Tryout TKA Bahasa Indonesia SD/MI 2026 (29 Soal Lengkap)',
     mapelId: 'bahasa_indonesia',
-    deskripsi: 'Pengujian kemampuan membaca cerita, menemukan ide pokok paragraf, pemahaman kosakata, dan kaidah kalimat baku sederhana bagi siswa Sekolah Dasar.',
-    durasiMenit: 30,
+    deskripsi: 'Paket lengkap 29 soal TKA Bahasa Indonesia Sekolah Dasar (SD/MI) 2026 mencakup Pemahaman Tekstual, Pemahaman Inferensial, serta Evaluasi dan Apresiasi berbasis 11 wacana dan ilustrasi resmi.',
+    durasiMenit: 90,
     bobotBenar: 4,
     bobotSalah: 0,
     bobotKosong: 0,
     acakSoal: false,
-    acakOpsi: true,
+    acakOpsi: false,
     waktuBuka: '2026-01-01T00:00:00Z',
     waktuTutup: '2026-12-31T23:59:59Z',
     kelasAkses: ['semua'],
-    soalIds: ['bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10'],
+    soalIds: [
+      'bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10',
+      'bind-11', 'bind-12', 'bind-13', 'bind-14', 'bind-15', 'bind-16', 'bind-17', 'bind-18', 'bind-19', 'bind-20',
+      'bind-21', 'bind-22', 'bind-23', 'bind-24', 'bind-25', 'bind-26', 'bind-27', 'bind-28', 'bind-29',
+    ],
     status: 'terbit',
     izinkanLihatPembahasan: true,
     deteksiPindahTab: true,
@@ -1673,7 +2371,7 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-raditya-bind-1',
     paketId: 'pkg-2',
-    paketJudul: 'Uji Kemampuan Literasi Membaca & Bahasa Indonesia',
+    paketJudul: 'Tryout TKA Bahasa Indonesia SD/MI 2026 (29 Soal Lengkap)',
     mapelId: 'bahasa_indonesia',
     muridId: 'usr-murid-1',
     muridNama: 'Raditya Pratama',
@@ -1683,13 +2381,17 @@ export const INITIAL_SESSIONS: ExamSession[] = [
     durasiDetikTerpakai: 1680,
     sisaDetik: 120,
     status: 'selesai',
-    shuffledSoalIds: ['bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10'],
+    shuffledSoalIds: [
+      'bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10',
+      'bind-11', 'bind-12', 'bind-13', 'bind-14', 'bind-15', 'bind-16', 'bind-17', 'bind-18', 'bind-19', 'bind-20',
+      'bind-21', 'bind-22', 'bind-23', 'bind-24', 'bind-25', 'bind-26', 'bind-27', 'bind-28', 'bind-29',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 32,
-    skorMaksimal: 40,
+    totalSkor: 92.8,
+    skorMaksimal: 116,
     persentaseNilai: 80.0,
-    jumlahBenar: 8,
-    jumlahSalah: 2,
+    jumlahBenar: 23,
+    jumlahSalah: 6,
     jumlahKosong: 0,
     answers: {},
   },
@@ -1778,7 +2480,7 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-annisa-bind',
     paketId: 'pkg-2',
-    paketJudul: 'Uji Kemampuan Literasi Membaca & Bahasa Indonesia',
+    paketJudul: 'Tryout TKA Bahasa Indonesia SD/MI 2026 (29 Soal Lengkap)',
     mapelId: 'bahasa_indonesia',
     muridId: 'usr-murid-2',
     muridNama: 'Annisa Rahmawati',
@@ -1788,13 +2490,17 @@ export const INITIAL_SESSIONS: ExamSession[] = [
     durasiDetikTerpakai: 1920,
     sisaDetik: 480,
     status: 'selesai',
-    shuffledSoalIds: ['bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10'],
+    shuffledSoalIds: [
+      'bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10',
+      'bind-11', 'bind-12', 'bind-13', 'bind-14', 'bind-15', 'bind-16', 'bind-17', 'bind-18', 'bind-19', 'bind-20',
+      'bind-21', 'bind-22', 'bind-23', 'bind-24', 'bind-25', 'bind-26', 'bind-27', 'bind-28', 'bind-29',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 38,
-    skorMaksimal: 40,
+    totalSkor: 110.2,
+    skorMaksimal: 116,
     persentaseNilai: 95.0,
-    jumlahBenar: 9,
-    jumlahSalah: 1,
+    jumlahBenar: 27,
+    jumlahSalah: 2,
     jumlahKosong: 0,
     answers: {},
   },
@@ -1872,7 +2578,7 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-fajar-bind-1',
     paketId: 'pkg-2',
-    paketJudul: 'Uji Kemampuan Literasi Membaca & Bahasa Indonesia',
+    paketJudul: 'Tryout TKA Bahasa Indonesia SD/MI 2026 (29 Soal Lengkap)',
     mapelId: 'bahasa_indonesia',
     muridId: 'usr-murid-3',
     muridNama: 'Fajar Nugraha',
@@ -1882,13 +2588,17 @@ export const INITIAL_SESSIONS: ExamSession[] = [
     durasiDetikTerpakai: 1560,
     sisaDetik: 240,
     status: 'selesai',
-    shuffledSoalIds: ['bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10'],
+    shuffledSoalIds: [
+      'bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10',
+      'bind-11', 'bind-12', 'bind-13', 'bind-14', 'bind-15', 'bind-16', 'bind-17', 'bind-18', 'bind-19', 'bind-20',
+      'bind-21', 'bind-22', 'bind-23', 'bind-24', 'bind-25', 'bind-26', 'bind-27', 'bind-28', 'bind-29',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 32,
-    skorMaksimal: 40,
+    totalSkor: 92.8,
+    skorMaksimal: 116,
     persentaseNilai: 80.0,
-    jumlahBenar: 8,
-    jumlahSalah: 2,
+    jumlahBenar: 23,
+    jumlahSalah: 6,
     jumlahKosong: 0,
     answers: {},
   },
@@ -1897,7 +2607,7 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-zahra-bind-1',
     paketId: 'pkg-2',
-    paketJudul: 'Uji Kemampuan Literasi Membaca & Bahasa Indonesia',
+    paketJudul: 'Tryout TKA Bahasa Indonesia SD/MI 2026 (29 Soal Lengkap)',
     mapelId: 'bahasa_indonesia',
     muridId: 'usr-murid-4',
     muridNama: 'Zahra Aulia',
@@ -1907,13 +2617,17 @@ export const INITIAL_SESSIONS: ExamSession[] = [
     durasiDetikTerpakai: 1680,
     sisaDetik: 120,
     status: 'selesai',
-    shuffledSoalIds: ['bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10'],
+    shuffledSoalIds: [
+      'bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'bind-6', 'bind-7', 'bind-8', 'bind-9', 'bind-10',
+      'bind-11', 'bind-12', 'bind-13', 'bind-14', 'bind-15', 'bind-16', 'bind-17', 'bind-18', 'bind-19', 'bind-20',
+      'bind-21', 'bind-22', 'bind-23', 'bind-24', 'bind-25', 'bind-26', 'bind-27', 'bind-28', 'bind-29',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 31,
-    skorMaksimal: 40,
-    persentaseNilai: 77.5,
-    jumlahBenar: 7,
-    jumlahSalah: 2,
+    totalSkor: 90,
+    skorMaksimal: 116,
+    persentaseNilai: 77.6,
+    jumlahBenar: 22,
+    jumlahSalah: 6,
     jumlahKosong: 1,
     answers: {},
   },
