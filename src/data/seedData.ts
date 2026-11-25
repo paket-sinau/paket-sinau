@@ -1997,232 +1997,857 @@ Apa kemungkinan yang dirasakan oleh Dinda ketika Lianne selalu dibandingkan deng
     updatedAt: '2026-02-01T09:29:00Z',
   },
 
-  // ================= IPA TERPADU (10 SOAL) =================
-  // IPA 1: PILGAN (Stimulus 1 - Ekologi & Trofik)
+  // ================= IPA / LITERASI SAINS TKA SD 2026 PAKET 4 (30 SOAL) =================
+  // IPA 1: PILGAN (Struktur & Fungsi Mata)
   {
     id: 'ipa-1',
     mapelId: 'ipa',
-    stimulusId: 'stm-1',
-    topik: 'Ekologi & Piramida Energi',
-    tingkatKesulitan: 'sedang',
+    topik: 'Pancaindra & Bagian Mata',
+    tingkatKesulitan: 'mudah',
     modelSoal: 'pilgan',
-    teksSoal: 'Berdasarkan Wacana 1 dan bagan jaring-jaring makanan mangrove, organisme yang bertindak secara simultan sebagai konsumen tingkat primer (herbivor/detritivor) adalah...',
-    pilganKunci: 'B',
+    teksSoal: `Saat pelajaran IPAS berlangsung, pak guru menampilkan gambar sebagai berikut.
+
+Setelah mencermati gambar tersebut, Edo diminta menyebutkan fungsi bagian yang ditunjuk huruf X.
+Jawaban Edo yang tepat adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q01_mata.png',
+    gambarAlt: 'Diagram bagian mata dengan panah huruf X menunjuk pupil',
+    pilganKunci: 'C',
     pilganOptions: [
-      { label: 'A', teks: 'Burung elang tiram (*Pandion haliaetus*)' },
-      { label: 'B', teks: 'Siput mangrove, kepiting sesarmid, dan ikan belanak' },
-      { label: 'C', teks: 'Ikan barakuda dan hiu banteng' },
-      { label: 'D', teks: 'Pohon bakau merah (*Rhizophora mangle*)' },
+      { label: 'A', teks: 'memberikan warna pada mata dan mengontrol pupil' },
+      { label: 'B', teks: 'menangkap cahaya dan mengubah cahaya menjadi sinyal listrik' },
+      { label: 'C', teks: 'sebagai lubang masuknya cahaya dan mengatur banyak sedikitnya cahaya' },
+      { label: 'D', teks: 'memfokuskan cahaya dan membiaskan cahaya agar jatuh tepat di retina' },
     ],
-    pembahasan: `Konsumen primer pada rantai makanan mangrove mengonsumsi serasah/detritus basal dari produsen. Bagan wacana 1 secara jelas meletakkan siput mangrove, kepiting sesarmid, dan ikan belanak pada Tingkat Trofik 2 (Level 2: Primary Consumers / Detritivores).`,
+    pembahasan: `Bagian yang ditunjuk huruf X adalah pupil. Pupil berfungsi sebagai lubang tempat masuknya cahaya sekaligus membantu mengatur banyak sedikitnya cahaya yang masuk ke mata. Jadi jawaban yang tepat adalah C.`,
     pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T08:00:00Z',
-    updatedAt: '2026-01-22T08:00:00Z',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:01:00Z',
+    updatedAt: '2026-02-01T10:01:00Z',
   },
-  // IPA 2: MCMA (Stimulus 1 - Dampak Aliran Energi)
+  // IPA 2: KATEGORI (Struktur & Fungsi Telinga)
   {
     id: 'ipa-2',
     mapelId: 'ipa',
-    stimulusId: 'stm-1',
-    topik: 'Dinamika Populasi & Konservasi',
-    tingkatKesulitan: 'sulit',
-    modelSoal: 'mcma',
-    teksSoal: 'Jika terjadi pencemaran limbah logam berat yang memusnahkan populasi bakteri dan fungi pengurai (dekomposer) di kawasan mangrove, dampak ekologis apa saja yang diprediksi akan terjadi? (Pilih semua opsi yang tepat)',
-    mcmaKunci: ['A', 'C'],
-    mcmaScoringMode: 'proportional',
-    mcmaOptions: [
-      { id: 'A', label: 'A', teks: 'Penimbunan serasah daun mangrove tanpa terurai menjadi partikel detritus organik halus.' },
-      { id: 'B', label: 'B', teks: 'Peningkatan tajam laju reproduksi zooplankton dan benih ikan.' },
-      { id: 'C', label: 'C', teks: 'Kelaparan massal pada organisme detritivor yang memicu kolapsnya konsumen tingkat berikutnya.' },
-      { id: 'D', label: 'D', teks: 'Hiu banteng beralih menjadi organisme fotoautotrof produsen.' },
+    topik: 'Pancaindra & Bagian Telinga',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Perhatikan gambar berikut!
+
+Berdasarkan gambar tersebut, tentukan Benar atau Salah pada pernyataan berikut!`,
+    gambarUrl: '/assets/ipas_tka_2026/q02_telinga.png',
+    gambarAlt: 'Diagram bagian telinga dengan label huruf P, Q, dan R',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      {
+        id: 'ipa2-stmt-1',
+        teks: 'Bagian yang ditunjuk huruf Q merupakan koklea yang berfungsi untuk mengubah getaran menjadi sinyal listrik.',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa2-stmt-2',
+        teks: 'Mengumpulkan dan mengarahkan bunyi agar masuk ke lubang telinga merupakan fungsi dari bagian yang ditunjuk huruf P.',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa2-stmt-3',
+        teks: 'Bagian yang ditunjuk huruf R merupakan saraf yang berfungsi untuk menangkap getaran.',
+        kunciJawaban: 'Salah',
+      },
     ],
-    pembahasan: `Dekomposer berperan krusial merombak serasah menjadi detritus yang dapat dimakan detritivor. Tanpa pengurai, serasah menumpuk tanpa menjadi makanan (A) dan rantai trofik di atasnya kekurangan energi (C).`,
+    pembahasan: `Huruf P adalah daun telinga (mengumpulkan dan mengarahkan gelombang bunyi), huruf Q adalah koklea/rumah siput (mengubah getaran bunyi menjadi impuls/sinyal listrik ke saraf pendengaran), sedangkan huruf R adalah saluran setengah lingkaran yang berperan menjaga keseimbangan tubuh (bukan menangkap getaran). Kunci: Benar, Benar, Salah.`,
     pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T08:15:00Z',
-    updatedAt: '2026-01-22T08:15:00Z',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:02:00Z',
+    updatedAt: '2026-02-01T10:02:00Z',
   },
-  // IPA 3: KATEGORI (Fisika Mekanika Gerak)
+  // IPA 3: PILGAN (Fungsi Pancaindra)
   {
     id: 'ipa-3',
     mapelId: 'ipa',
-    topik: 'Kinematika & Hukum Newton',
-    tingkatKesulitan: 'sedang',
-    modelSoal: 'kategori',
-    teksSoal: 'Sebuah balok bermassa $m = 4\\text{ kg}$ meluncur pada bidang miring licin (tanpa gesekan) dengan sudut kemiringan $\\theta = 30^\\circ$ terhadap horizontal ($g = 10\\text{ m/s}^2$). Evaluasi pernyataan berikut:',
-    kategoriLabels: ['Benar', 'Salah'],
-    kategoriScoringMode: 'per_row',
-    kategoriPernyataan: [
-      { id: 'ipk-1', teks: 'Komponen gaya gravitasi yang mempercepat balok menuruni bidang miring adalah $20\\text{ N}$.', kunciJawaban: 'Benar' },
-      { id: 'ipk-2', teks: 'Percepatan linier balok menuruni bidang miring adalah $5\\text{ m/s}^2$.', kunciJawaban: 'Benar' },
-      { id: 'ipk-3', teks: 'Gaya normal yang dialami balok bernilai sama dengan berat total balok ($40\\text{ N}$).', kunciJawaban: 'Salah' },
+    topik: 'Fungsi Pancaindra Manusia',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: `Ibu menyimpan gula, garam, dan kopi pada wadah sebagai berikut.
+
+Suatu hari, Ibu meminta Lani mengambil sesendok gula dari wadah tersebut. Agar dapat membedakan isi wadah tersebut, Lani memanfaatkan fungsi pancaindra miliknya.
+Fungsi pancaindra yang dimaksud adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q03_wadah.png',
+    gambarAlt: 'Tiga buah wadah tertutup berwarna hitam tanpa label berisi gula, garam, dan kopi',
+    pilganKunci: 'C',
+    pilganOptions: [
+      { label: 'A', teks: 'pendengaran dan penglihatan' },
+      { label: 'B', teks: 'peraba dan pendengaran' },
+      { label: 'C', teks: 'penglihatan dan pengecap' },
+      { label: 'D', teks: 'pengecap dan peraba' },
     ],
-    pembahasan: `$w = mg = 4 \\times 10 = 40\\text{ N}$.
-Komponen penarik sejajar bidang miring: $F_x = mg \\sin(30^\\circ) = 40 \\times 0.5 = 20\\text{ N}$. (Benar).
-Percepatan $a = F_x / m = 20 / 4 = 5\\text{ m/s}^2$ atau $g \\sin(30^\\circ) = 10(0.5) = 5\\text{ m/s}^2$. (Benar).
-Gaya normal tegak lurus bidang: $N = mg \\cos(30^\\circ) = 40 \\times \\frac{\\sqrt{3}}{2} = 20\\sqrt{3}\\text{ N} \\approx 34.6\\text{ N} \\ne 40\\text{ N}$. (Salah).`,
+    pembahasan: `Wadah tertutup tanpa label membuat Lani harus melihat bentuk serta warna butiran gula, garam, dan kopi (indra penglihatan/mata), lalu mencicipi mana yang terasa manis (indra pengecap/lidah) agar gula dan garam tidak tertukar.`,
     pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T08:30:00Z',
-    updatedAt: '2026-01-22T08:30:00Z',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:03:00Z',
+    updatedAt: '2026-02-01T10:03:00Z',
   },
-  // IPA 4: PILGAN (Kimia Stoikiometri & Gas Ideal)
+  // IPA 4: PILGAN (Gangguan Penglihatan & Lensa)
   {
     id: 'ipa-4',
     mapelId: 'ipa',
-    topik: 'Stoikiometri & Hukum Gas Ideal',
+    topik: 'Gangguan Penglihatan & Lensa Kacamata',
     tingkatKesulitan: 'sedang',
     modelSoal: 'pilgan',
-    teksSoal: 'Pada keadaan standar (STP: $0^\\circ\\text{C}, 1\\text{ atm}$), volume dari $8\\text{ gram}$ gas oksigen ($O_2$, diketahui $Ar\\ O = 16$) adalah...',
-    pilganKunci: 'B',
+    teksSoal: `Perhatikan gambar berikut!
+
+Kedua gambar tersebut menunjukkan gangguan penglihatan yang dapat diatasi dengan bantuan lensa tambahan. Lensa yang tepat untuk mengatasi gangguan penglihatan gambar 1 dan 2 berturut-turut adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q04_mata_lensa.png',
+    gambarAlt: 'Diagram pembiasan cahaya mata nomor 1 (fokus di belakang retina) dan nomor 2 (fokus di depan retina)',
+    pilganKunci: 'A',
     pilganOptions: [
-      { label: 'A', teks: '$2.80\\text{ liter}$' },
-      { label: 'B', teks: '$5.60\\text{ liter}$' },
-      { label: 'C', teks: '$11.20\\text{ liter}$' },
-      { label: 'D', teks: '$22.40\\text{ liter}$' },
+      { label: 'A', teks: 'cembung dan cekung' },
+      { label: 'B', teks: 'cekung dan cembung' },
+      { label: 'C', teks: 'ganda dan cekung' },
+      { label: 'D', teks: 'silindris dan cembung' },
     ],
-    pembahasan: `$Mr\\ O_2 = 2 \\times 16 = 32\\text{ g/mol}$.
-Jumlah mol $n = \\frac{\\text{massa}}{Mr} = \\frac{8}{32} = 0.25\\text{ mol}$.
-Pada STP, $V = n \\times 22.4\\text{ L/mol} = 0.25 \\times 22.4 = 5.60\\text{ liter}$.`,
+    pembahasan: `Gambar 1 memperlihatkan bayangan jatuh di belakang retina (rabun dekat / hipermetropi), sehingga dibantu dengan lensa cembung (+). Gambar 2 memperlihatkan bayangan jatuh di depan retina (rabun jauh / miopi), sehingga dibantu dengan lensa cekung (-). Jawaban tepat adalah A.`,
     pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T08:45:00Z',
-    updatedAt: '2026-01-22T08:45:00Z',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:04:00Z',
+    updatedAt: '2026-02-01T10:04:00Z',
   },
-  // IPA 5: MCMA (Biologi Sel & Organel)
+  // IPA 5: KATEGORI (Daur Hidup Hewan)
   {
     id: 'ipa-5',
     mapelId: 'ipa',
-    topik: 'Struktur dan Fungsi Organel Sel',
-    tingkatKesulitan: 'sedang',
-    modelSoal: 'mcma',
-    teksSoal: 'Manakah dari organel sel di bawah ini yang memiliki membran ganda serta materi genetik (DNA) sirkular sendiri di dalam sitoplasmanya? (Pilih semua yang tepat)',
-    mcmaKunci: ['A', 'C'],
-    mcmaScoringMode: 'proportional',
-    mcmaOptions: [
-      { id: 'A', label: 'A', teks: 'Mitokondria' },
-      { id: 'B', label: 'B', teks: 'Badan Golgi (Aparatus Golgi)' },
-      { id: 'C', label: 'C', teks: 'Kloroplas (pada sel tumbuhan)' },
-      { id: 'D', label: 'D', teks: 'Ribosom' },
-    ],
-    pembahasan: `Berdasarkan teori endosimbiosis, Mitokondria dan Kloroplas adalah organel bermembran ganda yang memiliki DNA sirkular sendiri (mtDNA dan cpDNA) serta ribosom tipe 70S. Badan Golgi bermembran tunggal, dan ribosom tidak memiliki membran.`,
-    pembuatId: 'usr-guru-2',
-    pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-22T09:00:00Z',
-    updatedAt: '2026-01-22T09:00:00Z',
-  },
-  // IPA 6: PILGAN (Fisika Rangkaian Listrik Arus Searah)
-  {
-    id: 'ipa-6',
-    mapelId: 'ipa',
-    topik: 'Hukum Ohm & Rangkaian Resistor',
-    tingkatKesulitan: 'mudah',
-    modelSoal: 'pilgan',
-    teksSoal: 'Tiga buah resistor masing-masing bernilai $R_1 = 6\\ \\Omega$, $R_2 = 12\\ \\Omega$, dan $R_3 = 4\\ \\Omega$ dirangkai secara paralel. Hambatan pengganti total rangkaian paralel tersebut adalah...',
-    pilganKunci: 'B',
-    pilganOptions: [
-      { label: 'A', teks: '$1.5\\ \\Omega$' },
-      { label: 'B', teks: '$2.0\\ \\Omega$' },
-      { label: 'C', teks: '$3.0\\ \\Omega$' },
-      { label: 'D', teks: '$4.0\\ \\Omega$' },
-    ],
-    pembahasan: `$\\frac{1}{R_p} = \\frac{1}{6} + \\frac{1}{12} + \\frac{1}{4} = \\frac{2 + 1 + 3}{12} = \\frac{6}{12} = \\frac{1}{2}$.
-Maka $R_p = 2.0\\ \\Omega$.`,
-    pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T09:15:00Z',
-    updatedAt: '2026-01-22T09:15:00Z',
-  },
-  // IPA 7: KATEGORI (Kimia Asam Basa)
-  {
-    id: 'ipa-7',
-    mapelId: 'ipa',
-    topik: 'Larutan Asam Basa & Indikator',
+    topik: 'Daur Hidup & Metamorfosis Hewan',
     tingkatKesulitan: 'sedang',
     modelSoal: 'kategori',
-    teksSoal: 'Tentukan sifat asam atau basa dari larutan-larutan sehari-hari berikut berdasarkan derajat keasamannya ($pH$):',
-    kategoriLabels: ['Asam', 'Basa'],
-    kategoriScoringMode: 'per_row',
-    kategoriPernyataan: [
-      { id: 'ab-1', teks: 'Jus jeruk peras alami ($pH \\approx 3.5$)', kunciJawaban: 'Asam' },
-      { id: 'ab-2', teks: 'Larutan pemutih pakaian / natrium hipoklorit ($pH \\approx 12.0$)', kunciJawaban: 'Basa' },
-      { id: 'ab-3', teks: 'Cuka dapur / asam asetat ($pH \\approx 2.8$)', kunciJawaban: 'Asam' },
-      { id: 'ab-4', teks: 'Larutan sabun mandi batangan ($pH \\approx 9.5$)', kunciJawaban: 'Basa' },
-    ],
-    pembahasan: `$pH < 7$ bersifat asam, sedangkan $pH > 7$ bersifat basa. Jus jeruk dan cuka ber-pH asam, sedangkan pemutih dan sabun ber-pH basa.`,
-    pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T09:30:00Z',
-    updatedAt: '2026-01-22T09:30:00Z',
-  },
-  // IPA 8: PILGAN (Fisika Optika Geometri)
-  {
-    id: 'ipa-8',
-    mapelId: 'ipa',
-    topik: 'Cermin & Lensa Cembung',
-    tingkatKesulitan: 'mudah',
-    modelSoal: 'pilgan',
-    teksSoal: 'Benda setinggi $5\\text{ cm}$ diletakkan pada jarak $15\\text{ cm}$ di depan sebuah lensa cembung dengan jarak fokus $f = 10\\text{ cm}$. Jarak bayangan yang terbentuk dari lensa adalah...',
-    pilganKunci: 'C',
-    pilganOptions: [
-      { label: 'A', teks: '$10\\text{ cm}$' },
-      { label: 'B', teks: '$20\\text{ cm}$' },
-      { label: 'C', teks: '$30\\text{ cm}$' },
-      { label: 'D', teks: '$40\\text{ cm}$' },
-    ],
-    pembahasan: `Rumus lensa tipis: $\\frac{1}{f} = \\frac{1}{s} + \\frac{1}{s\'}$.
-$\\frac{1}{s\'} = \\frac{1}{10} - \\frac{1}{15} = \\frac{3 - 2}{30} = \\frac{1}{30}$.
-Maka $s\' = 30\\text{ cm}$ (bayangan nyata di belakang lensa).`,
-    pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T09:45:00Z',
-    updatedAt: '2026-01-22T09:45:00Z',
-  },
-  // IPA 9: MCMA (Bioteknologi Modern)
-  {
-    id: 'ipa-9',
-    mapelId: 'ipa',
-    topik: 'Rekayasa Genetika & Bioteknologi',
-    tingkatKesulitan: 'sulit',
-    modelSoal: 'mcma',
-    teksSoal: 'Teknik DNA rekombinan dalam produksi hormon insulin manusia memanfaatkan instrumen molekuler berupa: (Pilih semua yang tepat)',
-    mcmaKunci: ['A', 'B'],
-    mcmaScoringMode: 'proportional',
-    mcmaOptions: [
-      { id: 'A', label: 'A', teks: 'Enzim endonuklease restriksi untuk memotong untai DNA secara spesifik.' },
-      { id: 'B', label: 'B', teks: 'Enzim DNA ligase untuk menyambungkan fragmen gen insulin ke plasmid vektor.' },
-      { id: 'C', label: 'C', teks: 'Enzim amilase untuk memecah pati menjadi asam amino.' },
-      { id: 'D', label: 'D', teks: 'Bakteriofag sebagai pengurai dinding sel tumbuhan.' },
-    ],
-    pembahasan: `DNA rekombinan memerlukan enzim restriksi pemotong (A) dan enzim ligase penyambung (B) untuk disisipkan ke vektor plasmid bakteri.`,
-    pembuatId: 'usr-guru-2',
-    pembuatNama: 'Dra. Siti Rahmawati',
-    createdAt: '2026-01-22T10:00:00Z',
-    updatedAt: '2026-01-22T10:00:00Z',
-  },
-  // IPA 10: KATEGORI (Fisika Termodinamika)
-  {
-    id: 'ipa-10',
-    mapelId: 'ipa',
-    topik: 'Termodinamika Gas Ideal',
-    tingkatKesulitan: 'sedang',
-    modelSoal: 'kategori',
-    teksSoal: 'Perhatikan proses termodinamika gas ideal pada tabel berikut. Tentukan kebenaran dari setiap deskripsi proses:',
+    teksSoal: `Setiap hewan memiliki daur hidup yang berbeda, ada yang sempurna maupun tidak sempurna. Demikian juga laron, ia juga mengalami daur hidup.
+Tentukan Benar atau Salah pada pernyataan berikut berdasarkan daur hidup laron!`,
     kategoriLabels: ['Benar', 'Salah'],
     kategoriScoringMode: 'per_row',
     kategoriPernyataan: [
-      { id: 'td-1', teks: 'Proses Isobarik berlangsung pada tekanan konstan ($P = \\text{konstan}$).', kunciJawaban: 'Benar' },
-      { id: 'td-2', teks: 'Proses Isokhorik tidak melakukan kerja luar ($W = 0$) karena tidak ada perubahan volume.', kunciJawaban: 'Benar' },
-      { id: 'td-3', teks: 'Proses Adiabatik memungkinkan kalor masuk dan keluar sistem secara bebas.', kunciJawaban: 'Salah' },
+      {
+        id: 'ipa5-stmt-1',
+        teks: 'nyamuk, ngengat, katak, lalat, dan kupu-kupu memiliki daur hidup yang berbeda dengan laron',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa5-stmt-2',
+        teks: 'capung, kecoak, jangkrik, belalang, dan tungau memiliki kesamaan daur hidup dengan laron',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa5-stmt-3',
+        teks: 'rayap, kumbang, semut, dan lebah memiliki kesamaan daur hidup dengan laron',
+        kunciJawaban: 'Salah',
+      },
     ],
-    pembahasan: `Isobarik = tekanan konstan (Benar).
-Isokhorik = volume konstan, $W = P \\Delta V = 0$ (Benar).
-Adiabatik = tidak ada pertukaran kalor antara sistem dan lingkungan ($Q = 0$). Deskripsi pada pernyataan 3 salah.`,
+    pembahasan: `Laron (rayap dewasa bersayap) mengalami metamorfosis tidak sempurna.
+• Pernyataan 1 (Benar): Nyamuk, ngengat, katak, lalat, dan kupu-kupu mengalami metamorfosis sempurna (berbeda dengan laron).
+• Pernyataan 2 (Benar): Capung, kecoak, jangkrik, belalang, dan tungau mengalami metamorfosis tidak sempurna (sama seperti laron).
+• Pernyataan 3 (Salah): Kumbang, semut, dan lebah mengalami metamorfosis sempurna (berbeda dengan laron).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:05:00Z',
+    updatedAt: '2026-02-01T10:05:00Z',
+  },
+  // IPA 6: MCMA (Metamorfosis & Tanpa Metamorfosis)
+  {
+    id: 'ipa-6',
+    mapelId: 'ipa',
+    topik: 'Daur Hidup & Metamorfosis Hewan',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: `Perhatikan daftar nama hewan berikut!
+I. ikan
+II. burung
+III. ngengat
+IV. kumbang
+V. cicak
+VI. semut
+
+Pilihlah pernyataan yang sesuai dengan daur hidup hewan pada daftar tersebut! (Jawaban benar lebih dari satu)`,
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'hewan nomor II, IV, dan V mengalami metamorfosis' },
+      { id: 'B', label: 'B', teks: 'hewan nomor I, II, dan V tanpa mengalami metamorfosis' },
+      { id: 'C', label: 'C', teks: 'hewan nomor III, IV, dan VI mengalami metamorfosis sempurna' },
+    ],
+    pembahasan: `• Ikan (I), burung (II), dan cicak (V) tidak mengalami metamorfosis, sehingga pernyataan A salah dan pernyataan B benar.
+• Ngengat (III), kumbang (IV), dan semut (VI) mengalami metamorfosis sempurna (telur–larva–pupa–imago), sehingga pernyataan C benar.`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:06:00Z',
+    updatedAt: '2026-02-01T10:06:00Z',
+  },
+  // IPA 7: PILGAN (Pelestarian Lingkungan & Pencegahan Erosi)
+  {
+    id: 'ipa-7',
+    mapelId: 'ipa',
+    topik: 'Pelestarian Lingkungan & Pencegahan Erosi',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: `Manusia melakukan kegiatan-kegiatan untuk melestarikan lingkungan. Beberapa contohnya sebagai berikut:
+I. menanam pohon di lahan gundul
+II. menggunakan transportasi umum untuk bepergian
+III. menanam tumbuhan mangrove di pesisir pantai
+IV. membuang sampah pada tempatnya
+V. membuat sengkedan di lereng pegunungan
+VI. menggunakan pupuk anorganik dengan takaran yang tepat
+
+Upaya manusia yang tepat untuk mencegah pengikisan tanah ditunjukkan nomor ....`,
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'I, III, dan V' },
+      { label: 'B', teks: 'I, II, dan IV' },
+      { label: 'C', teks: 'II, IV, dan VI' },
+      { label: 'D', teks: 'III, V, dan VI' },
+    ],
+    pembahasan: `Pencegahan pengikisan tanah (erosi dan abrasi) dilakukan dengan menanam pohon di lahan gundul (I), menanam bakau/mangrove di pesisir pantai untuk menahan abrasi (III), dan membuat terasering/sengkedan di lereng pegunungan (V). Jadi jawabannya A (I, III, dan V).`,
     pembuatId: 'usr-guru-1',
-    pembuatNama: 'Budi Santoso, M.Pd.',
-    createdAt: '2026-01-22T10:15:00Z',
-    updatedAt: '2026-01-22T10:15:00Z',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:07:00Z',
+    updatedAt: '2026-02-01T10:07:00Z',
+  },
+  // IPA 8: MCMA (Sumber Daya Alam & Swasembada Pangan)
+  {
+    id: 'ipa-8',
+    mapelId: 'ipa',
+    topik: 'Sumber Daya Alam Pangan',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: `Perhatikan poster berikut!
+
+Sumber daya alam yang mendukung tercapainya program tersebut harus dikelola secara lebih baik dan optimal.
+Pilihlah sumber daya alam yang dapat mendukung program sesuai poster tersebut! (Jawaban benar lebih dari satu)`,
+    gambarUrl: '/assets/ipas_tka_2026/q08_swasembada.png',
+    gambarAlt: 'Poster Swasembada Pangan tentang ketahanan dan kemandirian pangan nasional',
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'padi, randu, gandum, jagung, dan kentang' },
+      { id: 'B', label: 'B', teks: 'daging, telur, ikan, keju, dan susu' },
+      { id: 'C', label: 'C', teks: 'biji cokelat, kacang tanah, alpukat, dan kelapa' },
+    ],
+    pembahasan: `Poster membahas program Swasembada Pangan (bahan makanan).
+• Opsi A salah karena terdapat randu (serat kapuk untuk bahan sandang/kasur, bukan bahan pangan).
+• Opsi B dan C seluruhnya merupakan sumber bahan pangan nabati maupun hewani.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:08:00Z',
+    updatedAt: '2026-02-01T10:08:00Z',
+  },
+  // IPA 9: MCMA (Pengelolaan Sampah)
+  {
+    id: 'ipa-9',
+    mapelId: 'ipa',
+    topik: 'Pengelolaan Sampah & Pencemaran Lingkungan',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'mcma',
+    teksSoal: `Permasalahan sampah masih belum teratasi dengan baik. Masih banyak orang yang membuang sampah sembarangan sehingga banyak dijumpai tumpukan sampah berserakan. Hal ini akan berdampak munculnya bau busuk dan banyak lalat.
+Upaya apa saja yang dapat dilakukan untuk mencegah masalah tersebut? (Jawaban benar lebih dari satu)`,
+    mcmaKunci: ['A', 'B'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Mengolah sampah organik untuk dijadikan kompos.' },
+      { id: 'B', label: 'B', teks: 'Melakukan daur ulang sampah-sampah anorganik.' },
+      { id: 'C', label: 'C', teks: 'Menambah jumlah bak penampungan sampah.' },
+    ],
+    pembahasan: `Mengolah sampah organik menjadi kompos dan mendaur ulang sampah anorganik mengurangi timbunan sampah dari sumbernya sehingga tidak menumpuk, membusuk, dan mengundang lalat. Sekadar menambah bak penampungan tanpa pengelolaan tidak menyelesaikan penumpukan maupun bau sampah.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:09:00Z',
+    updatedAt: '2026-02-01T10:09:00Z',
+  },
+  // IPA 10: PILGAN (Mekanisme Pernapasan Manusia)
+  {
+    id: 'ipa-10',
+    mapelId: 'ipa',
+    topik: 'Sistem Pernapasan Manusia',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Manusia bernapas untuk memenuhi kebutuhan oksigen. Pada saat menarik napas, volume rongga dada meningkat dan menyebabkan penurunan tekanan udara di paru-paru sehingga udara masuk. Peristiwa ini terjadi karena ....`,
+    pilganKunci: 'B',
+    pilganOptions: [
+      { label: 'A', teks: 'otot perut berelaksasi' },
+      { label: 'B', teks: 'otot sekitar rusuk berkontraksi' },
+      { label: 'C', teks: 'diafragma berkontraksi dan melengkung ke bawah' },
+      { label: 'D', teks: 'diafragma berelaksasi dan melengkung ke atas' },
+    ],
+    pembahasan: `Saat menarik napas (inspirasi), otot antartulang rusuk (sekitar rusuk) berkontraksi sehingga tulang rusuk terangkat dan rongga dada membesar, bersamaan dengan diafragma berkontraksi dan mendatar. Karena volume rongga dada membesar, tekanan udara di paru-paru mengecil sehingga udara luar masuk. Jawaban tepat adalah B.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:10:00Z',
+    updatedAt: '2026-02-01T10:10:00Z',
+  },
+  // IPA 11: KATEGORI (Sistem Pencernaan Manusia)
+  {
+    id: 'ipa-11',
+    mapelId: 'ipa',
+    topik: 'Sistem Pencernaan Manusia',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Proses pencernaan makanan manusia terdiri atas pencernaan mekanik dan kimia. Proses tersebut melibatkan organ seperti ditunjukkan pada gambar berikut.
+
+Tentukan Benar atau Salah pernyataan berikut tentang proses pencernaan yang terjadi pada organ yang ditunjuk!`,
+    gambarUrl: '/assets/ipas_tka_2026/q11_pencernaan.png',
+    gambarAlt: 'Diagram sistem pencernaan manusia dengan label huruf K pada kerongkongan dan L pada usus halus',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      {
+        id: 'ipa11-stmt-1',
+        teks: '(K) Proses pencernaan secara mekanik dengan bantuan dinding kerongkongan, (L) Enzim tripsin memecah protein menjadi asam amino',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa11-stmt-2',
+        teks: '(K) Gerak peristaltik mendorong makanan dari mulut ke lambung, (L) Enzim lipase mengubah lemak menjadi asam lemak',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa11-stmt-3',
+        teks: '(K) Proses pencernaan secara mekanik dan kimia, (L) membunuh kuman bibit penyakit.',
+        kunciJawaban: 'Salah',
+      },
+    ],
+    pembahasan: `Huruf K adalah kerongkongan yang melakukan gerak peristaltik secara mekanik untuk mendorong makanan menuju lambung (tidak ada pencernaan kimiawi di kerongkongan). Huruf L adalah usus halus tempat pencernaan kimiawi menggunakan enzim tripsin (protein menjadi asam amino) dan lipase (lemak menjadi asam lemak), sedangkan fungsi membunuh kuman oleh HCl terjadi di lambung. Kunci: Benar, Benar, Salah.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:11:00Z',
+    updatedAt: '2026-02-01T10:11:00Z',
+  },
+  // IPA 12: MCMA (Sistem Peredaran Darah Manusia)
+  {
+    id: 'ipa-12',
+    mapelId: 'ipa',
+    topik: 'Sistem Peredaran Darah Manusia',
+    tingkatKesulitan: 'sulit',
+    modelSoal: 'mcma',
+    teksSoal: `Perhatikan skema sistem peredaran darah manusia pada gambar berikut!
+Pilihlah penjelasan yang benar dan sesuai dengan skema aliran darah tersebut! (Jawaban benar lebih dari satu)`,
+    gambarUrl: '/assets/ipas_tka_2026/q12_peredaran_darah.png',
+    gambarAlt: 'Skema sistem peredaran darah manusia dengan nomor 1 hingga 8',
+    mcmaKunci: ['A', 'B'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      {
+        id: 'A',
+        label: 'A',
+        teks: '1 – 2 – 7 darah mengandung oksigen mengalir dari serambi kiri ke bilik kiri kemudian melalui aorta menuju ke seluruh tubuh',
+      },
+      {
+        id: 'B',
+        label: 'B',
+        teks: '8 – 3 – 4 darah kaya karbondioksida mengalir dari seluruh tubuh melalui vena cava menuju ke serambi kanan kemudian ke bilik kanan',
+      },
+      {
+        id: 'C',
+        label: 'C',
+        teks: '4 – 5 – 6 darah kotor mengalir dari serambi kanan melalui vena pulmonalis menuju ke serambi kiri kemudian ke bilik kiri',
+      },
+    ],
+    pembahasan: `• 1 – 2 – 7 (Benar): Darah bersih kaya oksigen mengalir dari serambi kiri (1) ke bilik kiri (2) lalu dipompa melalui aorta (7) ke seluruh tubuh.
+• 8 – 3 – 4 (Benar): Darah kaya CO2 dari seluruh tubuh masuk melalui vena cava (8) ke serambi kanan (3) lalu ke bilik kanan (4).
+• 4 – 5 – 6 (Salah): Dari bilik kanan (4), darah kotor dipompa melalui arteri pulmonalis (5) ke paru-paru bukan langsung lewat vena pulmonalis dari serambi kanan.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:12:00Z',
+    updatedAt: '2026-02-01T10:12:00Z',
+  },
+  // IPA 13: KATEGORI (Gangguan Kesehatan & Pencegahannya)
+  {
+    id: 'ipa-13',
+    mapelId: 'ipa',
+    topik: 'Gangguan Kesehatan & Cara Pencegahannya',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Dita akan memasangkan gejala gangguan kesehatan dan upaya menjaganya seperti tabel berikut.
+
+Manakah pasangan gejala dan upaya menjaga kesehatan yang tepat? Tentukan Benar atau Salah untuk setiap pasangan berikut!`,
+    gambarUrl: '/assets/ipas_tka_2026/q13_tabel_gejala.png',
+    gambarAlt: 'Tabel pasangan gejala gangguan kesehatan nomor 1-4 dan upaya menjaga kesehatan huruf K-N',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'ipa13-stmt-1', teks: '1 – N dan 2 – M', kunciJawaban: 'Salah' },
+      { id: 'ipa13-stmt-2', teks: '1 – M dan 3 – L', kunciJawaban: 'Benar' },
+      { id: 'ipa13-stmt-3', teks: '2 – K dan 4 – N', kunciJawaban: 'Benar' },
+    ],
+    pembahasan: `Identifikasi gejala & pencegahan:
+• Gejala 1 (asma/sesak napas) cocok dengan M (hindari asap rokok, polusi, debu).
+• Gejala 2 (asam lambung/GERD) cocok dengan K (batasi makanan berlemak, pedas, asam, kafein).
+• Gejala 3 (anemia/pusing pucat) cocok dengan L (makanan kaya zat besi).
+• Gejala 4 (diabetes) cocok dengan N (kurangi glukosa).
+Maka pasangan 1–N dan 2–M Salah, sedangkan 1–M & 3–L serta 2–K & 4–N Benar.`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:13:00Z',
+    updatedAt: '2026-02-01T10:13:00Z',
+  },
+  // IPA 14: PILGAN (Jenis-Jenis Otot Manusia)
+  {
+    id: 'ipa-14',
+    mapelId: 'ipa',
+    topik: 'Sistem Gerak & Jenis Otot',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Perhatikan gambar berikut!
+
+Bagian tubuh yang memiliki otot seperti gambar P dan Q secara berurutan adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q14_otot.png',
+    gambarAlt: 'Gambar struktur otot lurik (P) dan otot jantung bercabang (Q)',
+    pilganKunci: 'B',
+    pilganOptions: [
+      { label: 'A', teks: 'usus dan rahang' },
+      { label: 'B', teks: 'betis dan jantung' },
+      { label: 'C', teks: 'jantung dan paru-paru' },
+      { label: 'D', teks: 'lambung dan jantung' },
+    ],
+    pembahasan: `Gambar P adalah otot lurik/rangka yang silindris memanjang tanpa cabang dan menempel pada rangka tubuh seperti betis, lengan, dan paha. Gambar Q adalah otot jantung yang bercabang-cabang dan hanya terdapat pada jantung. Maka jawaban berurutan yang tepat adalah B (betis dan jantung).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:14:00Z',
+    updatedAt: '2026-02-01T10:14:00Z',
+  },
+  // IPA 15: MCMA (Jenis & Arah Gerak Sendi)
+  {
+    id: 'ipa-15',
+    mapelId: 'ipa',
+    topik: 'Sistem Gerak & Sendi Manusia',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: `Perhatikan gambar berikut!
+
+Bagaimanakah gerakan masing-masing sendi yang ditunjuk? Pilihlah jawaban yang benar! (Jawaban benar lebih dari satu)`,
+    gambarUrl: '/assets/ipas_tka_2026/q15_sendi.png',
+    gambarAlt: 'Tiga gambar sendi manusia berlabel X, Y, dan Z',
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Sendi X memiliki gerakan dua arah' },
+      { id: 'B', label: 'B', teks: 'Sendi Y memiliki gerakan satu arah' },
+      { id: 'C', label: 'C', teks: 'Sendi Z memiliki gerakan berbagai arah' },
+    ],
+    pembahasan: `Sendi X dan Y merupakan sendi engsel yang hanya dapat digerakkan ke satu arah, sehingga pernyataan A salah dan B benar. Sendi Z merupakan sendi peluru (pada bahu) yang memungkinkan gerakan bebas ke segala/berbagai arah (C benar).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:15:00Z',
+    updatedAt: '2026-02-01T10:15:00Z',
+  },
+  // IPA 16: PILGAN (Rantai Makanan & Keseimbangan Ekosistem)
+  {
+    id: 'ipa-16',
+    mapelId: 'ipa',
+    topik: 'Rantai Makanan & Ekosistem Sawah',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Padi, burung elang, tikus, dan ular sawah merupakan makhluk hidup yang ada di sawah. Makhluk hidup tersebut membentuk rantai makanan. Suatu hari, kawanan burung pipit datang ke ekosistem tersebut dalam jumlah yang banyak. Sehingga terjadi kompetisi antara burung pipit dan salah satu hewan.
+Hal yang akan terjadi pada ekosistem tersebut adalah ....`,
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'populasi padi meningkat' },
+      { label: 'B', teks: 'populasi tikus meningkat' },
+      { label: 'C', teks: 'populasi ular sawah menurun' },
+      { label: 'D', teks: 'populasi burung elang meningkat' },
+    ],
+    pembahasan: `Rantai makanan di sawah: padi → tikus → ular sawah → burung elang. Ketika kawanan burung pipit datang dalam jumlah banyak, burung pipit memakan padi (berkompetisi dengan tikus) dan juga menjadi sumber mangsa tambahan bagi ular sawah/elang. Akibatnya padi dan tikus menurun, sedangkan makanan bagi ular sawah dan burung elang bertambah sehingga populasi ular sawah dan burung elang meningkat. Jawaban yang tepat adalah D.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:16:00Z',
+    updatedAt: '2026-02-01T10:16:00Z',
+  },
+  // IPA 17: MCMA (Simbiosis & Interaksi Makhluk Hidup)
+  {
+    id: 'ipa-17',
+    mapelId: 'ipa',
+    topik: 'Interaksi Antarmakhluk Hidup (Simbiosis)',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: `Hutan merupakan tempat hidup dan interaksi berbagai makhluk hidup. Misalnya, ada tumbuhan anggrek yang menempel di pohon inangnya.
+Interaksi manakah yang memiliki kesamaan dengan interaksi makhluk hidup pada ilustrasi tersebut? (Jawaban benar lebih dari satu)`,
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Bunga raflesia yang menempel pada tanaman inangnya.' },
+      { id: 'B', label: 'B', teks: 'Tumbuhan sirih yang melekat di tanaman lain.' },
+      { id: 'C', label: 'C', teks: 'Tumbuhan vanili yang menempel pada pohon kelor.' },
+    ],
+    pembahasan: `Anggrek menempel pada pohon inang merupakan simbiosis komensalisme (satu untung mendapat tempat hidup, inang tidak dirugikan).
+• Bunga raflesia pada inangnya adalah parasitisme (A salah).
+• Tumbuhan sirih melekat pada tanaman lain (B) dan vanili menempel pada pohon kelor (C) keduanya merambat untuk mendapat cahaya matahari tanpa menyerap makanan inangnya (simbiosis komensalisme).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:17:00Z',
+    updatedAt: '2026-02-01T10:17:00Z',
+  },
+  // IPA 18: PILGAN (Adaptasi Hewan)
+  {
+    id: 'ipa-18',
+    mapelId: 'ipa',
+    topik: 'Adaptasi Hewan Melindungi Diri',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Setiap makhluk hidup memiliki kemampuan adaptasi seperti beberapa hewan berikut.
+
+Kelompok hewan yang memiliki kesamaan adaptasi ditunjukkan nomor ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q18_adaptasi_hewan.png',
+    gambarAlt: 'Tabel empat kelompok hewan (Kelompok I sampai Kelompok IV) beserta foto tiap hewan',
+    pilganKunci: 'B',
+    pilganOptions: [
+      { label: 'A', teks: 'I dan II' },
+      { label: 'B', teks: 'I dan III' },
+      { label: 'C', teks: 'II dan III' },
+      { label: 'D', teks: 'III dan IV' },
+    ],
+    pembahasan: `• Kelompok I (cumi-cumi, bunglon, gurita) memiliki kesamaan adaptasi pengelabuan musuh secara visual/cairan tinta (mimikri/tinta).
+• Kelompok III (sigung, tikus celurut, walang sangit) memiliki kesamaan adaptasi mengeluarkan bau menyengat/tidak sedap untuk mengusir musuh.
+Keduanya merupakan adaptasi tingkah laku/fisiologi yang seragam pada masing-masing kelompok, sedangkan Kelompok II dan IV tidak sama seluruh anggotanya. Jadi jawabannya B (I dan III).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:18:00Z',
+    updatedAt: '2026-02-01T10:18:00Z',
+  },
+  // IPA 19: PILGAN (Pasangan Makhluk Hidup & Cara Adaptasinya)
+  {
+    id: 'ipa-19',
+    mapelId: 'ipa',
+    topik: 'Adaptasi Tumbuhan & Hewan',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: `Edo mengerjakan tugas memasangkan makhluk hidup dengan cara adaptasinya seperti gambar berikut.
+
+Hasil tugas Edo yang tepat ditunjukkan nomor ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q19_jodoh_adaptasi.png',
+    gambarAlt: 'Diagram panah memasangkan (i) salak, (ii) landak semut, (iii) venus flytrap, dan (iv) gajah dengan cara adaptasinya',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: '(i) dan (ii)' },
+      { label: 'B', teks: '(i) dan (iii)' },
+      { label: 'C', teks: '(ii) dan (iv)' },
+      { label: 'D', teks: '(iii) dan (iv)' },
+    ],
+    pembahasan: `(i) Salak memiliki duri tajam untuk melindungi diri (Tepat).
+(ii) Landak semut memiliki lidah panjang yang lengket untuk menangkap semut/rayap (Tepat).
+(iii) Venus flytrap menarik serangga dengan nektar/aroma manis, bukan bau feromon (Tidak Tepat).
+(iv) Gajah menggunakan belalai dan gadingnya, bukan mengeluarkan bau khas (Tidak Tepat).
+Jadi jawaban yang tepat adalah A ((i) dan (ii)).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:19:00Z',
+    updatedAt: '2026-02-01T10:19:00Z',
+  },
+  // IPA 20: PILGAN (Perubahan Wujud Menyublim)
+  {
+    id: 'ipa-20',
+    mapelId: 'ipa',
+    topik: 'Perubahan Wujud Benda',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Murid kelas VI SD Sembada melaksanakan pentas seni. Panggung pentas seni semakin menarik dengan adanya pemanfaatan benda seperti gambar berikut.
+
+Peristiwa perubahan wujud yang memiliki kesamaan dengan pemanfaatan benda pada gambar adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q20_pentas_seni.png',
+    gambarAlt: 'Panggung Pentas Seni SD Sembada dengan efek kabut putih dari es kering (dry ice)',
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'pembentukan salju di awan' },
+      { label: 'B', teks: 'membuat agar-agar pada berbagai cetakan' },
+      { label: 'C', teks: 'menorehkan lilin pada kain' },
+      { label: 'D', teks: 'kapur barus diletakkan di lemari lama-lama mengecil' },
+    ],
+    pembahasan: `Kabut panggung dibuat menggunakan es kering (dry ice) yang mengalami perubahan wujud dari padat langsung menjadi gas (menyublim). Peristiwa lain yang sama-sama merupakan proses menyublim adalah kapur barus di lemari yang perlahan mengecil dan habis (opsi D).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:20:00Z',
+    updatedAt: '2026-02-01T10:20:00Z',
+  },
+  // IPA 21: KATEGORI (Bagan Perubahan Wujud Benda)
+  {
+    id: 'ipa-21',
+    mapelId: 'ipa',
+    topik: 'Perubahan Wujud Benda & Kalor',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Barka melakukan percobaan dan mengamati perubahan wujud untuk mengerjakan soal sesuai pada bagan berikut.
+
+Tentukan Benar atau Salah penjelasan tentang percobaan tersebut!`,
+    gambarUrl: '/assets/ipas_tka_2026/q21_perubahan_wujud.png',
+    gambarAlt: 'Bagan segitiga perubahan wujud antara PADAT, GAS, dan CAIR bernomor 1 sampai 6',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      {
+        id: 'ipa21-stmt-1',
+        teks: 'Perubahan wujud pada nomor 3 merupakan proses menyublim.',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa21-stmt-2',
+        teks: 'Proses perubahan wujud pada nomor 5 memerlukan kalor',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa21-stmt-3',
+        teks: 'Contoh proses pada nomor 1, yaitu proses pembuatan gula aren',
+        kunciJawaban: 'Salah',
+      },
+    ],
+    pembahasan: `• Nomor 3 (Padat → Gas) adalah menyublim (Benar).
+• Nomor 5 (Padat → Cair) adalah mencair yang memerlukan/menyerap kalor (Benar).
+• Nomor 1 (Gas → Cair) adalah mengembun, sedangkan pembuatan gula aren merupakan pembekuan (Cair → Padat, nomor 2), sehingga pernyataan 3 Salah.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:21:00Z',
+    updatedAt: '2026-02-01T10:21:00Z',
+  },
+  // IPA 22: PILGAN (Energi Alternatif)
+  {
+    id: 'ipa-22',
+    mapelId: 'ipa',
+    topik: 'Sumber Energi Alternatif',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: `Edo sedang asyik menonton liputan di televisi seperti terlihat pada gambar.
+
+Energi alternatif yang dimanfaatkan adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q22_energi_angin.png',
+    gambarAlt: 'Edo menonton televisi yang menampilkan kincir angin pembangkit listrik di pesisir pantai',
+    pilganKunci: 'B',
+    pilganOptions: [
+      { label: 'A', teks: 'air' },
+      { label: 'B', teks: 'angin' },
+      { label: 'C', teks: 'nuklir' },
+      { label: 'D', teks: 'matahari' },
+    ],
+    pembahasan: `Layar televisi memperlihatkan turbin angin (Pembangkit Listrik Tenaga Bayu/Angin) di daerah pesisir pantai yang mengubah energi gerak angin menjadi energi listrik. Jadi energi alternatif yang dimanfaatkan adalah angin (B).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:22:00Z',
+    updatedAt: '2026-02-01T10:22:00Z',
+  },
+  // IPA 23: KATEGORI (Perubahan Bentuk Energi)
+  {
+    id: 'ipa-23',
+    mapelId: 'ipa',
+    topik: 'Perubahan Bentuk Energi',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Pak Burhan pergi ke toko elektronik. Ia melihat beberapa alat elektronik seperti pada gambar berikut.
+
+Peralatan manakah yang memiliki kesamaan perubahan bentuk energi ketika alat digunakan? Tentukan Benar atau Salah untuk setiap pernyataan berdasar gambar tersebut!`,
+    gambarUrl: '/assets/ipas_tka_2026/q23_toko_elektronik.png',
+    gambarAlt: 'Toko elektronik dengan label P (mesin cuci), Q (microwave), R (televisi), S (setrika), dan T (blender)',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      { id: 'ipa23-stmt-1', teks: 'P memiliki kesamaan perubahan energi dengan T', kunciJawaban: 'Benar' },
+      { id: 'ipa23-stmt-2', teks: 'Q memiliki kesamaan perubahan energi dengan S', kunciJawaban: 'Benar' },
+      { id: 'ipa23-stmt-3', teks: 'R memiliki kesamaan perubahan energi dengan Q', kunciJawaban: 'Salah' },
+    ],
+    pembahasan: `Perubahan energi tiap alat:
+• P (mesin cuci) & T (blender): energi listrik → energi gerak (Benar).
+• Q (microwave) & S (setrika): energi listrik → energi panas (Benar).
+• R (televisi): energi listrik → energi cahaya dan bunyi (berbeda dengan Q yang menjadi panas, sehingga Salah).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:23:00Z',
+    updatedAt: '2026-02-01T10:23:00Z',
+  },
+  // IPA 24: PILGAN (Jenis-Jenis Gaya)
+  {
+    id: 'ipa-24',
+    mapelId: 'ipa',
+    topik: 'Jenis-Jenis Gaya dalam Kehidupan',
+    tingkatKesulitan: 'mudah',
+    modelSoal: 'pilgan',
+    teksSoal: `Sebelum berangkat kerja, ayah mencukur jenggot menggunakan alat seperti pada gambar berikut.
+
+Jenis gaya yang bekerja pada kegiatan tersebut adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q24_cukur_jenggot.png',
+    gambarAlt: 'Ayah memegang alat cukur manual di kamar mandi',
+    pilganKunci: 'A',
+    pilganOptions: [
+      { label: 'A', teks: 'otot dan gesek' },
+      { label: 'B', teks: 'gesek dan listrik' },
+      { label: 'C', teks: 'listrik dan magnet' },
+      { label: 'D', teks: 'magnet dan otot' },
+    ],
+    pembahasan: `Menggerakkan alat cukur manual menggunakan tenaga tangan melibatkan gaya otot, sementara mata pisau cukur yang bersentuhan dengan kulit dan rambut jenggot menimbulkan gaya gesek. Jadi jawabannya A (otot dan gesek).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:24:00Z',
+    updatedAt: '2026-02-01T10:24:00Z',
+  },
+  // IPA 25: MCMA (Pengaruh Gaya terhadap Benda)
+  {
+    id: 'ipa-25',
+    mapelId: 'ipa',
+    topik: 'Pengaruh Gaya terhadap Benda',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: `Farhan dan Angga bermain sepeda di sekitar komplek rumah. Awalnya Angga berada di belakang Farhan, tetapi Angga mengayuh lebih kuat. Kegiatan mereka tampak seperti gambar berikut.
+
+Pilihlah pasangan yang tepat antara peristiwa dan pengaruh gaya terhadap benda berdasarkan gambar! (Jawaban benar lebih dari satu)`,
+    gambarUrl: '/assets/ipas_tka_2026/q25_sepeda.png',
+    gambarAlt: 'Komik dua panel Farhan dan Angga bersepeda lalu sepeda Angga menabrak pohon hingga rusak',
+    mcmaKunci: ['A', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'Angga mengayuh lebih kuat dan berhasil mendahului Farhan. → mengubah kecepatan benda' },
+      { id: 'B', label: 'B', teks: 'Sepeda Angga menabrak pohon. → mengubah benda diam menjadi bergerak' },
+      { id: 'C', label: 'C', teks: 'Rusaknya bagian sepeda Angga. → mengubah bentuk benda' },
+    ],
+    pembahasan: `• Mengayuh sepeda lebih kuat mempercepat laju sepeda (mengubah kecepatan benda → Benar).
+• Sepeda yang menabrak pohon membuat sepeda berhenti (mengubah benda bergerak menjadi diam, bukan diam menjadi bergerak → Salah).
+• Bagian depan sepeda penyok/rusak akibat benturan menunjukkan gaya dapat mengubah bentuk benda (→ Benar).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:25:00Z',
+    updatedAt: '2026-02-01T10:25:00Z',
+  },
+  // IPA 26: KATEGORI (Sifat Bunyi & Tinggi Nada pada Angklung)
+  {
+    id: 'ipa-26',
+    mapelId: 'ipa',
+    topik: 'Bunyi & Tinggi Rendah Nada',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'kategori',
+    teksSoal: `Perhatikan gambar berikut!
+
+Angklung merupakan alat musik tradisional yang berasal dari Jawa Barat. Alat musik tersebut dimainkan dengan cara digoyangkan. Setiap angklung menghasilkan bunyi dengan nada yang berbeda-beda.
+Tentukan Benar atau Salah tentang pernyataan berikut sesuai gambar!`,
+    gambarUrl: '/assets/ipas_tka_2026/q26_angklung.png',
+    gambarAlt: 'Gambar seperangkat angklung dengan nomor 1 (tabung paling panjang/besar), 2 (sedang), dan 3 (paling pendek/kecil)',
+    kategoriLabels: ['Benar', 'Salah'],
+    kategoriScoringMode: 'per_row',
+    kategoriPernyataan: [
+      {
+        id: 'ipa26-stmt-1',
+        teks: 'Angklung 2 menghasilkan bunyi lebih tinggi daripada angklung 1 dan lebih rendah dari angklung 3',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa26-stmt-2',
+        teks: 'Angklung 3 menghasilkan bunyi paling tinggi dibandingkan angklung 2 dan 1',
+        kunciJawaban: 'Benar',
+      },
+      {
+        id: 'ipa26-stmt-3',
+        teks: 'Angklung 1 menghasilkan bunyi lebih tinggi daripada angklung 2 dan lebih rendah daripada angklung 3',
+        kunciJawaban: 'Salah',
+      },
+    ],
+    pembahasan: `Semakin kecil/pendek ukuran tabung bambu angklung, getaran udaranya makin cepat sehingga frekuensi tinggi (nada tinggi). Urutan ukuran dari besar ke kecil adalah 1 → 2 → 3, sehingga urutan nada dari terendah ke tertinggi adalah 1 < 2 < 3. Kunci: Benar, Benar, Salah.`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:26:00Z',
+    updatedAt: '2026-02-01T10:26:00Z',
+  },
+  // IPA 27: PILGAN (Sifat-Sifat Cahaya pada Senter)
+  {
+    id: 'ipa-27',
+    mapelId: 'ipa',
+    topik: 'Sifat-Sifat Cahaya',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Saat mati listrik di malam hari, diperlukan sumber pencahayaan darurat seperti gambar berikut.
+
+Sifat cahaya yang bekerja saat alat tersebut dinyalakan adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q27_senter.png',
+    gambarAlt: 'Senter berwarna merah yang sedang menyala dengan reflektor dan kaca bening',
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'penguraian dan pemantulan oleh kaca' },
+      { label: 'B', teks: 'merambat lurus dan penguraian cahaya oleh reflektor' },
+      { label: 'C', teks: 'menembus benda bening dan pemantulan oleh udara' },
+      { label: 'D', teks: 'pemantulan oleh reflektor dan menembus benda bening' },
+    ],
+    pembahasan: `Di dalam senter, cahaya lampu dipantulkan ke depan oleh cermin cekung (reflektor) kemudian keluar menembus kaca penutup senter yang merupakan benda bening. Jadi sifat cahaya yang bekerja adalah pemantulan oleh reflektor dan menembus benda bening (D).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:27:00Z',
+    updatedAt: '2026-02-01T10:27:00Z',
+  },
+  // IPA 28: PILGAN (Ciri-Ciri Planet Tata Surya)
+  {
+    id: 'ipa-28',
+    mapelId: 'ipa',
+    topik: 'Tata Surya & Karakteristik Planet',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Bu Rini meminta muridnya menuliskan ciri-ciri salah satu planet. Hasil pekerjaan tersebut terlihat seperti berikut.
+
+Nama murid yang menuliskan ciri-ciri planet dengan benar adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q28_ciri_planet.png',
+    gambarAlt: 'Kartu catatan ciri planet milik Rista, Dimas, Ibnu, dan Sofi',
+    pilganKunci: 'D',
+    pilganOptions: [
+      { label: 'A', teks: 'Rista dan Dimas' },
+      { label: 'B', teks: 'Dimas dan Ibnu' },
+      { label: 'C', teks: 'Rista dan Sofi' },
+      { label: 'D', teks: 'Ibnu dan Sofi' },
+    ],
+    pembahasan: `• Rista (Saturnus): Salah pada poin 2 karena kala revolusi paling lama adalah Neptunus.
+• Dimas (Mars): Salah pada poin 2 karena planet terpanas adalah Venus, bukan Mars.
+• Ibnu (Venus): Benar, Venus berotasi dari timur ke barat dan kala rotasinya lebih lama daripada kala revolusinya.
+• Sofi (Jupiter): Benar, Jupiter merupakan planet terbesar sekaligus memiliki kala rotasi paling cepat.
+Jadi yang benar adalah Ibnu dan Sofi (D).`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:28:00Z',
+    updatedAt: '2026-02-01T10:28:00Z',
+  },
+  // IPA 29: MCMA (Akibat Rotasi dan Revolusi Bumi)
+  {
+    id: 'ipa-29',
+    mapelId: 'ipa',
+    topik: 'Rotasi dan Revolusi Bumi',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'mcma',
+    teksSoal: `Perhatikan tabel akibat gerakan bumi berikut!
+
+Manakah penjelasan yang benar tentang akibat dari rotasi dan revolusi bumi? (Jawaban benar lebih dari satu)`,
+    gambarUrl: '/assets/ipas_tka_2026/q29_tabel_bumi.png',
+    gambarAlt: 'Tabel akibat rotasi dan revolusi bumi nomor 1, 2, dan 3',
+    mcmaKunci: ['B', 'C'],
+    mcmaScoringMode: 'proportional',
+    mcmaOptions: [
+      { id: 'A', label: 'A', teks: 'nomor 1' },
+      { id: 'B', label: 'B', teks: 'nomor 2' },
+      { id: 'C', label: 'C', teks: 'nomor 3' },
+    ],
+    pembahasan: `• Baris 1 (Salah): Kalender Hijriah didasarkan pada revolusi bulan terhadap bumi, sedangkan pergantian siang-malam akibat rotasi bumi.
+• Baris 2 (Benar): Gerak semu harian matahari (terbit di timur dan tenggelam di barat) akibat rotasi bumi, serta dasar kalender Masehi akibat revolusi bumi.
+• Baris 3 (Benar): Perbedaan waktu (WIB dan WIT) akibat rotasi bumi, dan perbedaan musim akibat revolusi bumi beserta kemiringan sumbunya.`,
+    pembuatId: 'usr-guru-2',
+    pembuatNama: 'Siti Rahmawati, S.Pd.',
+    createdAt: '2026-02-01T10:29:00Z',
+    updatedAt: '2026-02-01T10:29:00Z',
+  },
+  // IPA 30: PILGAN (Gerhana Bulan & Matahari)
+  {
+    id: 'ipa-30',
+    mapelId: 'ipa',
+    topik: 'Gerhana Bulan dan Matahari',
+    tingkatKesulitan: 'sedang',
+    modelSoal: 'pilgan',
+    teksSoal: `Gerhana terjadi karena adanya pergerakan bumi, bulan, dan matahari yang saling berhubungan seperti tampak pada gambar berikut.
+
+Pernyataan yang benar sesuai gambar tersebut adalah ....`,
+    gambarUrl: '/assets/ipas_tka_2026/q30_gerhana.png',
+    gambarAlt: 'Diagram gerhana bulan dengan posisi bulan nomor 1, 2, 3, dan 4 di belakang bumi',
+    pilganKunci: 'C',
+    pilganOptions: [
+      { label: 'A', teks: 'Gerhana bulan total terjadi saat bulan berada di posisi nomor 1.' },
+      { label: 'B', teks: 'Gerhana matahari total terjadi saat bulan berada di posisi nomor 2.' },
+      { label: 'C', teks: 'Gerhana bulan sebagian terjadi saat bulan berada di posisi nomor 3.' },
+      { label: 'D', teks: 'Gerhana matahari sebagian terjadi saat bulan berada di posisi nomor 4.' },
+    ],
+    pembahasan: `Pada gambar, Bumi berada di antara Matahari dan Bulan sehingga peristiwa yang terjadi adalah gerhana bulan. Pada posisi 4, bulan seluruhnya masuk ke umbra bumi (gerhana bulan total). Pada posisi 3, sebagian bulan berada di umbra dan sebagian di penumbra sehingga terjadi gerhana bulan sebagian (C).`,
+    pembuatId: 'usr-guru-1',
+    pembuatNama: 'Budi Santoso, S.Pd.',
+    createdAt: '2026-02-01T10:30:00Z',
+    updatedAt: '2026-02-01T10:30:00Z',
   },
 ];
 
@@ -2281,19 +2906,23 @@ export const INITIAL_PACKAGES: ExamPackage[] = [
   },
   {
     id: 'pkg-3',
-    judul: 'Evaluasi IPA & Sains Alam Terpadu (IPAS SD)',
+    judul: 'Tryout TKA IPAS / Literasi Sains SD/MI 2026 (30 Soal Lengkap)',
     mapelId: 'ipa',
-    deskripsi: 'Evaluasi pemahaman konsep ekosistem mahluk hidup, rantai makanan, bagian tumbuhan/hewan, dan pemeliharaan lingkungan hidup di sekitar kita.',
-    durasiMenit: 35,
+    deskripsi: 'Paket lengkap 30 soal TKA Literasi Sains / Ilmu Pengetahuan Alam Sekolah Dasar (SD/MI) 2026 mencakup Pancaindra & Sistem Organ, Ekosistem & Adaptasi, Wujud Benda & Energi, Gaya & Bunyi-Cahaya, serta Tata Surya.',
+    durasiMenit: 60,
     bobotBenar: 4,
     bobotSalah: 0,
     bobotKosong: 0,
-    acakSoal: true,
+    acakSoal: false,
     acakOpsi: false,
     waktuBuka: '2026-01-01T00:00:00Z',
     waktuTutup: '2026-12-31T23:59:59Z',
     kelasAkses: ['semua'],
-    soalIds: ['ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10'],
+    soalIds: [
+      'ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10',
+      'ipa-11', 'ipa-12', 'ipa-13', 'ipa-14', 'ipa-15', 'ipa-16', 'ipa-17', 'ipa-18', 'ipa-19', 'ipa-20',
+      'ipa-21', 'ipa-22', 'ipa-23', 'ipa-24', 'ipa-25', 'ipa-26', 'ipa-27', 'ipa-28', 'ipa-29', 'ipa-30',
+    ],
     status: 'terbit',
     izinkanLihatPembahasan: true,
     deteksiPindahTab: true,
@@ -2432,23 +3061,27 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-raditya-ipa-1',
     paketId: 'pkg-3',
-    paketJudul: 'Evaluasi IPA & Sains Alam Terpadu (IPAS SD)',
+    paketJudul: 'Tryout TKA IPAS / Literasi Sains SD/MI 2026 (30 Soal Lengkap)',
     mapelId: 'ipa',
     muridId: 'usr-murid-1',
     muridNama: 'Raditya Pratama',
     kelasNama: 'Kelas 6A',
     waktuMulai: '2026-02-20T09:00:00Z',
-    waktuSelesai: '2026-02-20T09:27:00Z',
-    durasiDetikTerpakai: 1620,
-    sisaDetik: 480,
+    waktuSelesai: '2026-02-20T09:42:00Z',
+    durasiDetikTerpakai: 2520,
+    sisaDetik: 1080,
     status: 'selesai',
-    shuffledSoalIds: ['ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10'],
+    shuffledSoalIds: [
+      'ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10',
+      'ipa-11', 'ipa-12', 'ipa-13', 'ipa-14', 'ipa-15', 'ipa-16', 'ipa-17', 'ipa-18', 'ipa-19', 'ipa-20',
+      'ipa-21', 'ipa-22', 'ipa-23', 'ipa-24', 'ipa-25', 'ipa-26', 'ipa-27', 'ipa-28', 'ipa-29', 'ipa-30',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 37,
-    skorMaksimal: 40,
+    totalSkor: 111,
+    skorMaksimal: 120,
     persentaseNilai: 92.5,
-    jumlahBenar: 9,
-    jumlahSalah: 1,
+    jumlahBenar: 27,
+    jumlahSalah: 3,
     jumlahKosong: 0,
     answers: {},
   },
@@ -2507,23 +3140,27 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-annisa-ipa-1',
     paketId: 'pkg-3',
-    paketJudul: 'Evaluasi IPA & Sains Alam Terpadu (IPAS SD)',
+    paketJudul: 'Tryout TKA IPAS / Literasi Sains SD/MI 2026 (30 Soal Lengkap)',
     mapelId: 'ipa',
     muridId: 'usr-murid-2',
     muridNama: 'Annisa Rahmawati',
     kelasNama: 'Kelas 6A',
     waktuMulai: '2026-02-24T10:00:00Z',
-    waktuSelesai: '2026-02-24T10:28:00Z',
-    durasiDetikTerpakai: 1680,
-    sisaDetik: 420,
+    waktuSelesai: '2026-02-24T10:40:00Z',
+    durasiDetikTerpakai: 2400,
+    sisaDetik: 1200,
     status: 'selesai',
-    shuffledSoalIds: ['ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10'],
+    shuffledSoalIds: [
+      'ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10',
+      'ipa-11', 'ipa-12', 'ipa-13', 'ipa-14', 'ipa-15', 'ipa-16', 'ipa-17', 'ipa-18', 'ipa-19', 'ipa-20',
+      'ipa-21', 'ipa-22', 'ipa-23', 'ipa-24', 'ipa-25', 'ipa-26', 'ipa-27', 'ipa-28', 'ipa-29', 'ipa-30',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 36,
-    skorMaksimal: 40,
+    totalSkor: 108,
+    skorMaksimal: 120,
     persentaseNilai: 90.0,
-    jumlahBenar: 9,
-    jumlahSalah: 1,
+    jumlahBenar: 27,
+    jumlahSalah: 3,
     jumlahKosong: 0,
     answers: {},
   },
@@ -2555,7 +3192,7 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-fajar-ipa',
     paketId: 'pkg-3',
-    paketJudul: 'Evaluasi IPA & Sains Alam Terpadu (IPAS SD)',
+    paketJudul: 'Tryout TKA IPAS / Literasi Sains SD/MI 2026 (30 Soal Lengkap)',
     mapelId: 'ipa',
     muridId: 'usr-murid-3',
     muridNama: 'Fajar Nugraha',
@@ -2563,15 +3200,19 @@ export const INITIAL_SESSIONS: ExamSession[] = [
     waktuMulai: '2026-02-15T10:00:00Z',
     waktuSelesai: '2026-02-15T10:44:00Z',
     durasiDetikTerpakai: 2640,
-    sisaDetik: 360,
+    sisaDetik: 960,
     status: 'selesai',
-    shuffledSoalIds: ['ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10'],
+    shuffledSoalIds: [
+      'ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10',
+      'ipa-11', 'ipa-12', 'ipa-13', 'ipa-14', 'ipa-15', 'ipa-16', 'ipa-17', 'ipa-18', 'ipa-19', 'ipa-20',
+      'ipa-21', 'ipa-22', 'ipa-23', 'ipa-24', 'ipa-25', 'ipa-26', 'ipa-27', 'ipa-28', 'ipa-29', 'ipa-30',
+    ],
     jumlahPelanggaranTab: 1,
-    totalSkor: 34,
-    skorMaksimal: 40,
+    totalSkor: 102,
+    skorMaksimal: 120,
     persentaseNilai: 85.0,
-    jumlahBenar: 8,
-    jumlahSalah: 2,
+    jumlahBenar: 25,
+    jumlahSalah: 5,
     jumlahKosong: 0,
     answers: {},
   },
@@ -2657,23 +3298,27 @@ export const INITIAL_SESSIONS: ExamSession[] = [
   {
     id: 'ses-zahra-ipa-1',
     paketId: 'pkg-3',
-    paketJudul: 'Evaluasi IPA & Sains Alam Terpadu (IPAS SD)',
+    paketJudul: 'Tryout TKA IPAS / Literasi Sains SD/MI 2026 (30 Soal Lengkap)',
     mapelId: 'ipa',
     muridId: 'usr-murid-4',
     muridNama: 'Zahra Aulia',
     kelasNama: 'Kelas 6A',
     waktuMulai: '2026-02-28T09:00:00Z',
-    waktuSelesai: '2026-02-28T09:25:00Z',
-    durasiDetikTerpakai: 1500,
-    sisaDetik: 600,
+    waktuSelesai: '2026-02-28T09:40:00Z',
+    durasiDetikTerpakai: 2400,
+    sisaDetik: 1200,
     status: 'selesai',
-    shuffledSoalIds: ['ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10'],
+    shuffledSoalIds: [
+      'ipa-1', 'ipa-2', 'ipa-3', 'ipa-4', 'ipa-5', 'ipa-6', 'ipa-7', 'ipa-8', 'ipa-9', 'ipa-10',
+      'ipa-11', 'ipa-12', 'ipa-13', 'ipa-14', 'ipa-15', 'ipa-16', 'ipa-17', 'ipa-18', 'ipa-19', 'ipa-20',
+      'ipa-21', 'ipa-22', 'ipa-23', 'ipa-24', 'ipa-25', 'ipa-26', 'ipa-27', 'ipa-28', 'ipa-29', 'ipa-30',
+    ],
     jumlahPelanggaranTab: 0,
-    totalSkor: 36,
-    skorMaksimal: 40,
+    totalSkor: 108,
+    skorMaksimal: 120,
     persentaseNilai: 90.0,
-    jumlahBenar: 9,
-    jumlahSalah: 1,
+    jumlahBenar: 27,
+    jumlahSalah: 3,
     jumlahKosong: 0,
     answers: {},
   },

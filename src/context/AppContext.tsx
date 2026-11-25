@@ -155,7 +155,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEY_PREFIX = 'paketsinau_cbt_sd_v2_';
-const SEED_VERSION = 'tka_bind_sd_2026_v2';
+const SEED_VERSION = 'tka_ipas_sd_2026_v1';
 const FALLBACK_ADMINS: User[] = INITIAL_USERS.filter((u) => u.role === 'admin');
 
 function migrateSeedDataIfNeeded() {
@@ -168,13 +168,14 @@ function migrateSeedDataIfNeeded() {
     if (savedQuestionsRaw) {
       const savedQuestions: Question[] = JSON.parse(savedQuestionsRaw);
       const nonSeedSubjects = savedQuestions
-        .filter((q) => !q.id.startsWith('mtk-') && !q.id.startsWith('bind-'))
+        .filter((q) => !q.id.startsWith('mtk-') && !q.id.startsWith('bind-') && !q.id.startsWith('ipa-'))
         .map(sanitizeQuestionPilgan);
       const newMtk = INITIAL_QUESTIONS.filter((q) => q.id.startsWith('mtk-'));
       const newBind = INITIAL_QUESTIONS.filter((q) => q.id.startsWith('bind-'));
+      const newIpa = INITIAL_QUESTIONS.filter((q) => q.id.startsWith('ipa-'));
       localStorage.setItem(
         `${STORAGE_KEY_PREFIX}questions`,
-        JSON.stringify([...newMtk, ...newBind, ...nonSeedSubjects])
+        JSON.stringify([...newMtk, ...newBind, ...newIpa, ...nonSeedSubjects])
       );
     }
 
@@ -196,6 +197,7 @@ function migrateSeedDataIfNeeded() {
       const savedPackages: ExamPackage[] = JSON.parse(savedPackagesRaw);
       const defaultPkg1 = INITIAL_PACKAGES.find((p) => p.id === 'pkg-1');
       const defaultPkg2 = INITIAL_PACKAGES.find((p) => p.id === 'pkg-2');
+      const defaultPkg3 = INITIAL_PACKAGES.find((p) => p.id === 'pkg-3');
       let nextPackages = savedPackages;
       if (defaultPkg1) {
         nextPackages = nextPackages.some((p) => p.id === 'pkg-1')
@@ -207,6 +209,11 @@ function migrateSeedDataIfNeeded() {
           ? nextPackages.map((p) => (p.id === 'pkg-2' ? defaultPkg2 : p))
           : [...nextPackages, defaultPkg2];
       }
+      if (defaultPkg3) {
+        nextPackages = nextPackages.some((p) => p.id === 'pkg-3')
+          ? nextPackages.map((p) => (p.id === 'pkg-3' ? defaultPkg3 : p))
+          : [...nextPackages, defaultPkg3];
+      }
       localStorage.setItem(`${STORAGE_KEY_PREFIX}packages`, JSON.stringify(nextPackages));
     }
 
@@ -215,7 +222,7 @@ function migrateSeedDataIfNeeded() {
       const savedSessions: ExamSession[] = JSON.parse(savedSessionsRaw);
       const updatedSeedMap = new Map(
         INITIAL_SESSIONS.filter(
-          (s) => s.mapelId === 'matematika' || s.mapelId === 'bahasa_indonesia'
+          (s) => s.mapelId === 'matematika' || s.mapelId === 'bahasa_indonesia' || s.mapelId === 'ipa'
         ).map((s) => [s.id, s])
       );
       const nextSessions = savedSessions.map((s) => updatedSeedMap.get(s.id) || s);
@@ -226,7 +233,7 @@ function migrateSeedDataIfNeeded() {
     if (savedActiveRaw) {
       const savedActive: ExamSession = JSON.parse(savedActiveRaw);
       if (
-        (savedActive.paketId === 'pkg-1' || savedActive.paketId === 'pkg-2') &&
+        (savedActive.paketId === 'pkg-1' || savedActive.paketId === 'pkg-2' || savedActive.paketId === 'pkg-3') &&
         savedActive.shuffledSoalIds.length <= 10
       ) {
         localStorage.removeItem(`${STORAGE_KEY_PREFIX}active_session`);
